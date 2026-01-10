@@ -1,9 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
-import { ArrowLeft, Clock, Lock, CheckCircle, Zap, Trophy, Edit, Code, Skull, BookOpen } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import { ArrowLeft, Clock, CheckCircle, Zap, Trophy, Skull, BookOpen } from 'lucide-react';
 import { clsx } from 'clsx';
 import { useTimeline } from '../hooks/useTimeline';
-import { useAuth } from '../hooks/useAuth';
 import { useGameEngine } from '../hooks/useGameEngine';
 
 // Mission > Set hierarchy
@@ -13,17 +12,6 @@ interface QuestSet {
     status: 'locked' | 'open' | 'passed' | 'failed' | 'corroded';
     score: number;
 }
-
-// Teacher Metadata (Hidden from Student View usually, but kept in data)
-interface MissionMetadata {
-    rawTitle: string; // e.g. "2024 Sep Mock"
-    tags: string[]; // ["Week 1", "Grammar"]
-}
-
-const MOCK_METADATA: MissionMetadata = {
-    rawTitle: "2024 Sep Mock Exam",
-    tags: ["Week 1", "Vocabulary", "High Priority"]
-};
 
 // Mock Sets - Mix of passed, open, locked for demo
 const MOCK_SETS: QuestSet[] = Array.from({ length: 8 }, (_, i) => ({
@@ -35,9 +23,9 @@ const MOCK_SETS: QuestSet[] = Array.from({ length: 8 }, (_, i) => ({
 }));
 
 export const QuestProgressView: React.FC = () => {
-    const { id } = useParams();
+    // const { id } = useParams(); // Unused
     const navigate = useNavigate();
-    const { role, user } = useAuth(); // Hook
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { addXp, addPoints, logError } = useGameEngine();
 
     // Derived UI State
@@ -59,11 +47,10 @@ export const QuestProgressView: React.FC = () => {
             }, 500);
             return () => clearTimeout(timer);
         }
-    }, [isConquered, rewardClaimed]);
+    }, [isConquered, rewardClaimed, addXp, addPoints]);
 
     // Mock Mission Metadata
     const missionName = "Week 1: The Awakening"; // Paraphrased Name
-    const totalWords = 160;
 
     // Use state to keep deadline stable and prevent infinite loop in useTimeline
     const [deadline] = useState(() => new Date(Date.now() + 86400000 * 2).toISOString());

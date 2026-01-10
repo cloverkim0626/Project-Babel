@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { paraphraseTitle } from '../utils/koreanNamer';
 import { Map, Crown, Lock, Globe, Brain } from 'lucide-react';

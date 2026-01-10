@@ -1,14 +1,13 @@
-import React, { useState } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
-import { ArrowLeft, Heart, Zap, CheckCircle, XCircle } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import { ArrowLeft, Heart, Zap } from 'lucide-react';
 
-const MissionPlay: React.FC = () => {
+const MissionPlay = () => {
     const navigate = useNavigate();
-    const { id } = useParams();
+    // const { id } = useParams(); // Unused
 
-    // Mock State for Prototype
-    const [progress, setProgress] = useState(0);
-    const [answer, setAnswer] = useState('');
+    // Mock State for Prototype - unused for now
+    // const [progress, setProgress] = useState(0);
+    // const [answer, setAnswer] = useState('');
 
     return (
         <div className="min-h-screen bg-black text-white font-mono flex flex-col items-center justify-center p-4">

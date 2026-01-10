@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { clsx } from 'clsx';
-import { Timer, AlertTriangle, CheckCircle, XCircle, Sparkles, Book } from 'lucide-react';
+import { Timer, CheckCircle, XCircle, Sparkles, Book } from 'lucide-react';
 
 interface Question {
     id: string;
@@ -56,7 +56,10 @@ export const TestEngine: React.FC<TestEngineProps> = ({ onComplete, onExit }) =>
         if (timeLeft === 0 && !isFailed) handleFail("Time Expired");
     }, [timeLeft]);
 
-    const handleFail = (reason: string) => setIsFailed(true);
+    const handleFail = (reason: string) => {
+        console.log(`Mission Failed: ${reason}`);
+        setIsFailed(true);
+    };
 
     const handleAnswer = (answer: string) => {
         if (feedback) return;

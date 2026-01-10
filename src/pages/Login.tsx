@@ -1,8 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
-import { Shield, Lock, Mail, User, ArrowRight, AlertCircle } from 'lucide-react';
-import { clsx } from 'clsx';
+import { Shield, Lock, Mail, ArrowRight, AlertCircle } from 'lucide-react';
 
 export default function Login() {
     const navigate = useNavigate();

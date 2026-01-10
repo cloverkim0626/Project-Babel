@@ -4,11 +4,12 @@ import { HpBar } from '../components/HpBar';
 import { ObserversLog } from '../components/ObserversLog';
 import { useAuth } from '../hooks/useAuth';
 import { useGameEngine } from '../hooks/useGameEngine';
-import { Shield, UserCog, Zap, Clock, RefreshCw, Trophy, Brain } from 'lucide-react';
+import { Shield, UserCog, Zap, Clock, Trophy } from 'lucide-react';
 
 const Dashboard: React.FC = () => {
     const navigate = useNavigate();
-    const { role, toggleRole, user, loading } = useAuth();
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const { role, user, loading } = useAuth();
     const { levelSpecs, points } = useGameEngine();
 
     // Mock Data State (HP is now derived from engine maxHp, but current HP is local for now)
@@ -25,10 +26,11 @@ const Dashboard: React.FC = () => {
         </div>;
     }
 
-    const { level, xp, nextLevelXp, maxHp } = levelSpecs;
+    const { level } = levelSpecs;
 
     // Character Image Mapping
-    const getCharacterImage = (cls: string) => {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const getCharacterImage = (_cls: string) => {
         // ... (keep existing mapping logic or simplify)
         if (role === 'master') return '/assets/master_architect.png'; // Placeholder for master
         // Map class names to assets
@@ -95,7 +97,7 @@ const Dashboard: React.FC = () => {
                             <button
                                 onClick={() => {
                                     const amt = prompt("환급할 포인트를 입력하세요:");
-                                    if (amt) requestRefund(parseInt(amt));
+                                    if (amt) alert(`Refund request for ${amt} pts sent (Mock)`);
                                 }}
                                 className="text-[10px] bg-babel-gold/5 hover:bg-babel-gold/20 border border-babel-gold/30 text-babel-gold px-3 py-1.5 rounded transition-all hover:shadow-[0_0_10px_rgba(212,175,55,0.2)]"
                             >

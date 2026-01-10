@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
 import { useGameEngine } from '../hooks/useGameEngine';
 import { splitQuest } from '../utils/questSplitter';
-import { Shield, BookOpen, Save, Users, Calendar, DollarSign, FileText, Check, X } from 'lucide-react';
+import { Shield, BookOpen, Save, Calendar, DollarSign, FileText, Check, X } from 'lucide-react';
 import { clsx } from 'clsx';
 
 export default function TeacherDashboard() {

@@ -22,13 +22,22 @@ const NOUNS = [
 ];
 
 export const paraphraseTitle = (rawTitle: string): { display: string; sub: string } => {
-    // 1. Check for hardcoded overrides or specific patterns
-    if (rawTitle.includes('Sep') && rawTitle.includes('Mock')) {
-        return { display: '9월의 결전 (Sep Battle)', sub: '가을의 전설이 시작된다.' };
-    }
+    // 1. Check for specific keywords in map
+    for (const [key, values] of Object.entries(KEYWORD_MAP)) {
+        if (rawTitle.toLowerCase().includes(key.toLowerCase())) {
+            // Pick deterministic random based on string length
+            const idx = rawTitle.length % values.length;
+            const noun = values[idx];
+            // Get random adjective based on hash
+            let hash = 0;
+            for (let i = 0; i < rawTitle.length; i++) hash = rawTitle.charCodeAt(i) + ((hash << 5) - hash);
+            const adj = ADJECTIVES[Math.abs(hash) % ADJECTIVES.length];
 
-    if (rawTitle.toLowerCase().includes('voca')) {
-        return { display: '시작의 들판 (Field of Beginnings)', sub: '언어의 마력이 깃든 곳' };
+            return {
+                display: `${adj} ${noun} (The ${key})`,
+                sub: `Origin: ${rawTitle}`
+            };
+        }
     }
 
     // 2. Random Generation fallback

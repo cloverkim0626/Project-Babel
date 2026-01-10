@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react'; // Verified Build 4:51
 import { supabase } from '../../lib/supabase';
 import { extractWordsFromText, type RichWord } from '../../services/ai/extractionService';
 import { ArrowLeft, Save, Plus, Brain, CheckSquare, Trash2, Layers, Check, Edit2, X, RefreshCw } from 'lucide-react';

@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useEffect, useState, useRef } from 'react';
+import React, { createContext, useContext, useEffect, useState } from 'react';
 import { supabase } from '../lib/supabase';
 
 export interface UserProfile {
@@ -24,7 +24,6 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
     const [user, setUser] = useState<UserProfile | null>(null);
     const [loading, setLoading] = useState(true);
-    const initializedRef = useRef(false); // Prevent double init
 
     // Helper to set fallback user from session
     const setFallbackUser = (sessionUser: any) => {

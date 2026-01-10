@@ -75,21 +75,26 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         let mounted = true;
 
         const initAuth = async () => {
-            if (initializedRef.current) return; // Already initialized
-            initializedRef.current = true;
+            console.log('[AuthContext] initAuth running...');
 
             try {
                 const { data: { session }, error } = await supabase.auth.getSession();
+                console.log('[AuthContext] Session check:', session ? 'EXISTS' : 'NONE', error);
+
                 if (error) throw error;
 
                 if (session?.user && mounted) {
-                    setFallbackUser(session.user); // Immediate access
-                    await fetchProfile(session.user.id);
+                    console.log('[AuthContext] Setting fallback user:', session.user.email);
+                    setFallbackUser(session.user); // Immediate access with master role
+                    setLoading(false); // Unlock UI immediately
+                    // Background fetch for full profile (optional upgrade)
+                    fetchProfile(session.user.id);
                 } else if (mounted) {
+                    console.log('[AuthContext] No session, setting loading=false');
                     setLoading(false);
                 }
             } catch (e) {
-                console.error("AuthContext Init Error:", e);
+                console.error("[AuthContext] Init Error:", e);
                 if (mounted) setLoading(false);
             }
         };

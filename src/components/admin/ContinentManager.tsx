@@ -419,7 +419,7 @@ export const ContinentManager: React.FC<ContinentManagerProps> = ({ continent, i
 
                                         return (
                                             <>
-                                                {allWords.map((word, flattenedIdx) => (
+                                                {allWords.map((word) => (
                                                     <div key={`${word._passageId}-${word._wordIndex}`} className="bg-stone-900 p-4 rounded-xl border border-white/5 group hover:border-babel-gold/30 transition-all relative">
 
                                                         {/* Compact Header */}

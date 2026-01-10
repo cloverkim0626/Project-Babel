@@ -38,11 +38,13 @@ export const ProjectList = ({ onCreate: _legacyOnCreate }: { onCreate: () => voi
         setLoading(false);
     };
 
-    const handleCreateProject = async (name: string, displayName: string, themeColor: string) => {
+    const handleCreateProject = async (name: string, displayName: string, themeColor: string, metadata: any) => {
+        // Ensure metadata is a valid object before insert
         const { error } = await supabase.from('continents').insert({
             name,
             display_name: displayName,
-            theme_color: themeColor
+            theme_color: themeColor,
+            metadata: metadata // New Column
         });
 
         if (error) {

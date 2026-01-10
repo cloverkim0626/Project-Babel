@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { supabase } from '../../lib/supabase';
-import { Users, Target, Check, BarChart2, Layers, BookOpen, ChevronRight, ChevronDown, Sparkles, Trash2, Globe, Filter, AlertCircle, Scroll, Crown } from 'lucide-react';
+import { Users, Target, Check, BarChart2, BookOpen, ChevronRight, ChevronDown, Sparkles, Trash2, Globe, AlertCircle, Scroll, Crown } from 'lucide-react';
 import type { RichWord } from '../../services/ai/extractionService';
 
 // --- Styling & Aesthetic ---
@@ -57,7 +57,7 @@ export const MissionDistributor: React.FC<MissionDistributorProps> = ({ onClose 
     // --- State: Config ---
     const [durationWeeks, setDurationWeeks] = useState(4);
     const [wordsPerSeq, setWordsPerSeq] = useState(20);
-    const [pointsPerSeq, setPointsPerSeq] = useState(10);
+    const [pointsPerSeq] = useState(10);
     const [missionTitle, setMissionTitle] = useState('새로운 탐험 (New Expedition)');
 
     // --- State: Students ---

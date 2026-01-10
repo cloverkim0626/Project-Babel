@@ -16,5 +16,11 @@ if (!isValid) {
 }
 
 export const supabase = isValid
-    ? createClient(supabaseUrl, supabaseAnonKey)
+    ? createClient(supabaseUrl, supabaseAnonKey, {
+        auth: {
+            persistSession: true,
+            autoRefreshToken: true,
+            detectSessionInUrl: true
+        }
+    })
     : createClient('https://placeholder.supabase.co', 'placeholder');

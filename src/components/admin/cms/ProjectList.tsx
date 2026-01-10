@@ -12,6 +12,7 @@ interface Continent {
     theme_color: string;
     image_url: string;
     created_at: string;
+    isNew?: boolean;
 }
 
 export const ProjectList = ({ onCreate: _legacyOnCreate }: { onCreate: () => void }) => {

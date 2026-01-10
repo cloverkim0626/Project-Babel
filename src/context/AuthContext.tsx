@@ -61,7 +61,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
                     points: data.points || 0
                 });
             }
-        } catch (err) {
+        } catch (err: any) {
+            // Ignore AbortErrors
+            if (err?.message?.includes('abort') || err?.name === 'AbortError') return;
             console.error("AuthContext Exception:", err);
             const session = (await supabase.auth.getSession()).data.session;
             setFallbackUser(session?.user);
@@ -92,7 +94,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
                     console.log('[AuthContext] No session, setting loading=false');
                     setLoading(false);
                 }
-            } catch (e) {
+            } catch (e: any) {
+                // Ignore AbortErrors - these happen during navigation and are harmless
+                if (e?.message?.includes('abort') || e?.name === 'AbortError') {
+                    console.log('[AuthContext] Request aborted (navigation)');
+                    return;
+                }
                 console.error("[AuthContext] Init Error:", e);
                 if (mounted) setLoading(false);
             }

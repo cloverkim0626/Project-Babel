@@ -334,61 +334,149 @@ export const ContinentManager: React.FC<ContinentManagerProps> = ({ continent, o
                             </div>
 
                             {/* Right Pane: Analysis & Edit */}
-                            <div className="w-1/2 bg-black/40 p-6 overflow-y-auto flex flex-col">
-                                <div className="flex justify-between items-center mb-6 pb-4 border-b border-white/10">
+                            <div className="w-1/2 bg-black/80 p-6 overflow-y-auto flex flex-col border-l border-white/5">
+                                <div className="flex justify-between items-center mb-6 pb-4 border-b border-white/10 sticky top-0 bg-black/95 z-10 backdrop-blur-sm">
                                     <h2 className="text-xl text-white font-bold flex items-center gap-2">
                                         <Brain size={18} className="text-babel-gold" />
-                                        AI 분석 결과 (Preview)
+                                        AI 분석 결과 (AI Analysis)
                                     </h2>
                                     <button
                                         onClick={runAIStats}
-                                        className="px-4 py-2 bg-stone-800 hover:bg-stone-700 text-babel-gold hover:text-white border border-babel-gold/30 rounded text-sm transition-colors flex items-center gap-2"
+                                        className="px-4 py-2 bg-stone-800 hover:bg-stone-700 text-babel-gold hover:text-white border border-babel-gold/30 rounded text-sm transition-colors flex items-center gap-2 shadow-[0_0_15px_rgba(212,175,55,0.1)]"
                                     >
                                         <Brain size={14} /> 현재 지문 분석 실행
                                     </button>
                                 </div>
 
-                                <div className="flex-1">
+                                <div className="flex-1 space-y-4">
                                     {analyzedData[activeInputId] ? (
-                                        <div className="space-y-4">
-                                            <div className="p-3 bg-blue-900/10 border border-blue-500/20 rounded text-blue-300 text-xs mb-4">
-                                                💡 단어 정보를 직접 수정하거나 삭제할 수 있습니다. 수정된 내용은 "전체 저장" 시 함께 저장됩니다.
+                                        <>
+                                            <div className="p-3 bg-blue-900/20 border border-blue-500/20 rounded text-blue-300 text-xs flex items-start gap-2">
+                                                <span>💡</span>
+                                                <span>
+                                                    AI가 분석한 어휘 정보입니다.
+                                                    불필요한 단어는 <Trash2 size={10} className="inline" /> 버튼으로 삭제하고,
+                                                    뜻이나 유의어/반의어가 부정확하면 직접 수정해주세요.
+                                                    "전체 저장" 시 이 내용이 최종 저장됩니다.
+                                                </span>
                                             </div>
 
                                             {analyzedData[activeInputId].map((word, idx) => (
-                                                <div key={idx} className="bg-stone-800 p-3 rounded border border-white/5 group hover:border-white/20 transition-colors">
-                                                    <div className="flex justify-between items-start mb-2">
-                                                        <input
-                                                            className="bg-transparent font-bold text-babel-gold text-lg outline-none w-1/2"
-                                                            value={word.word}
-                                                            onChange={(e) => updateAnalyzedWord(activeInputId, idx, { word: e.target.value })}
-                                                        />
-                                                        <button onClick={() => removeAnalyzedWord(activeInputId, idx)} className="text-stone-600 hover:text-red-400 opacity-0 group-hover:opacity-100 transition-opacity">
-                                                            <Trash2 size={14} />
+                                                <div key={idx} className="bg-stone-900 p-4 rounded-xl border border-white/5 group hover:border-babel-gold/30 transition-all relative">
+
+                                                    {/* Header: Word & Phonetic & POS */}
+                                                    <div className="flex justify-between items-start mb-3 border-b border-white/5 pb-2">
+                                                        <div className="flex items-end gap-3">
+                                                            <input
+                                                                className="bg-transparent font-bold text-babel-gold text-xl outline-none w-32"
+                                                                value={word.word}
+                                                                onChange={(e) => updateAnalyzedWord(activeInputId, idx, { word: e.target.value })}
+                                                            />
+                                                            <input
+                                                                className="bg-transparent text-stone-500 text-xs font-mono outline-none w-24 mb-1"
+                                                                value={word.phonetic}
+                                                                placeholder="/IPA/"
+                                                                onChange={(e) => updateAnalyzedWord(activeInputId, idx, { phonetic: e.target.value })}
+                                                            />
+                                                            <input
+                                                                className="bg-stone-800 text-stone-300 text-[10px] px-1.5 py-0.5 rounded outline-none w-12 text-center mb-1"
+                                                                value={word.part_of_speech}
+                                                                placeholder="POS"
+                                                                onChange={(e) => updateAnalyzedWord(activeInputId, idx, { part_of_speech: e.target.value })}
+                                                            />
+                                                        </div>
+                                                        <button
+                                                            onClick={() => removeAnalyzedWord(activeInputId, idx)}
+                                                            className="text-stone-600 hover:text-red-400 p-1 hover:bg-red-900/20 rounded transition-colors"
+                                                            title="단어 삭제"
+                                                        >
+                                                            <Trash2 size={16} />
                                                         </button>
                                                     </div>
 
-                                                    <div className="space-y-2">
-                                                        <input
-                                                            className="w-full bg-black/30 border border-white/10 rounded p-2 text-sm text-stone-300 outline-none focus:border-white/30"
-                                                            placeholder="Meaning"
-                                                            value={word.meaning_context}
-                                                            onChange={(e) => updateAnalyzedWord(activeInputId, idx, { meaning_context: e.target.value })}
-                                                        />
-                                                        <input
-                                                            className="w-full bg-black/30 border border-white/10 rounded p-2 text-xs text-stone-500 outline-none focus:border-white/30"
-                                                            placeholder="Example Sentence"
-                                                            value={word.similar_examples?.[0] || ''}
-                                                            onChange={(e) => updateAnalyzedWord(activeInputId, idx, { similar_examples: [e.target.value] })}
+                                                    {/* Meanings (KR) */}
+                                                    <div className="mb-3 space-y-1">
+                                                        <label className="text-[10px] uppercase text-stone-600 font-bold block">Meanings (KR)</label>
+                                                        <div className="flex gap-2">
+                                                            {[0, 1, 2].map(i => (
+                                                                <input
+                                                                    key={i}
+                                                                    className="flex-1 bg-black/40 border border-white/10 rounded px-2 py-1.5 text-xs text-stone-300 outline-none focus:border-babel-gold/50"
+                                                                    placeholder={`뜻 ${i + 1}`}
+                                                                    value={word.meanings_kr?.[i] || ''}
+                                                                    onChange={(e) => {
+                                                                        const newMeanings = [...(word.meanings_kr || [])];
+                                                                        newMeanings[i] = e.target.value;
+                                                                        updateAnalyzedWord(activeInputId, idx, { meanings_kr: newMeanings });
+                                                                    }}
+                                                                />
+                                                            ))}
+                                                        </div>
+                                                    </div>
+
+                                                    {/* Synonyms & Antonyms */}
+                                                    <div className="grid grid-cols-2 gap-4 mb-3">
+                                                        <div className="space-y-1">
+                                                            <label className="text-[10px] uppercase text-stone-600 font-bold block">Synonyms (유의어)</label>
+                                                            <div className="space-y-1">
+                                                                {[0, 1, 2].map(i => (
+                                                                    <input
+                                                                        key={i}
+                                                                        className="w-full bg-black/40 border border-white/10 rounded px-2 py-1 text-[11px] text-stone-400 outline-none focus:border-babel-gold/50"
+                                                                        placeholder={`Syn ${i + 1}`}
+                                                                        value={word.synonyms?.[i] || ''}
+                                                                        onChange={(e) => {
+                                                                            const newSyns = [...(word.synonyms || [])];
+                                                                            newSyns[i] = e.target.value;
+                                                                            updateAnalyzedWord(activeInputId, idx, { synonyms: newSyns });
+                                                                        }}
+                                                                    />
+                                                                ))}
+                                                            </div>
+                                                        </div>
+                                                        <div className="space-y-1">
+                                                            <label className="text-[10px] uppercase text-stone-600 font-bold block">Antonyms (반의어)</label>
+                                                            <div className="space-y-1">
+                                                                {[0, 1, 2].map(i => (
+                                                                    <input
+                                                                        key={i}
+                                                                        className="w-full bg-black/40 border border-white/10 rounded px-2 py-1 text-[11px] text-stone-400 outline-none focus:border-babel-gold/50"
+                                                                        placeholder={`Ant ${i + 1}`}
+                                                                        value={word.antonyms?.[i] || ''}
+                                                                        onChange={(e) => {
+                                                                            const newAnts = [...(word.antonyms || [])];
+                                                                            newAnts[i] = e.target.value;
+                                                                            updateAnalyzedWord(activeInputId, idx, { antonyms: newAnts });
+                                                                        }}
+                                                                    />
+                                                                ))}
+                                                            </div>
+                                                        </div>
+                                                    </div>
+
+                                                    {/* Example Variations */}
+                                                    <div className="space-y-1">
+                                                        <label className="text-[10px] uppercase text-stone-600 font-bold block">Example Variation (예문)</label>
+                                                        <textarea
+                                                            className="w-full bg-black/40 border border-white/10 rounded px-2 py-2 text-xs text-stone-400 outline-none focus:border-babel-gold/50 h-16 resize-none leading-relaxed"
+                                                            placeholder="예문 입력..."
+                                                            value={word.example_variations?.[0] || ''}
+                                                            onChange={(e) => {
+                                                                // Simplified to 1 main example for layout sanity, though data structure supports array
+                                                                updateAnalyzedWord(activeInputId, idx, { example_variations: [e.target.value] });
+                                                            }}
                                                         />
                                                     </div>
+
                                                 </div>
                                             ))}
-                                        </div>
+
+                                            <div className="h-20"></div> {/* Bottom Padding */}
+                                        </>
                                     ) : (
                                         <div className="h-full flex flex-col items-center justify-center text-stone-600 space-y-4">
-                                            <Brain size={48} className="opacity-20" />
-                                            <p>왼쪽에서 지문을 선택하고 "분석 실행"을 눌러주세요.</p>
+                                            <Brain size={48} className="opacity-10" />
+                                            <p className="text-sm">왼쪽에서 지문을 선택하고 <br />상단의 <span className="text-babel-gold">"분석 실행"</span>을 눌러주세요.</p>
                                         </div>
                                     )}
                                 </div>

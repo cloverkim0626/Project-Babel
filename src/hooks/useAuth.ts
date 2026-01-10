@@ -43,13 +43,7 @@ export const useAuth = () => {
             }
         };
 
-        // SAFETY TIMEOUT: Force stop loading after 5 seconds to prevent "Verifying..." hang
-        const safetyTimer = setTimeout(() => {
-            if (mounted && loading) {
-                console.warn("Auth check timed out - forcing Loading to false");
-                setLoading(false);
-            }
-        }, 5000);
+
 
         // Helper to set fallback user from session
         const setFallbackUser = (sessionUser: any) => {

@@ -30,12 +30,13 @@ interface NewPassageInput {
 
 interface ContinentManagerProps {
     continent: Continent;
+    initialView?: 'list' | 'add';
     onClose: () => void;
 }
 
-export const ContinentManager: React.FC<ContinentManagerProps> = ({ continent, onClose }) => {
+export const ContinentManager: React.FC<ContinentManagerProps> = ({ continent, initialView = 'list', onClose }) => {
     // View State
-    const [view, setView] = useState<'list' | 'add'>('list');
+    const [view, setView] = useState<'list' | 'add'>(initialView);
     const [passages, setPassages] = useState<Passage[]>([]);
     const [selectedIds, setSelectedIds] = useState<string[]>([]);
 

@@ -40,17 +40,21 @@ export const ProjectList = ({ onCreate: _legacyOnCreate }: { onCreate: () => voi
 
     const handleCreateProject = async (name: string, displayName: string, themeColor: string, metadata: any) => {
         // Ensure metadata is a valid object before insert
-        const { error } = await supabase.from('continents').insert({
+        const { data, error } = await supabase.from('continents').insert({
             name,
             display_name: displayName,
             theme_color: themeColor,
             metadata: metadata // New Column
-        });
+        }).select().single();
 
         if (error) {
             alert("생성 실패: " + error.message);
         } else {
-            fetchContinents();
+            // Success: Switch to this project immediately
+            // Tag it as 'isNew' to trigger initialView='add' downstream
+            const newProject = { ...data, isNew: true };
+            setContinents(prev => [newProject, ...prev]); // Optimistic update
+            setSelectedContinent(newProject);
             setShowCreateModal(false);
         }
     };
@@ -78,6 +82,7 @@ export const ProjectList = ({ onCreate: _legacyOnCreate }: { onCreate: () => voi
             {selectedContinent && (
                 <ContinentManager
                     continent={selectedContinent}
+                    initialView={selectedContinent.isNew ? 'add' : 'list'}
                     onClose={() => {
                         setSelectedContinent(null);
                         fetchContinents(); // Refresh list on close

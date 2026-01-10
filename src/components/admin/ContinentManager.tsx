@@ -190,11 +190,8 @@ export const ContinentManager: React.FC<ContinentManagerProps> = ({ continent, i
     // --- Render ---
 
     if (isDistributing) {
-        const selectedPassages = passages.filter(p => selectedIds.includes(p.id));
         return <MissionDistributor
             onClose={() => setIsDistributing(false)}
-            initialPassages={selectedPassages}
-            missionTitle={`Mission: ${continent.display_name}`}
         />;
     }
 

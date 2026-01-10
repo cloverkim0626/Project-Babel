@@ -44,7 +44,7 @@ export const MissionDistributor: React.FC<MissionDistributorProps> = ({ onClose 
     // --- State: Config ---
     const [durationWeeks, setDurationWeeks] = useState(4);
     const [wordsPerSeq, setWordsPerSeq] = useState(20);
-    const [pointsPerSeq, setPointsPerSeq] = useState(10);
+    const [pointsPerSeq] = useState(10);
     const [missionTitle, setMissionTitle] = useState('New Vocabulary Mission');
 
     // --- State: Students ---

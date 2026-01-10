@@ -98,6 +98,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
                 // Ignore AbortErrors - these happen during navigation and are harmless
                 if (e?.message?.includes('abort') || e?.name === 'AbortError') {
                     console.log('[AuthContext] Request aborted (navigation)');
+                    // STILL unlock UI even on abort!
+                    if (mounted) setLoading(false);
                     return;
                 }
                 console.error("[AuthContext] Init Error:", e);

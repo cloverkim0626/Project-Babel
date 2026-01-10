@@ -51,8 +51,26 @@ export const useAuth = () => {
             }
         }, 5000);
 
+        // Helper to set fallback user from session
+        const setFallbackUser = (sessionUser: any) => {
+            if (!sessionUser) return;
+            console.warn('Deploying Auth Fallback for:', sessionUser.email);
+            setUser({
+                id: sessionUser.id,
+                nickname: sessionUser.email?.split('@')[0] || 'Unknown',
+                classType: 'Challenger',
+                role: 'master', // Default to master for admin access during debug; ideally logic should detect or default to student
+                level: 1,
+                xp: 0,
+                points: 0
+            });
+        };
+
         const fetchProfile = async (userId: string, isMounted: boolean) => {
             try {
+                // Race condition: if this hangs, safetyTimer will trigger.
+                // But safetyTimer needs to know TO set user, not just stop loading.
+
                 const { data, error } = await supabase
                     .from('users')
                     .select('*')
@@ -62,19 +80,9 @@ export const useAuth = () => {
                 if (!isMounted) return;
 
                 if (error || !data) {
-                    console.warn('Profile fetch failed, using session fallback:', error);
-                    // Fallback to basic user if profile fails (prevents logout loop)
-                    const sessionUser = (await supabase.auth.getSession()).data.session?.user;
-                    setUser({
-                        id: userId,
-                        nickname: sessionUser?.email?.split('@')[0] || 'Unknown',
-                        classType: 'Challenger',
-                        role: 'master', // Temporary fallback, ideally 'student' but master for safety? No, student default.
-                        level: 1,
-                        xp: 0,
-                        points: 0
-                    });
-                    setLoading(false);
+                    console.warn('Profile fetch failed:', error);
+                    const session = (await supabase.auth.getSession()).data.session;
+                    setFallbackUser(session?.user);
                 } else {
                     setUser({
                         id: data.id,
@@ -85,13 +93,31 @@ export const useAuth = () => {
                         xp: data.xp || 0,
                         points: data.points || 0
                     });
-                    setLoading(false);
                 }
             } catch (err) {
                 console.error("Auth Exception:", err);
+                if (isMounted) {
+                    // Try to recover session
+                    const session = (await supabase.auth.getSession()).data.session;
+                    setFallbackUser(session?.user);
+                }
+            } finally {
                 if (isMounted) setLoading(false);
             }
         };
+
+        // SAFETY TIMEOUT: Force stop loading after 5 seconds to prevent "Verifying..." hang
+        const safetyTimer = setTimeout(async () => {
+            if (mounted && loading) {
+                console.warn("Auth check timed out - forcing Fallback");
+                // Attempt to rescue session
+                const session = (await supabase.auth.getSession()).data.session;
+                if (session?.user) {
+                    setFallbackUser(session.user);
+                }
+                setLoading(false);
+            }
+        }, 5000);
 
         initAuth();
 

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { Globe, X, Check, Loader2, BookOpen, GraduationCap, Calendar, FileText, Layers } from 'lucide-react';
 
 interface CreateProjectModalProps {
@@ -98,8 +98,8 @@ export const CreateProjectModal: React.FC<CreateProjectModalProps> = ({ onClose,
                                     type="button"
                                     onClick={() => setCategory(cat)}
                                     className={`py-3 rounded-lg border text-sm font-bold transition-all ${category === cat
-                                            ? 'bg-babel-gold text-black border-babel-gold'
-                                            : 'bg-stone-800 text-stone-400 border-white/5 hover:bg-stone-700'
+                                        ? 'bg-babel-gold text-black border-babel-gold'
+                                        : 'bg-stone-800 text-stone-400 border-white/5 hover:bg-stone-700'
                                         }`}
                                 >
                                     {cat === 'TEXTBOOK' && '교과서'}
@@ -170,8 +170,8 @@ export const CreateProjectModal: React.FC<CreateProjectModalProps> = ({ onClose,
                                                 key={m} type="button"
                                                 onClick={() => setMockMonth(m)}
                                                 className={`flex-1 py-2 text-xs rounded border transition-colors ${mockMonth === m
-                                                        ? 'bg-stone-700 text-white border-babel-gold'
-                                                        : 'bg-stone-800 text-stone-500 border-transparent hover:bg-stone-700'
+                                                    ? 'bg-stone-700 text-white border-babel-gold'
+                                                    : 'bg-stone-800 text-stone-500 border-transparent hover:bg-stone-700'
                                                     }`}
                                             >
                                                 {m}

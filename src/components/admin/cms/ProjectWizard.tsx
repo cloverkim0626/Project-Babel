@@ -11,6 +11,10 @@ interface QueueItem {
     text: string;
 }
 
+interface ExtendedRichWord extends RichWord {
+    source_question_ref?: string;
+}
+
 export const ProjectWizard = ({ onCancel, onComplete }: { onCancel: () => void, onComplete: () => void }) => {
     const { user } = useAuth();
     const [step, setStep] = useState<1 | 2>(1);
@@ -40,7 +44,7 @@ export const ProjectWizard = ({ onCancel, onComplete }: { onCancel: () => void, 
     const [queue, setQueue] = useState<QueueItem[]>([]);
 
     // Results State
-    const [extractedWords, setExtractedWords] = useState<RichWord[]>([]);
+    const [extractedWords, setExtractedWords] = useState<ExtendedRichWord[]>([]);
     const [isExtracting, setIsExtracting] = useState(false);
 
     // --- Helpers ---
@@ -82,7 +86,7 @@ export const ProjectWizard = ({ onCancel, onComplete }: { onCancel: () => void, 
         setExtractedWords([]); // Clear previous
 
         try {
-            const allResults: RichWord[] = [];
+            const allResults: ExtendedRichWord[] = [];
 
             // Process sequentially for prototype (parallelize in prod)
             for (const item of queue) {
@@ -100,7 +104,7 @@ export const ProjectWizard = ({ onCancel, onComplete }: { onCancel: () => void, 
         }
     };
 
-    const updateWord = (index: number, field: keyof RichWord, value: string) => {
+    const updateWord = (index: number, field: keyof ExtendedRichWord, value: any) => {
         const newWords = [...extractedWords];
         // @ts-ignore
         newWords[index] = { ...newWords[index], [field]: value };
@@ -414,14 +418,18 @@ export const ProjectWizard = ({ onCancel, onComplete }: { onCancel: () => void, 
                                                     <div className="flex gap-2">
                                                         <span className="text-[10px] text-stone-500 bg-white/5 px-1 rounded">{item.phonetic}</span>
                                                         <input
-                                                            value={item.meaning_context}
-                                                            onChange={e => updateWord(idx, 'meaning_context', e.target.value)}
+                                                            value={item.meanings_kr?.[0] || ''}
+                                                            onChange={e => {
+                                                                const newMeanings = [...(item.meanings_kr || [])];
+                                                                newMeanings[0] = e.target.value;
+                                                                updateWord(idx, 'meanings_kr', newMeanings);
+                                                            }}
                                                             className="bg-transparent text-sm text-babel-gold outline-none w-full placeholder-stone-600"
                                                             placeholder="Meaning..."
                                                         />
                                                     </div>
-                                                    {item.source_sentence && (
-                                                        <p className="text-[10px] text-stone-500 italic truncate">"{item.source_sentence}"</p>
+                                                    {item.example_variations?.[0] && (
+                                                        <p className="text-[10px] text-stone-500 italic truncate">"{item.example_variations[0]}"</p>
                                                     )}
                                                     <div className="flex gap-1 text-[10px] text-stone-600">
                                                         <span>Syn: {item.synonyms?.slice(0, 2).join(', ')}</span>

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { supabase } from '../../lib/supabase';
 import { extractWordsFromText, type RichWord } from '../../services/ai/extractionService';
-import { ArrowLeft, Save, Plus, Brain, CheckSquare, Trash2, Layers, Check, Edit2, X, ChevronRight } from 'lucide-react';
+import { ArrowLeft, Save, Plus, Brain, CheckSquare, Trash2, Layers, Check, Edit2, X, ChevronRight, RefreshCw } from 'lucide-react';
 import { MissionDistributor } from './MissionDistributor';
 
 // Types
@@ -43,12 +43,13 @@ export const ContinentManager: React.FC<ContinentManagerProps> = ({ continent, i
     // Distribution State
     const [isDistributing, setIsDistributing] = useState(false);
 
-    // Bulk Add State
+    // Workspace State (Add/Edit)
     const [newPassages, setNewPassages] = useState<NewPassageInput[]>([
         { id: 'new-1', title: '1', content: '' }
     ]);
     const [analyzedData, setAnalyzedData] = useState<Record<string, RichWord[]>>({}); // id -> words
     const [activeInputId, setActiveInputId] = useState<string>('new-1');
+    const [isAnalyzing, setIsAnalyzing] = useState(false);
 
     // --- Data Fetching ---
     useEffect(() => {
@@ -65,7 +66,21 @@ export const ContinentManager: React.FC<ContinentManagerProps> = ({ continent, i
         if (data) setPassages(data);
     };
 
-    // --- Bulk Add Logic ---
+    const loadPassageToEdit = (passage: Passage) => {
+        // Load existing passage into workspace
+        setNewPassages([{
+            id: passage.id,
+            title: passage.title.replace('지문 ', ''),
+            content: passage.content
+        }]);
+        setAnalyzedData({
+            [passage.id]: passage.words_data || []
+        });
+        setActiveInputId(passage.id);
+        setView('add');
+    };
+
+    // --- Workspace Logic ---
     const addSlot = () => {
         const newId = `new-${Date.now()}`;
         setNewPassages(prev => [...prev, {
@@ -77,6 +92,7 @@ export const ContinentManager: React.FC<ContinentManagerProps> = ({ continent, i
     };
 
     const removeSlot = (id: string) => {
+        if (newPassages.length === 1) return; // Prevent deleting last slot
         setNewPassages(prev => prev.filter(p => p.id !== id));
         if (activeInputId === id) {
             setActiveInputId(newPassages[0]?.id || '');
@@ -87,16 +103,25 @@ export const ContinentManager: React.FC<ContinentManagerProps> = ({ continent, i
         setNewPassages(prev => prev.map(p => p.id === id ? { ...p, [field]: value } : p));
     };
 
-    const runAIStats = async () => {
-        // Run analysis on the ACTIVE slot
-        const target = newPassages.find(p => p.id === activeInputId);
-        if (!target || !target.content.trim()) return alert("부석할 지문 내용이 없습니다.");
+    const runAnalyzeAll = async () => {
+        setIsAnalyzing(true);
+        try {
+            const updates: Record<string, RichWord[]> = {};
 
-        const richWords = await extractWordsFromText(target.content);
-        setAnalyzedData(prev => ({
-            ...prev,
-            [activeInputId]: richWords
-        }));
+            for (const p of newPassages) {
+                if (!p.content.trim()) continue;
+                // Only analyze if no data exists or user explicitly re-runs (this function is explicit re-run)
+                // Integrating mock delay per item would be slow, so assuming parallel or fast service
+                const richWords = await extractWordsFromText(p.content);
+                updates[p.id] = richWords;
+            }
+
+            setAnalyzedData(prev => ({ ...prev, ...updates }));
+        } catch (e) {
+            alert("Analysis Failed");
+        } finally {
+            setIsAnalyzing(false);
+        }
     };
 
     const updateAnalyzedWord = (passageId: string, wordIndex: number, newWord: Partial<RichWord>) => {
@@ -116,43 +141,50 @@ export const ContinentManager: React.FC<ContinentManagerProps> = ({ continent, i
     };
 
     const handleBulkSave = async () => {
-        // 1. Filter empty
         const valid = newPassages.filter(p => p.content.trim().length > 0);
         if (valid.length === 0) return alert("저장할 지문이 없습니다.");
 
-        // 2. Prepare Inserts
-        const payload = valid.map(p => ({
-            continent_id: continent.id,
-            title: `지문 ${p.title}`,
-            content: p.content,
-            word_count: p.content.trim().split(/\s+/).length,
-            words_data: analyzedData[p.id] || [] // Use modified AI data if exists
-        }));
+        // Separate Inserts and Updates
+        const toInsert = [];
+        const toUpdate = [];
 
-        // 3. Insert
-        const { error } = await supabase.from('passages').insert(payload);
+        for (const p of valid) {
+            const payload = {
+                continent_id: continent.id,
+                title: p.title.startsWith('지문') ? p.title : `지문 ${p.title}`,
+                content: p.content,
+                word_count: p.content.trim().split(/\s+/).length,
+                words_data: analyzedData[p.id] || []
+            };
 
-        if (error) {
-            console.error(error);
-            alert("저장 실패: " + error.message);
-        } else {
-            alert(`${valid.length}개 지문 저장 완료.`);
-            // Reset
+            if (p.id.startsWith('new-')) {
+                toInsert.push(payload);
+            } else {
+                toUpdate.push({ ...payload, id: p.id });
+            }
+        }
+
+        try {
+            if (toInsert.length > 0) {
+                const { error } = await supabase.from('passages').insert(toInsert);
+                if (error) throw error;
+            }
+            if (toUpdate.length > 0) {
+                for (const item of toUpdate) {
+                    const { error } = await supabase.from('passages').update(item).eq('id', item.id);
+                    if (error) throw error;
+                }
+            }
+
+            alert("저장 완료!");
+            // Reset workspace
             setNewPassages([{ id: 'new-1', title: '1', content: '' }]);
             setAnalyzedData({});
             setView('list');
             fetchPassages();
+        } catch (e: any) {
+            alert("저장 실패: " + e.message);
         }
-    };
-
-    // --- Selection Logic ---
-    const toggleSelect = (id: string) => {
-        setSelectedIds(prev => prev.includes(id) ? prev.filter(x => x !== id) : [...prev, id]);
-    };
-
-    const toggleSelectAll = () => {
-        if (selectedIds.length === passages.length) setSelectedIds([]);
-        else setSelectedIds(passages.map(p => p.id));
     };
 
     // --- Render ---
@@ -161,7 +193,7 @@ export const ContinentManager: React.FC<ContinentManagerProps> = ({ continent, i
         const selectedPassages = passages.filter(p => selectedIds.includes(p.id));
         return <MissionDistributor
             onClose={() => setIsDistributing(false)}
-            initialPassages={selectedPassages} // Pass selected passages
+            initialPassages={selectedPassages}
             missionTitle={`Mission: ${continent.display_name}`}
         />;
     }
@@ -201,13 +233,18 @@ export const ContinentManager: React.FC<ContinentManagerProps> = ({ continent, i
                         onClick={() => setView('list')}
                         className={`w-full text-left px-4 py-3 rounded flex items-center gap-3 transition-colors ${view === 'list' ? 'bg-babel-gold/10 text-babel-gold border border-babel-gold/30' : 'text-stone-400 hover:bg-white/5'}`}
                     >
-                        <CheckSquare size={16} /> 지문 보관함 (Library)
+                        <CheckSquare size={16} /> 지문 보관함
                     </button>
                     <button
-                        onClick={() => setView('add')}
+                        onClick={() => {
+                            // Reset to blank new state when explicitly clicking "Add"
+                            setNewPassages([{ id: 'new-1', title: '1', content: '' }]);
+                            setAnalyzedData({});
+                            setView('add');
+                        }}
                         className={`w-full text-left px-4 py-3 rounded flex items-center gap-3 transition-colors ${view === 'add' ? 'bg-babel-gold/10 text-babel-gold border border-babel-gold/30' : 'text-stone-400 hover:bg-white/5'}`}
                     >
-                        <Plus size={16} /> 지문 등록 및 분석
+                        <Plus size={16} /> 지문 등록 / 수정
                     </button>
                 </div>
 
@@ -220,32 +257,31 @@ export const ContinentManager: React.FC<ContinentManagerProps> = ({ continent, i
                                 <div className="flex justify-between items-center mb-6">
                                     <h2 className="text-2xl text-white font-serif">Library Content</h2>
                                     <div className="flex gap-2 text-xs">
-                                        <button onClick={toggleSelectAll} className="px-3 py-1 border border-white/20 rounded hover:bg-white/10 text-stone-300">
-                                            전체 선택 (Select All)
+                                        <button onClick={() => {
+                                            if (selectedIds.length === passages.length) setSelectedIds([]);
+                                            else setSelectedIds(passages.map(p => p.id));
+                                        }} className="px-3 py-1 border border-white/20 rounded hover:bg-white/10 text-stone-300">
+                                            전체 선택
                                         </button>
                                     </div>
                                 </div>
 
                                 <div className="space-y-2">
-                                    {passages.length === 0 && (
-                                        <div className="text-center py-20 text-stone-500 border border-dashed border-white/10 rounded-xl">
-                                            등록된 지문이 없습니다. "지문 등록 및 분석" 메뉴를 이용하세요.
-                                        </div>
-                                    )}
-
                                     {passages.map(p => {
                                         const isAnalyzed = p.words_data && Array.isArray(p.words_data) && p.words_data.length > 0;
                                         return (
                                             <div key={p.id} className={`p-4 rounded-lg border flex items-center gap-4 transition-all ${selectedIds.includes(p.id) ? 'bg-blue-900/20 border-blue-500/50' : 'bg-stone-800 border-white/5 hover:border-white/20'}`}>
-                                                <div onClick={() => toggleSelect(p.id)} className="cursor-pointer">
+                                                <div onClick={() => setSelectedIds(prev => prev.includes(p.id) ? prev.filter(x => x !== p.id) : [...prev, p.id])} className="cursor-pointer">
                                                     {selectedIds.includes(p.id) ?
                                                         <div className="w-5 h-5 bg-blue-500 rounded flex items-center justify-center text-white"><Check size={12} /></div> :
                                                         <div className="w-5 h-5 border border-stone-600 rounded"></div>
                                                     }
                                                 </div>
 
-                                                <div className="flex-1">
-                                                    <h3 className="text-white font-bold">{p.title}</h3>
+                                                <div className="flex-1 cursor-pointer group" onClick={() => loadPassageToEdit(p)}>
+                                                    <h3 className="text-white font-bold group-hover:text-babel-gold transition-colors flex items-center gap-2">
+                                                        {p.title} <Edit2 size={12} className="opacity-0 group-hover:opacity-100" />
+                                                    </h3>
                                                     <p className="text-stone-500 text-xs truncate w-96 opacity-70">{p.content.substring(0, 100)}...</p>
                                                 </div>
 
@@ -261,6 +297,15 @@ export const ContinentManager: React.FC<ContinentManagerProps> = ({ continent, i
                                                     ) : (
                                                         <div className="text-stone-600 text-xs">Unanalyzed</div>
                                                     )}
+
+                                                    <button onClick={async () => {
+                                                        if (confirm("정말 삭제하시겠습니까?")) {
+                                                            await supabase.from('passages').delete().eq('id', p.id);
+                                                            fetchPassages();
+                                                        }
+                                                    }} className="text-stone-600 hover:text-red-500 transition-colors">
+                                                        <Trash2 size={16} />
+                                                    </button>
                                                 </div>
                                             </div>
                                         );
@@ -277,14 +322,10 @@ export const ContinentManager: React.FC<ContinentManagerProps> = ({ continent, i
                             <div className="w-1/2 border-r border-white/10 p-6 overflow-y-auto bg-stone-900">
                                 <div className="flex justify-between items-center mb-6">
                                     <h2 className="text-xl text-white font-bold flex items-center gap-2"><Edit2 size={18} /> 지문 입력</h2>
-                                    <div className="flex gap-2">
-                                        <button onClick={addSlot} className="px-3 py-1.5 bg-stone-800 border border-white/10 rounded hover:bg-stone-700 text-white text-xs flex items-center gap-2">
-                                            <Plus size={14} /> 지문 추가
-                                        </button>
-                                        <button onClick={handleBulkSave} className="px-4 py-1.5 bg-babel-gold text-black font-bold rounded hover:bg-yellow-500 text-xs flex items-center gap-2">
-                                            <Save size={14} /> 전체 저장
-                                        </button>
-                                    </div>
+                                    <button onClick={addSlot} className="px-3 py-1.5 bg-stone-800 border border-white/10 rounded hover:bg-stone-700 text-white text-xs flex items-center gap-2">
+                                        <Plus size={14} /> 지문 추가
+                                    </button>
+                                    {/* Moved Save Button to Right Pane */}
                                 </div>
 
                                 <div className="space-y-6 pb-20">
@@ -314,21 +355,17 @@ export const ContinentManager: React.FC<ContinentManagerProps> = ({ continent, i
 
                                             <textarea
                                                 className="w-full h-48 bg-black/40 border border-white/10 rounded-lg p-3 text-stone-300 text-sm font-mono focus:border-babel-gold/50 outline-none resize-none leading-relaxed"
-                                                placeholder="지문 내용을 여기에 붙여넣으세요 (English Text Only)..."
+                                                placeholder="지문 내용을 여기에 붙여넣으세요..."
                                                 value={p.content}
                                                 onChange={(e) => updateSlot(p.id, 'content', e.target.value)}
                                             />
 
-                                            <div className="mt-2 flex justify-between items-center">
-                                                <div className="text-xs text-stone-500">
-                                                    {p.content.trim() ? p.content.trim().split(/\s+/).length : 0} words
+                                            {/* Analysis Indicator */}
+                                            {analyzedData[p.id] && (
+                                                <div className="mt-2 text-xs text-green-500 flex items-center gap-1">
+                                                    <Check size={12} /> {analyzedData[p.id].length} words analyzed
                                                 </div>
-                                                {activeInputId === p.id && (
-                                                    <div className="text-xs text-babel-gold animate-pulse font-bold flex items-center gap-1">
-                                                        Editing <ChevronRight size={12} />
-                                                    </div>
-                                                )}
-                                            </div>
+                                            )}
                                         </div>
                                     ))}
                                 </div>
@@ -339,145 +376,105 @@ export const ContinentManager: React.FC<ContinentManagerProps> = ({ continent, i
                                 <div className="flex justify-between items-center mb-6 pb-4 border-b border-white/10 sticky top-0 bg-black/95 z-10 backdrop-blur-sm">
                                     <h2 className="text-xl text-white font-bold flex items-center gap-2">
                                         <Brain size={18} className="text-babel-gold" />
-                                        AI 분석 결과 (AI Analysis)
+                                        AI 분석 결과
                                     </h2>
-                                    <button
-                                        onClick={runAIStats}
-                                        className="px-4 py-2 bg-stone-800 hover:bg-stone-700 text-babel-gold hover:text-white border border-babel-gold/30 rounded text-sm transition-colors flex items-center gap-2 shadow-[0_0_15px_rgba(212,175,55,0.1)]"
-                                    >
-                                        <Brain size={14} /> 현재 지문 분석 실행
-                                    </button>
+                                    <div className="flex gap-2">
+                                        <button
+                                            onClick={runAnalyzeAll}
+                                            disabled={isAnalyzing}
+                                            className="px-4 py-2 bg-stone-800 hover:bg-stone-700 text-babel-gold hover:text-white border border-babel-gold/30 rounded text-sm transition-colors flex items-center gap-2"
+                                        >
+                                            {isAnalyzing ? <RefreshCw size={14} className="animate-spin" /> : <Brain size={14} />}
+                                            전체 지문 분석
+                                        </button>
+                                        <button
+                                            onClick={handleBulkSave}
+                                            className="px-4 py-2 bg-babel-gold text-black font-bold rounded hover:bg-yellow-500 text-sm flex items-center gap-2 shadow-lg"
+                                        >
+                                            <Save size={14} /> 저장 (Update/Save)
+                                        </button>
+                                    </div>
                                 </div>
 
                                 <div className="flex-1 space-y-4">
                                     {analyzedData[activeInputId] ? (
                                         <>
-                                            <div className="p-3 bg-blue-900/20 border border-blue-500/20 rounded text-blue-300 text-xs flex items-start gap-2">
-                                                <span>💡</span>
-                                                <span>
-                                                    AI가 분석한 어휘 정보입니다.
-                                                    불필요한 단어는 <Trash2 size={10} className="inline" /> 버튼으로 삭제하고,
-                                                    뜻이나 유의어/반의어가 부정확하면 직접 수정해주세요.
-                                                    "전체 저장" 시 이 내용이 최종 저장됩니다.
-                                                </span>
-                                            </div>
-
                                             {analyzedData[activeInputId].map((word, idx) => (
                                                 <div key={idx} className="bg-stone-900 p-4 rounded-xl border border-white/5 group hover:border-babel-gold/30 transition-all relative">
 
-                                                    {/* Header: Word & Phonetic & POS */}
-                                                    <div className="flex justify-between items-start mb-3 border-b border-white/5 pb-2">
-                                                        <div className="flex items-end gap-3">
+                                                    {/* Compact Header */}
+                                                    <div className="flex justify-between items-center mb-2 pb-2 border-b border-white/5">
+                                                        <div className="flex items-center gap-3">
                                                             <input
-                                                                className="bg-transparent font-bold text-babel-gold text-xl outline-none w-32"
+                                                                className="bg-transparent font-bold text-babel-gold text-lg outline-none w-28"
                                                                 value={word.word}
                                                                 onChange={(e) => updateAnalyzedWord(activeInputId, idx, { word: e.target.value })}
                                                             />
                                                             <input
-                                                                className="bg-transparent text-stone-500 text-xs font-mono outline-none w-24 mb-1"
+                                                                className="bg-transparent text-stone-500 text-xs font-mono outline-none w-20"
                                                                 value={word.phonetic}
-                                                                placeholder="/IPA/"
                                                                 onChange={(e) => updateAnalyzedWord(activeInputId, idx, { phonetic: e.target.value })}
                                                             />
                                                             <input
-                                                                className="bg-stone-800 text-stone-300 text-[10px] px-1.5 py-0.5 rounded outline-none w-12 text-center mb-1"
+                                                                className="bg-stone-800 text-stone-300 text-[10px] px-1.5 py-0.5 rounded outline-none w-12 text-center"
                                                                 value={word.part_of_speech}
-                                                                placeholder="POS"
                                                                 onChange={(e) => updateAnalyzedWord(activeInputId, idx, { part_of_speech: e.target.value })}
                                                             />
                                                         </div>
                                                         <button
                                                             onClick={() => removeAnalyzedWord(activeInputId, idx)}
-                                                            className="text-stone-600 hover:text-red-400 p-1 hover:bg-red-900/20 rounded transition-colors"
-                                                            title="단어 삭제"
+                                                            className="text-stone-600 hover:text-red-400 p-1 rounded"
                                                         >
-                                                            <Trash2 size={16} />
+                                                            <Trash2 size={14} />
                                                         </button>
                                                     </div>
 
-                                                    {/* Meanings (KR) */}
-                                                    <div className="mb-3 space-y-1">
-                                                        <label className="text-[10px] uppercase text-stone-600 font-bold block">Meanings (KR)</label>
-                                                        <div className="flex gap-2">
-                                                            {[0, 1, 2].map(i => (
-                                                                <input
-                                                                    key={i}
-                                                                    className="flex-1 bg-black/40 border border-white/10 rounded px-2 py-1.5 text-xs text-stone-300 outline-none focus:border-babel-gold/50"
-                                                                    placeholder={`뜻 ${i + 1}`}
-                                                                    value={word.meanings_kr?.[i] || ''}
-                                                                    onChange={(e) => {
-                                                                        const newMeanings = [...(word.meanings_kr || [])];
-                                                                        newMeanings[i] = e.target.value;
-                                                                        updateAnalyzedWord(activeInputId, idx, { meanings_kr: newMeanings });
-                                                                    }}
-                                                                />
-                                                            ))}
-                                                        </div>
+                                                    {/* Compact Body - Meanings */}
+                                                    <div className="space-y-1 mb-2">
+                                                        {[0, 1, 2].map(i => (
+                                                            <input
+                                                                key={i}
+                                                                className="w-full bg-transparent border-b border-white/5 py-1 text-xs text-stone-300 outline-none focus:border-babel-gold/50 placeholder-stone-700"
+                                                                placeholder={`Meaning ${i + 1} (adj. meaning...)`}
+                                                                value={word.meanings_kr?.[i] || ''}
+                                                                onChange={(e) => {
+                                                                    const newMeanings = [...(word.meanings_kr || [])];
+                                                                    newMeanings[i] = e.target.value;
+                                                                    updateAnalyzedWord(activeInputId, idx, { meanings_kr: newMeanings });
+                                                                }}
+                                                            />
+                                                        ))}
                                                     </div>
 
-                                                    {/* Synonyms & Antonyms */}
-                                                    <div className="grid grid-cols-2 gap-4 mb-3">
-                                                        <div className="space-y-1">
-                                                            <label className="text-[10px] uppercase text-stone-600 font-bold block">Synonyms (유의어)</label>
-                                                            <div className="space-y-1">
-                                                                {[0, 1, 2].map(i => (
-                                                                    <input
-                                                                        key={i}
-                                                                        className="w-full bg-black/40 border border-white/10 rounded px-2 py-1 text-[11px] text-stone-400 outline-none focus:border-babel-gold/50"
-                                                                        placeholder={`Syn ${i + 1}`}
-                                                                        value={word.synonyms?.[i] || ''}
-                                                                        onChange={(e) => {
-                                                                            const newSyns = [...(word.synonyms || [])];
-                                                                            newSyns[i] = e.target.value;
-                                                                            updateAnalyzedWord(activeInputId, idx, { synonyms: newSyns });
-                                                                        }}
-                                                                    />
-                                                                ))}
-                                                            </div>
+                                                    {/* Compact Footer - Single Line Syn/Ant */}
+                                                    <div className="grid grid-cols-2 gap-4 text-[10px] text-stone-500">
+                                                        <div className="flex items-center gap-2">
+                                                            <span className="font-bold opacity-50">SYN</span>
+                                                            <input
+                                                                className="bg-transparent w-full outline-none text-stone-400"
+                                                                value={word.synonyms?.join(', ') || ''}
+                                                                onChange={(e) => updateAnalyzedWord(activeInputId, idx, { synonyms: e.target.value.split(',').map(s => s.trim()) })}
+                                                                placeholder="syn1, syn2, syn3"
+                                                            />
                                                         </div>
-                                                        <div className="space-y-1">
-                                                            <label className="text-[10px] uppercase text-stone-600 font-bold block">Antonyms (반의어)</label>
-                                                            <div className="space-y-1">
-                                                                {[0, 1, 2].map(i => (
-                                                                    <input
-                                                                        key={i}
-                                                                        className="w-full bg-black/40 border border-white/10 rounded px-2 py-1 text-[11px] text-stone-400 outline-none focus:border-babel-gold/50"
-                                                                        placeholder={`Ant ${i + 1}`}
-                                                                        value={word.antonyms?.[i] || ''}
-                                                                        onChange={(e) => {
-                                                                            const newAnts = [...(word.antonyms || [])];
-                                                                            newAnts[i] = e.target.value;
-                                                                            updateAnalyzedWord(activeInputId, idx, { antonyms: newAnts });
-                                                                        }}
-                                                                    />
-                                                                ))}
-                                                            </div>
+                                                        <div className="flex items-center gap-2">
+                                                            <span className="font-bold opacity-50">ANT</span>
+                                                            <input
+                                                                className="bg-transparent w-full outline-none text-stone-400"
+                                                                value={word.antonyms?.join(', ') || ''}
+                                                                onChange={(e) => updateAnalyzedWord(activeInputId, idx, { antonyms: e.target.value.split(',').map(s => s.trim()) })}
+                                                                placeholder="ant1, ant2, ant3"
+                                                            />
                                                         </div>
                                                     </div>
-
-                                                    {/* Example Variations */}
-                                                    <div className="space-y-1">
-                                                        <label className="text-[10px] uppercase text-stone-600 font-bold block">Example Variation (예문)</label>
-                                                        <textarea
-                                                            className="w-full bg-black/40 border border-white/10 rounded px-2 py-2 text-xs text-stone-400 outline-none focus:border-babel-gold/50 h-16 resize-none leading-relaxed"
-                                                            placeholder="예문 입력..."
-                                                            value={word.example_variations?.[0] || ''}
-                                                            onChange={(e) => {
-                                                                // Simplified to 1 main example for layout sanity, though data structure supports array
-                                                                updateAnalyzedWord(activeInputId, idx, { example_variations: [e.target.value] });
-                                                            }}
-                                                        />
-                                                    </div>
-
                                                 </div>
                                             ))}
-
-                                            <div className="h-20"></div> {/* Bottom Padding */}
+                                            <div className="h-20" />
                                         </>
                                     ) : (
                                         <div className="h-full flex flex-col items-center justify-center text-stone-600 space-y-4">
                                             <Brain size={48} className="opacity-10" />
-                                            <p className="text-sm">왼쪽에서 지문을 선택하고 <br />상단의 <span className="text-babel-gold">"분석 실행"</span>을 눌러주세요.</p>
+                                            <p className="text-sm">지문 입력 후 <br /><span className="text-babel-gold">"전체 지문 분석"</span>을 실행하세요.</p>
                                         </div>
                                     )}
                                 </div>

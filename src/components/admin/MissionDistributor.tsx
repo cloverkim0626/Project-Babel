@@ -105,9 +105,9 @@ export const MissionDistributor: React.FC<MissionDistributorProps> = ({ onClose 
                 console.log(`Loaded ${data?.length} passages for project ${projectId}`);
 
                 setPassagesMap(prev => ({ ...prev, [projectId]: data || [] }));
-            } catch (e) {
+            } catch (e: any) {
                 console.error("Failed to load passages:", e);
-                // Keep previous data if failed, or set empty? Safe to keep prev or empty.
+                setErrorMsg(e.message || "Failed to load scrolls.");
             } finally {
                 setLoadingPassages(prev => {
                     const next = new Set(prev);

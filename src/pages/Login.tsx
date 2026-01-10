@@ -32,12 +32,26 @@ export default function Login() {
                 alert('Sign up successful! You can now log in.');
                 setMode('signin');
             } else {
-                const { error } = await supabase.auth.signInWithPassword({
+                const { data: { session }, error } = await supabase.auth.signInWithPassword({
                     email,
                     password
                 });
                 if (error) throw error;
-                navigate('/dashboard');
+
+                // Fetch Role to determine redirect
+                if (session?.user) {
+                    const { data: profile } = await supabase
+                        .from('users')
+                        .select('role')
+                        .eq('id', session.user.id)
+                        .single();
+
+                    if (profile?.role === 'master' || profile?.role === 'admin') {
+                        navigate('/admin');
+                    } else {
+                        navigate('/dashboard');
+                    }
+                }
             }
         } catch (err: any) {
             setError(err.message);

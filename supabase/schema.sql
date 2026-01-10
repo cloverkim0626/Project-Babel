@@ -12,7 +12,7 @@ create table public.users (
   hp int default 100,
   max_hp int default 100,
   points int default 0, -- Available Currency/Reward Points
-  role text default 'student' check (role in ('student', 'admin')),
+  role text default 'student' check (role in ('student', 'master', 'admin')),
   created_at timestamp with time zone default timezone('utc'::text, now()) not null
 );
 
@@ -87,6 +87,7 @@ create table public.quest_sets (
     status text check (status in ('locked', 'open', 'passed', 'failed', 'corroded')) default 'locked',
     deadline timestamp with time zone, -- Inherited from Mission or specific
     score int default 0,
+    week_number int default 1, -- Distribution: Week 1, Week 2...
     created_at timestamp with time zone default timezone('utc'::text, now())
 );
 

@@ -18,61 +18,81 @@ export const useAuth = () => {
     const navigate = useNavigate();
 
     useEffect(() => {
-        // 1. Get Session
-        const getSession = async () => {
-            const { data: { session } } = await supabase.auth.getSession();
-            if (session?.user) {
-                await fetchProfile(session.user.id);
-            } else {
-                setLoading(false);
-                // If not locked behind RequireAuth, we don't force redirect here yet, 
-                // but usually we might want to.
+        let mounted = true;
+
+        const initAuth = async () => {
+            try {
+                // Check current session
+                const { data: { session }, error } = await supabase.auth.getSession();
+
+                if (error) {
+                    if (error.message.includes('AbortError')) return; // Ignore aborts
+                    throw error;
+                }
+
+                if (session?.user && mounted) {
+                    await fetchProfile(session.user.id, mounted);
+                } else if (!session && mounted) {
+                    setLoading(false);
+                }
+            } catch (err: any) {
+                console.error("Auth Init Error:", err);
+                if (mounted && !err.message?.includes('AbortError')) {
+                    setLoading(false);
+                }
             }
         };
 
-        getSession();
+        const fetchProfile = async (userId: string, isMounted: boolean) => {
+            try {
+                const { data, error } = await supabase
+                    .from('users')
+                    .select('*')
+                    .eq('id', userId)
+                    .single();
 
-        // 2. Listen for Auth Changes
+                if (!isMounted) return;
+
+                if (error) {
+                    console.error('Error fetching profile:', error);
+                    setLoading(false);
+                } else if (data) {
+                    setUser({
+                        id: data.id,
+                        nickname: data.nickname || 'Unknown',
+                        classType: data.class_type || 'Challenger',
+                        role: data.role || 'student',
+                        level: data.level || 1,
+                        xp: data.xp || 0,
+                        points: data.points || 0
+                    });
+                    setLoading(false);
+                }
+            } catch (err) {
+                if (isMounted) setLoading(false);
+            }
+        };
+
+        initAuth();
+
         const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
+            if (!mounted) return;
+
             if (event === 'SIGNED_IN' && session) {
-                await fetchProfile(session.user.id);
+                setLoading(true);
+                await fetchProfile(session.user.id, mounted);
             } else if (event === 'SIGNED_OUT') {
                 setUser(null);
+                setLoading(false);
                 navigate('/login');
             }
         });
 
-        return () => subscription.unsubscribe();
+        return () => {
+            mounted = false;
+            subscription.unsubscribe();
+        };
     }, [navigate]);
-
-    const fetchProfile = async (userId: string) => {
-        try {
-            const { data, error } = await supabase
-                .from('users')
-                .select('*')
-                .eq('id', userId)
-                .single();
-
-            if (error) {
-                console.error('Error fetching profile:', error);
-                // If profile missing (maybe manually deleted?), fallback or handle
-            } else if (data) {
-                setUser({
-                    id: data.id,
-                    nickname: data.nickname || 'Unknown',
-                    classType: data.class_type || 'Challenger',
-                    role: data.role || 'student',
-                    level: data.level || 1,
-                    xp: data.xp || 0,
-                    points: data.points || 0
-                });
-            }
-        } catch (err) {
-            console.error('Profile fetch failed:', err);
-        } finally {
-            setLoading(false);
-        }
-    };
 
     const signOut = async () => {
         await supabase.auth.signOut();
@@ -80,10 +100,9 @@ export const useAuth = () => {
 
     return {
         user,
-        role: user?.role || 'student', // Backward compatibility
+        role: user?.role || 'student',
         loading,
         signOut,
-        // Mock toggle removed, real roles are in DB
         isAuthenticated: !!user
     };
 };

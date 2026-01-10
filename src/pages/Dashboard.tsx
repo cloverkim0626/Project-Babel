@@ -20,11 +20,9 @@ const Dashboard: React.FC = () => {
         setCurrentHp(prev => Math.min(prev + 10, levelSpecs.maxHp));
     }, [levelSpecs.maxHp]);
 
-    if (loading || !user) {
-        return <div className="min-h-screen bg-black text-babel-gold flex items-center justify-center font-mono animate-pulse">
-            AUTHENTICATING ACCESS TOKEN...
-        </div>;
-    }
+    // Note: Auth loading is now handled by RoleGuard in App.tsx
+    if (loading) return null; // RoleGuard handles the loading spinner
+    if (!user) return null; // RoleGuard handles redirection
 
     const { level } = levelSpecs;
 

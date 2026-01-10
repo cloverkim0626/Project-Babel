@@ -1,6 +1,8 @@
 import React, { Suspense } from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
 import RiteOfSelection from './pages/RiteOfSelection';
+import { RoleGuard } from './components/auth/RoleGuard';
+
 const Login = React.lazy(() => import('./pages/Login'));
 const Dashboard = React.lazy(() => import('./pages/Dashboard'));
 const WorldMapView = React.lazy(() => import('./pages/WorldMap'));
@@ -17,12 +19,41 @@ function App() {
           <Route path="/" element={<Navigate to="/login" replace />} />
           <Route path="/login" element={<Login />} />
           <Route path="/select-class" element={<RiteOfSelection />} />
-          <Route path="/dashboard" element={<Dashboard />} />
-          <Route path="/world-map" element={<WorldMapView />} />
-          <Route path="/missions/:continentId" element={<MissionSelect />} />
-          <Route path="/quest-progress/:id" element={<QuestProgressView />} />
-          <Route path="/mission/:id/play" element={<MissionPlay />} />
-          <Route path="/admin" element={<TeacherDashboard />} />
+
+          {/* Student Routes */}
+          <Route path="/dashboard" element={
+            <RoleGuard allowedRoles={['student']}>
+              <Dashboard />
+            </RoleGuard>
+          } />
+          <Route path="/world-map" element={
+            <RoleGuard allowedRoles={['student']}>
+              <WorldMapView />
+            </RoleGuard>
+          } />
+          <Route path="/missions/:continentId" element={
+            <RoleGuard allowedRoles={['student']}>
+              <MissionSelect />
+            </RoleGuard>
+          } />
+          <Route path="/quest-progress/:id" element={
+            <RoleGuard allowedRoles={['student']}>
+              <QuestProgressView />
+            </RoleGuard>
+          } />
+          <Route path="/mission/:id/play" element={
+            <RoleGuard allowedRoles={['student']}>
+              <MissionPlay />
+            </RoleGuard>
+          } />
+
+          {/* Admin Routes */}
+          <Route path="/admin" element={
+            <RoleGuard allowedRoles={['master', 'admin']}>
+              <TeacherDashboard />
+            </RoleGuard>
+          } />
+
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </div>

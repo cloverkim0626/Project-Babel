@@ -1,104 +1,121 @@
-import React from 'react';
-import { useNavigate } from 'react-router-dom';
-import { useAuth } from '../hooks/useAuth';
-import { useGameEngine } from '../hooks/useGameEngine';
-import { Shield, DollarSign, Check, X } from 'lucide-react';
+import React, { useState } from 'react';
+import { BookOpen, Users, FileText, Settings, LogOut } from 'lucide-react';
 import { clsx } from 'clsx';
-import { ContinentManager } from '../components/admin/ContinentManager';
-import { QuestArchitect } from '../components/admin/QuestArchitect';
-import { StudentMonitor } from '../components/admin/StudentMonitor';
+import { useAuth } from '../hooks/useAuth';
+import { useNavigate } from 'react-router-dom';
+
+import { ProjectList } from '../components/admin/cms/ProjectList';
+import { ProjectWizard } from '../components/admin/cms/ProjectWizard';
+
+// Placeholder Components
+const StudentManager = () => <div className="p-8 text-stone-400">Student Database Component (Coming Soon)</div>;
+const PaperTestBuilder = () => <div className="p-8 text-stone-400">Paper Test Builder (Coming Soon)</div>;
 
 export default function TeacherDashboard() {
-    const { role } = useAuth();
+    const { signOut } = useAuth();
     const navigate = useNavigate();
-    const { refundRequests, processRefund } = useGameEngine();
+    const [activeTab, setActiveTab] = useState<'projects' | 'students' | 'print' | 'settings'>('projects');
+    const [showWizard, setShowWizard] = useState(false);
 
-    // Redirect if not master
-    React.useEffect(() => {
-        if (role !== 'master') {
-            navigate('/dashboard');
-        }
-    }, [role, navigate]);
-
-    // Statistics Mock (Keep for now)
-    const stats = {
-        totalStudents: 42,
-        activeQuests: 3,
-        dangerZoneStudents: 5
+    const handleSignOut = async () => {
+        await signOut();
+        navigate('/login');
     };
 
     return (
-        <div className="min-h-screen bg-obsidian text-paper font-mono p-4 md:p-8">
-            <header className="flex items-center justify-between border-b border-purple-500/30 pb-6 mb-8">
-                <div>
-                    <h1 className="text-3xl font-serif text-purple-400 flex items-center gap-3">
-                        <Shield className="fill-current" />
-                        Control Tower
-                    </h1>
-                    <p className="text-xs text-stone-500 uppercase tracking-widest mt-1">
-                        Administrator Access Level: Alpha
-                    </p>
+        <div className="min-h-screen bg-stone-900 text-stone-200 font-sans flex text-sm">
+            {/* Sidebar */}
+            <aside className="w-64 bg-black border-r border-white/10 flex flex-col">
+                <div className="p-6 border-b border-white/10">
+                    <h1 className="text-xl font-serif text-babel-gold tracking-widest">BABEL<span className="text-stone-500 text-xs block mt-1 font-sans">Control Tower</span></h1>
                 </div>
-                <div className="flex gap-4 text-xs">
-                    <div className="px-4 py-2 bg-purple-900/20 border border-purple-500/30 rounded text-purple-300">
-                        Active Students: <span className="text-white font-bold">{stats.totalStudents}</span>
+
+                <nav className="flex-1 p-4 space-y-1">
+                    <SidebarItem
+                        icon={<BookOpen size={18} />}
+                        label="Project Manager"
+                        active={activeTab === 'projects'}
+                        onClick={() => setActiveTab('projects')}
+                    />
+                    <SidebarItem
+                        icon={<Users size={18} />}
+                        label="Student DB"
+                        active={activeTab === 'students'}
+                        onClick={() => setActiveTab('students')}
+                    />
+                    <SidebarItem
+                        icon={<FileText size={18} />}
+                        label="Paper Test"
+                        active={activeTab === 'print'}
+                        onClick={() => setActiveTab('print')}
+                    />
+                    <div className="pt-4 mt-4 border-t border-white/10">
+                        <SidebarItem
+                            icon={<Settings size={18} />}
+                            label="Settings"
+                            active={activeTab === 'settings'}
+                            onClick={() => setActiveTab('settings')}
+                        />
                     </div>
-                    <button onClick={() => navigate('/dashboard')} className="hover:text-white transition-colors">
-                        [Exit to Student View]
+                </nav>
+
+                <div className="p-4 border-t border-white/10">
+                    <button
+                        onClick={handleSignOut}
+                        className="flex items-center gap-3 text-stone-500 hover:text-red-400 transition-colors w-full px-4 py-2"
+                    >
+                        <LogOut size={18} />
+                        <span>Sign Out</span>
                     </button>
                 </div>
-            </header>
+            </aside>
 
-            <main className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                {/* Quest Creator Panel is now split into specific managers */}
-                <div className="space-y-8">
-                    <ContinentManager />
-                    <QuestArchitect />
-                </div>
-
-                {/* Right Column: Student Monitor & Refunds */}
-                <div className="space-y-8">
-                    <StudentMonitor />
-
-                    {/* Refund Requests Monitor */}
-                    <div className="bg-black/40 border border-white/10 rounded-xl p-6">
-                        <h3 className="text-sm font-bold text-stone-400 mb-4 uppercase tracking-widest flex items-center gap-2">
-                            <DollarSign size={14} className="text-green-500" /> Refund Requests (Cash Out)
-                        </h3>
-
-                        <div className="space-y-2 max-h-60 overflow-y-auto pr-2 custom-scrollbar">
-                            {refundRequests.length === 0 ? (
-                                <div className="text-xs text-stone-600 italic text-center py-8">No pending requests</div>
-                            ) : (
-                                refundRequests.map((req) => (
-                                    <div key={req.id} className="flex items-center justify-between p-3 bg-white/5 rounded border border-white/10 hover:border-white/20 transition-colors">
-                                        <div>
-                                            <div className="text-xs font-bold text-white mb-1">{req.user}</div>
-                                            <div className="text-[10px] text-stone-500 uppercase tracking-widest">{req.amount} Pts • {new Date(req.date).toLocaleDateString()}</div>
-                                        </div>
-
-                                        <div className="flex items-center gap-2">
-                                            {req.status === 'pending' ? (
-                                                <>
-                                                    <button onClick={() => processRefund(req.id, true)} className="p-1 hover:bg-green-500/20 text-green-500 rounded"><Check size={14} /></button>
-                                                    <button onClick={() => processRefund(req.id, false)} className="p-1 hover:bg-red-500/20 text-red-500 rounded"><X size={14} /></button>
-                                                </>
-                                            ) : (
-                                                <span className={clsx(
-                                                    "text-[10px] uppercase font-bold px-2 py-0.5 rounded",
-                                                    req.status === 'approved' ? "bg-green-900/30 text-green-500" : "bg-red-900/30 text-red-500"
-                                                )}>
-                                                    {req.status}
-                                                </span>
-                                            )}
-                                        </div>
-                                    </div>
-                                ))
-                            )}
-                        </div>
+            {/* Main Content */}
+            <main className="flex-1 flex flex-col bg-stone-950">
+                <header className="h-16 border-b border-white/5 flex items-center justify-between px-8 bg-stone-900/50 backdrop-blur-sm">
+                    <h2 className="text-lg font-medium text-white">
+                        {activeTab === 'projects' && 'Project Management'}
+                        {activeTab === 'students' && 'Student Database'}
+                        {activeTab === 'print' && 'Paper Test Generator'}
+                        {activeTab === 'settings' && 'System Configuration'}
+                    </h2>
+                    <div className="flex items-center gap-4 text-xs text-stone-500">
+                        <span>Instructor Mode</span>
+                        <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse" />
                     </div>
+                </header>
+
+                <div className="flex-1 overflow-auto">
+                    {activeTab === 'projects' && (
+                        showWizard ? (
+                            <div className="p-8">
+                                <ProjectWizard
+                                    onCancel={() => setShowWizard(false)}
+                                    onComplete={() => setShowWizard(false)}
+                                />
+                            </div>
+                        ) : (
+                            <ProjectList onCreate={() => setShowWizard(true)} />
+                        )
+                    )}
+                    {activeTab === 'students' && <StudentManager />}
+                    {activeTab === 'print' && <PaperTestBuilder />}
+                    {activeTab === 'settings' && <div className="p-8">Settings</div>}
                 </div>
             </main>
         </div>
     );
 }
+
+const SidebarItem = ({ icon, label, active, onClick }: { icon: React.ReactNode, label: string, active: boolean, onClick: () => void }) => (
+    <button
+        onClick={onClick}
+        className={clsx(
+            "w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-all duration-200",
+            active ? "bg-babel-gold/10 text-babel-gold border border-babel-gold/20" : "text-stone-400 hover:bg-white/5 hover:text-stone-200"
+        )}
+    >
+        {icon}
+        <span className="font-medium">{label}</span>
+    </button>
+);

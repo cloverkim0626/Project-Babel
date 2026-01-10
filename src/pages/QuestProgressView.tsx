@@ -1,5 +1,6 @@
-import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import React, { useState, useEffect, useMemo } from 'react';
+import { useNavigate, useParams } from 'react-router-dom';
+import { supabase } from '../lib/supabase';
 import { ArrowLeft, Clock, CheckCircle, Zap, Trophy, Skull, BookOpen } from 'lucide-react';
 import { clsx } from 'clsx';
 import { useTimeline } from '../hooks/useTimeline';
@@ -11,27 +12,65 @@ interface QuestSet {
     index: number;
     status: 'locked' | 'open' | 'passed' | 'failed' | 'corroded';
     score: number;
+    week: number;
 }
 
-// Mock Sets - Mix of passed, open, locked for demo
-const MOCK_SETS: QuestSet[] = Array.from({ length: 8 }, (_, i) => ({
-    id: `set-${i}`,
-    index: i + 1,
-    // First 2 passed, 3rd open, rest locked for demo effect
-    status: i < 2 ? 'passed' : i === 2 ? 'open' : 'locked',
-    score: i < 2 ? 100 : 0
-}));
-
 export const QuestProgressView: React.FC = () => {
-    // const { id } = useParams(); // Unused
+    const { id: missionId } = useParams();
     const navigate = useNavigate();
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { addXp, addPoints, logError } = useGameEngine();
 
+    const [questSets, setQuestSets] = useState<QuestSet[]>([]);
+    const [loading, setLoading] = useState(true);
+    const [missionTitle, setMissionTitle] = useState("Loading Mission...");
+
+    useEffect(() => {
+        if (!missionId) return;
+
+        const fetchData = async () => {
+            // 1. Fetch Mission Info
+            const { data: mission } = await supabase.from('missions').select('title, config').eq('id', missionId).single();
+            if (mission) setMissionTitle(mission.title);
+
+            // 2. Fetch Quest Sets
+            const { data: sets } = await supabase
+                .from('quest_sets')
+                .select('*')
+                .eq('mission_id', missionId)
+                .order('week_number', { ascending: true })
+                .order('set_index', { ascending: true });
+
+            if (sets) {
+                setQuestSets(sets.map(s => ({
+                    id: s.id,
+                    index: s.set_index,
+                    status: s.status,
+                    score: s.score,
+                    week: s.week_number || 1
+                })));
+            }
+            setLoading(false);
+        };
+
+        fetchData();
+    }, [missionId]);
+
+    // Group by Week
+    const groupedSets = useMemo(() => {
+        const groups: Record<number, QuestSet[]> = {};
+        questSets.forEach(set => {
+            const w = set.week || 1;
+            if (!groups[w]) groups[w] = [];
+            groups[w].push(set);
+        });
+        return groups;
+    }, [questSets]);
+
     // Derived UI State
     const [finalConquestAnim, setFinalConquestAnim] = useState(false);
-    // Determine if conquered (Mock logic for demo)
-    const isConquered = MOCK_SETS.every(s => s.status === 'passed');
+    // Determine if conquered
+    const isConquered = questSets.length > 0 && questSets.every(s => s.status === 'passed');
 
     // Prevent double reward in strict mode
     const [rewardClaimed, setRewardClaimed] = useState(false);
@@ -49,12 +88,8 @@ export const QuestProgressView: React.FC = () => {
         }
     }, [isConquered, rewardClaimed, addXp, addPoints]);
 
-    // Mock Mission Metadata
-    const missionName = "Week 1: The Awakening"; // Paraphrased Name
-
     // Use state to keep deadline stable and prevent infinite loop in useTimeline
     const [deadline] = useState(() => new Date(Date.now() + 86400000 * 2).toISOString());
-
     const timeline = useTimeline(deadline);
 
     const handleNodeClick = (set: QuestSet) => {
@@ -73,6 +108,8 @@ export const QuestProgressView: React.FC = () => {
 
     // Character Avatar Helper - Using the Coordinator from the splash art
     const characterImage = '/assets/party_splash.jpg';
+
+    if (loading) return <div className="min-h-screen bg-obsidian flex items-center justify-center text-babel-gold">Loading Arcanum...</div>;
 
     return (
         <div className="min-h-screen bg-obsidian text-paper font-mono flex flex-col relative overflow-hidden">
@@ -110,7 +147,7 @@ export const QuestProgressView: React.FC = () => {
                 <div className="text-center">
                     <h2 className="text-xl font-serif text-babel-gold flex items-center justify-center gap-2 text-shadow-sm">
                         <BookOpen size={18} />
-                        {missionName}
+                        {missionTitle}
                     </h2>
                 </div>
 
@@ -128,88 +165,94 @@ export const QuestProgressView: React.FC = () => {
             </div>
 
             {/* Path / Map Container */}
-            <div className="flex-1 relative overflow-auto p-12 flex items-center justify-center">
-                {/* Visual Path Line - Simplified S-Curve approximation for demo */}
-                <div className="absolute left-1/2 top-0 bottom-0 w-1 bg-white/5 -translate-x-1/2 hidden md:block" />
+            <div className="flex-1 relative overflow-auto p-12">
+                <div className="max-w-4xl mx-auto space-y-16">
 
-                <div className="relative z-10 w-full max-w-4xl grid grid-cols-1 md:grid-cols-2 gap-12 md:gap-24">
-                    {MOCK_SETS.map((set, index) => {
-                        const isEven = index % 2 === 0;
-                        // Zig-zag layout
-                        return (
-                            <div
-                                key={set.id}
-                                className={clsx(
-                                    "flex flex-col relative",
-                                    isEven ? "md:items-end md:text-right" : "md:items-start md:text-left",
-                                    // Shift down for staggered look
-                                    "md:transform md:translate-y-12"
-                                )}
-                                onClick={() => handleNodeClick(set)}
-                            >
-                                {/* Character Position */}
-                                {set.status === 'open' && (
-                                    <div className={clsx(
-                                        "absolute -top-20 z-20 w-20 h-20 animate-bounce transition-all duration-500",
-                                        isEven ? "right-2" : "left-2"
-                                    )}>
-                                        <div className="w-full h-full rounded-full border-2 border-babel-gold shadow-[0_0_20px_rgba(212,175,55,0.6)] overflow-hidden bg-black relative">
-                                            {/* Focusing on the Coordinator (Rightmost character in sprite) */}
-                                            <img
-                                                src={characterImage}
-                                                alt="Coordinator"
-                                                className="w-[400%] max-w-none h-full object-cover"
-                                                style={{ objectPosition: '100% 20%' }}
-                                            />
-                                        </div>
-                                        <div className="absolute -bottom-2 w-full text-center bg-black/80 text-[10px] text-babel-gold border border-babel-gold/50 rounded px-1 font-bold tracking-wider">
-                                            COORDINATOR
-                                        </div>
-                                    </div>
-                                )}
-
-                                <div className={clsx(
-                                    "w-full p-4 border rounded-xl backdrop-blur-md transition-all duration-300 cursor-pointer hover:scale-105 group relative overflow-hidden",
-                                    set.status === 'locked' && "bg-black/40 border-white/5 text-stone-600 grayscale opacity-60",
-                                    set.status === 'open' && "bg-black/60 border-babel-gold shadow-[0_0_20px_rgba(212,175,55,0.2)]",
-                                    set.status === 'passed' && "bg-emerald-900/20 border-emerald-500/50 text-emerald-100"
-                                )}>
-                                    {/* Hover Effect */}
-                                    <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000" />
-
-                                    <div className="flex items-center gap-4 mb-2">
-                                        <div className={clsx(
-                                            "w-8 h-8 rounded-full flex items-center justify-center border",
-                                            set.status === 'open' ? "border-babel-gold bg-babel-gold text-black font-bold" : "border-white/10 bg-white/5"
-                                        )}>
-                                            {set.status === 'passed' ? <CheckCircle size={16} /> : set.index}
-                                        </div>
-                                        <div>
-                                            <h4 className="font-serif font-bold text-lg">Sequence {set.index < 10 ? `0${set.index}` : set.index}</h4>
-                                            <p className="text-[10px] uppercase tracking-widest opacity-70">
-                                                {set.status === 'locked' ? 'Access Denied' : set.status === 'open' ? 'Ready to Start' : 'Stabilized'}
-                                            </p>
-                                        </div>
-                                    </div>
-
-                                    {set.status === 'open' && (
-                                        <div className="mt-2 text-xs text-babel-gold flex items-center gap-1 animate-pulse">
-                                            <Zap size={12} fill="currentColor" /> Click to Synchronize
-                                        </div>
-                                    )}
+                    {Object.entries(groupedSets).map(([week, sets]) => (
+                        <div key={week} className="relative">
+                            {/* Week Divider */}
+                            <div className="flex items-center gap-4 mb-8">
+                                <div className="h-px bg-white/10 flex-1" />
+                                <div className="text-babel-gold border border-babel-gold/30 px-4 py-1 rounded-full text-sm font-bold bg-black/50">
+                                    WEEK {week}
                                 </div>
-
-                                {/* Connecting Line Logic (Visual only) */}
-                                {index < MOCK_SETS.length - 1 && (
-                                    <div className={clsx(
-                                        "absolute top-full h-12 w-0.5 bg-white/10",
-                                        isEven ? "right-8" : "left-8",
-                                        "hidden md:block" // Only show vertical connectors on desktop for this zigzag
-                                    )} />
-                                )}
+                                <div className="h-px bg-white/10 flex-1" />
                             </div>
-                        );
-                    })}
+
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-12 md:gap-24 relative">
+                                {/* Visual Line for this week segment */}
+                                <div className="absolute left-1/2 top-0 bottom-0 w-0.5 bg-white/5 -translate-x-1/2 hidden md:block" />
+
+                                {sets.map((set, index) => {
+                                    const isEven = index % 2 === 0;
+                                    return (
+                                        <div
+                                            key={set.id}
+                                            className={clsx(
+                                                "flex flex-col relative z-10",
+                                                isEven ? "md:items-end md:text-right" : "md:items-start md:text-left",
+                                                // Shift down for staggered look
+                                                "md:transform md:translate-y-6"
+                                            )}
+                                            onClick={() => handleNodeClick(set)}
+                                        >
+                                            {/* Character Position Code (Same as before) */}
+                                            {set.status === 'open' && (
+                                                <div className={clsx(
+                                                    "absolute -top-20 z-20 w-20 h-20 animate-bounce transition-all duration-500",
+                                                    isEven ? "right-2" : "left-2"
+                                                )}>
+                                                    <div className="w-full h-full rounded-full border-2 border-babel-gold shadow-[0_0_20px_rgba(212,175,55,0.6)] overflow-hidden bg-black relative">
+                                                        <img
+                                                            src={characterImage}
+                                                            alt="Coordinator"
+                                                            className="w-[400%] max-w-none h-full object-cover"
+                                                            style={{ objectPosition: '100% 20%' }}
+                                                        />
+                                                    </div>
+                                                </div>
+                                            )}
+
+                                            <div className={clsx(
+                                                "w-full p-4 border rounded-xl backdrop-blur-md transition-all duration-300 cursor-pointer hover:scale-105 group relative overflow-hidden",
+                                                set.status === 'locked' && "bg-black/40 border-white/5 text-stone-600 grayscale opacity-60",
+                                                set.status === 'open' && "bg-black/60 border-babel-gold shadow-[0_0_20px_rgba(212,175,55,0.2)]",
+                                                set.status === 'passed' && "bg-emerald-900/20 border-emerald-500/50 text-emerald-100"
+                                            )}>
+                                                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000" />
+
+                                                <div className="flex items-center gap-4 mb-2">
+                                                    <div className={clsx(
+                                                        "w-8 h-8 rounded-full flex items-center justify-center border",
+                                                        set.status === 'open' ? "border-babel-gold bg-babel-gold text-black font-bold" : "border-white/10 bg-white/5"
+                                                    )}>
+                                                        {set.status === 'passed' ? <CheckCircle size={16} /> : set.index}
+                                                    </div>
+                                                    <div>
+                                                        <h4 className="font-serif font-bold text-lg">Sequence {set.index < 10 ? `0${set.index}` : set.index}</h4>
+                                                        <p className="text-[10px] uppercase tracking-widest opacity-70">
+                                                            {set.status === 'locked' ? 'Access Denied' : set.status === 'open' ? 'Ready to Start' : 'Stabilized'}
+                                                        </p>
+                                                    </div>
+                                                </div>
+                                                {set.status === 'open' && (
+                                                    <div className="mt-2 text-xs text-babel-gold flex items-center gap-1 animate-pulse">
+                                                        <Zap size={12} fill="currentColor" /> Click to Synchronize
+                                                    </div>
+                                                )}
+                                            </div>
+                                        </div>
+                                    );
+                                })}
+                            </div>
+                        </div>
+                    ))}
+
+                    {questSets.length === 0 && (
+                        <div className="text-center text-stone-500 py-20">
+                            No sequences found for this archive.
+                        </div>
+                    )}
                 </div>
             </div>
 

@@ -31,6 +31,9 @@ export const useAuth = () => {
                 }
 
                 if (session?.user && mounted) {
+                    // IMMEDIATE FALLBACK: Allow access immediately to prevent "Verifying" hang
+                    setFallbackUser(session.user);
+                    // Fetch full profile in background (will update user state when done)
                     await fetchProfile(session.user.id, mounted);
                 } else if (!session && mounted) {
                     setLoading(false);

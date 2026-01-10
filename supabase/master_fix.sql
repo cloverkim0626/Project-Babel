@@ -57,7 +57,14 @@ CREATE POLICY "User Update Self" ON public.users FOR UPDATE USING (auth.uid() = 
 
 -- 4. Allow Admin/Master Insert/Update (Optional, but good for admin panel)
 -- (Simplifying to allow authenticated users to do everything for now to prevent blocking)
+DROP POLICY IF EXISTS "Auth Full Access Continents" ON public.continents;
 CREATE POLICY "Auth Full Access Continents" ON public.continents FOR ALL USING (auth.role() = 'authenticated');
+
+DROP POLICY IF EXISTS "Auth Full Access Passages" ON public.passages;
 CREATE POLICY "Auth Full Access Passages" ON public.passages FOR ALL USING (auth.role() = 'authenticated');
+
+DROP POLICY IF EXISTS "Auth Full Access Missions" ON public.missions;
 CREATE POLICY "Auth Full Access Missions" ON public.missions FOR ALL USING (auth.role() = 'authenticated');
+
+DROP POLICY IF EXISTS "Auth Full Access QuestSets" ON public.quest_sets;
 CREATE POLICY "Auth Full Access QuestSets" ON public.quest_sets FOR ALL USING (auth.role() = 'authenticated');

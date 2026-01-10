@@ -297,7 +297,7 @@ export const MissionDistributor: React.FC<MissionDistributorProps> = ({ onClose 
             <div className="absolute inset-0 bg-black/90 backdrop-blur-xl" />
             <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/dark-matter.png')] opacity-30 pointer-events-none" />
 
-            <div className="relative bg-stone-950 border border-babel-gold/30 rounded-lg w-full max-w-7xl max-h-[90vh] flex flex-col shadow-[0_0_100px_rgba(212,175,55,0.15)] font-body">
+            <div className="relative bg-stone-950 border border-babel-gold/30 rounded-lg w-full max-w-7xl h-[85vh] flex flex-col shadow-[0_0_100px_rgba(212,175,55,0.15)] font-body overflow-hidden">
 
                 {/* Header */}
                 <div className="p-6 border-b border-babel-gold/20 flex justify-between items-center bg-gradient-to-r from-stone-950 via-stone-900 to-stone-950">

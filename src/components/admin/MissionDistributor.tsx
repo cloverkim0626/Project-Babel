@@ -328,7 +328,7 @@ export const MissionDistributor: React.FC<MissionDistributorProps> = ({ onClose 
                                 {errorMsg}
                             </div>
                         )}
-                        <div className="flex-1 overflow-y-auto p-4 space-y-3 custom-scrollbar">
+                        <div className="flex-1 min-h-0 overflow-y-auto p-4 space-y-3 custom-scrollbar">
                             {loadingProjects ? <div className="text-center p-8 text-stone-600 font-library animate-pulse">Accessing Archives...</div> : projects.map(proj => (
                                 <div key={proj.id} className="border border-white/5 rounded overflow-hidden bg-stone-900/40 transition-all hover:border-babel-gold/30 group">
                                     <div
@@ -392,7 +392,7 @@ export const MissionDistributor: React.FC<MissionDistributorProps> = ({ onClose 
                                 <Target size={12} /> Mission Calibration
                             </h3>
                         </div>
-                        <div className="flex-1 overflow-y-auto p-8 space-y-8 relative z-10">
+                        <div className="flex-1 min-h-0 overflow-y-auto p-8 space-y-8 relative z-10">
 
                             {/* Basics */}
                             <div className="space-y-6">
@@ -479,7 +479,7 @@ export const MissionDistributor: React.FC<MissionDistributorProps> = ({ onClose 
                             </div>
                         </div>
 
-                        <div className="flex-1 overflow-y-auto flex flex-col relative font-body custom-scrollbar">
+                        <div className="flex-1 min-h-0 overflow-y-auto flex flex-col relative font-body custom-scrollbar">
                             {!isWordListReady ? (
                                 <div className="absolute inset-0 flex flex-col items-center justify-center p-8 text-center bg-transparent z-10">
                                     <div className="w-20 h-20 rounded-full border border-babel-gold/20 flex items-center justify-center mb-6 shadow-[0_0_30px_rgba(212,175,55,0.05)] animate-pulse-slow">

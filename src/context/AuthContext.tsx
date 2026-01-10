@@ -1,6 +1,5 @@
-import React, { createContext, useContext, useEffect, useState } from 'react';
+import React, { createContext, useContext, useEffect, useState, useRef } from 'react';
 import { supabase } from '../lib/supabase';
-import { useNavigate } from 'react-router-dom';
 
 export interface UserProfile {
     id: string;
@@ -25,11 +24,11 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
     const [user, setUser] = useState<UserProfile | null>(null);
     const [loading, setLoading] = useState(true);
+    const initializedRef = useRef(false); // Prevent double init
 
     // Helper to set fallback user from session
     const setFallbackUser = (sessionUser: any) => {
         if (!sessionUser) return;
-        // console.warn('AuthContext: Deploying Fallback for:', sessionUser.email);
         setUser({
             id: sessionUser.id,
             nickname: sessionUser.email?.split('@')[0] || 'Unknown',
@@ -50,7 +49,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
                 .single();
 
             if (error || !data) {
-                // console.warn('AuthContext: Profile fetch failed:', error);
                 const session = (await supabase.auth.getSession()).data.session;
                 setFallbackUser(session?.user);
             } else {
@@ -77,6 +75,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         let mounted = true;
 
         const initAuth = async () => {
+            if (initializedRef.current) return; // Already initialized
+            initializedRef.current = true;
+
             try {
                 const { data: { session }, error } = await supabase.auth.getSession();
                 if (error) throw error;
@@ -97,9 +98,13 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
         const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
             if (!mounted) return;
+
+            // Skip INITIAL_SESSION - already handled by initAuth
+            if (event === 'INITIAL_SESSION') return;
+
             if (event === 'SIGNED_IN' && session) {
                 setLoading(true);
-                setFallbackUser(session.user); // Instant update on login event
+                setFallbackUser(session.user);
                 await fetchProfile(session.user.id);
             } else if (event === 'SIGNED_OUT') {
                 setUser(null);

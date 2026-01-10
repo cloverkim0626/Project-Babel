@@ -126,6 +126,10 @@ export const useAuth = () => {
 
             if (event === 'SIGNED_IN' && session) {
                 setLoading(true);
+                // We must allow time for fetchProfile again, but safetyTimer is already running/done?
+                // Actually safetyTimer runs ONCE on mount.
+                // If we re-login, we should ideally have a new timeout or trust fetchProfile.
+                // For now, let's trust fetchProfile's internal try/catch/finally to handle "loading=false".
                 await fetchProfile(session.user.id, mounted);
             } else if (event === 'SIGNED_OUT') {
                 setUser(null);

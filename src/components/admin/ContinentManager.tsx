@@ -397,86 +397,107 @@ export const ContinentManager: React.FC<ContinentManagerProps> = ({ continent, i
                                 </div>
 
                                 <div className="flex-1 space-y-4">
-                                    {analyzedData[activeInputId] ? (
-                                        <>
-                                            {analyzedData[activeInputId].map((word, idx) => (
-                                                <div key={idx} className="bg-stone-900 p-4 rounded-xl border border-white/5 group hover:border-babel-gold/30 transition-all relative">
+                                    {/* Flattened View Logic */}
+                                    {(() => {
+                                        const allWords = newPassages.flatMap(p =>
+                                            (analyzedData[p.id] || []).map((w, idx) => ({
+                                                ...w,
+                                                _passageId: p.id,
+                                                _wordIndex: idx,
+                                                _sourceTitle: p.title
+                                            }))
+                                        );
 
-                                                    {/* Compact Header */}
-                                                    <div className="flex justify-between items-center mb-2 pb-2 border-b border-white/5">
-                                                        <div className="flex items-center gap-3">
-                                                            <input
-                                                                className="bg-transparent font-bold text-babel-gold text-lg outline-none w-28"
-                                                                value={word.word}
-                                                                onChange={(e) => updateAnalyzedWord(activeInputId, idx, { word: e.target.value })}
-                                                            />
-                                                            <input
-                                                                className="bg-transparent text-stone-500 text-xs font-mono outline-none w-20"
-                                                                value={word.phonetic}
-                                                                onChange={(e) => updateAnalyzedWord(activeInputId, idx, { phonetic: e.target.value })}
-                                                            />
-                                                            <input
-                                                                className="bg-stone-800 text-stone-300 text-[10px] px-1.5 py-0.5 rounded outline-none w-12 text-center"
-                                                                value={word.part_of_speech}
-                                                                onChange={(e) => updateAnalyzedWord(activeInputId, idx, { part_of_speech: e.target.value })}
-                                                            />
-                                                        </div>
-                                                        <button
-                                                            onClick={() => removeAnalyzedWord(activeInputId, idx)}
-                                                            className="text-stone-600 hover:text-red-400 p-1 rounded"
-                                                        >
-                                                            <Trash2 size={14} />
-                                                        </button>
-                                                    </div>
-
-                                                    {/* Compact Body - Meanings */}
-                                                    <div className="space-y-1 mb-2">
-                                                        {[0, 1, 2].map(i => (
-                                                            <input
-                                                                key={i}
-                                                                className="w-full bg-transparent border-b border-white/5 py-1 text-xs text-stone-300 outline-none focus:border-babel-gold/50 placeholder-stone-700"
-                                                                placeholder={`Meaning ${i + 1} (adj. meaning...)`}
-                                                                value={word.meanings_kr?.[i] || ''}
-                                                                onChange={(e) => {
-                                                                    const newMeanings = [...(word.meanings_kr || [])];
-                                                                    newMeanings[i] = e.target.value;
-                                                                    updateAnalyzedWord(activeInputId, idx, { meanings_kr: newMeanings });
-                                                                }}
-                                                            />
-                                                        ))}
-                                                    </div>
-
-                                                    {/* Compact Footer - Single Line Syn/Ant */}
-                                                    <div className="grid grid-cols-2 gap-4 text-[10px] text-stone-500">
-                                                        <div className="flex items-center gap-2">
-                                                            <span className="font-bold opacity-50">SYN</span>
-                                                            <input
-                                                                className="bg-transparent w-full outline-none text-stone-400"
-                                                                value={word.synonyms?.join(', ') || ''}
-                                                                onChange={(e) => updateAnalyzedWord(activeInputId, idx, { synonyms: e.target.value.split(',').map(s => s.trim()) })}
-                                                                placeholder="syn1, syn2, syn3"
-                                                            />
-                                                        </div>
-                                                        <div className="flex items-center gap-2">
-                                                            <span className="font-bold opacity-50">ANT</span>
-                                                            <input
-                                                                className="bg-transparent w-full outline-none text-stone-400"
-                                                                value={word.antonyms?.join(', ') || ''}
-                                                                onChange={(e) => updateAnalyzedWord(activeInputId, idx, { antonyms: e.target.value.split(',').map(s => s.trim()) })}
-                                                                placeholder="ant1, ant2, ant3"
-                                                            />
-                                                        </div>
-                                                    </div>
+                                        if (allWords.length === 0) {
+                                            return (
+                                                <div className="h-full flex flex-col items-center justify-center text-stone-600 space-y-4">
+                                                    <Brain size={48} className="opacity-10" />
+                                                    <p className="text-sm">지문 입력 후 <br /><span className="text-babel-gold">"전체 지문 분석"</span>을 실행하세요.</p>
                                                 </div>
-                                            ))}
-                                            <div className="h-20" />
-                                        </>
-                                    ) : (
-                                        <div className="h-full flex flex-col items-center justify-center text-stone-600 space-y-4">
-                                            <Brain size={48} className="opacity-10" />
-                                            <p className="text-sm">지문 입력 후 <br /><span className="text-babel-gold">"전체 지문 분석"</span>을 실행하세요.</p>
-                                        </div>
-                                    )}
+                                            );
+                                        }
+
+                                        return (
+                                            <>
+                                                {allWords.map((word, flattenedIdx) => (
+                                                    <div key={`${word._passageId}-${word._wordIndex}`} className="bg-stone-900 p-4 rounded-xl border border-white/5 group hover:border-babel-gold/30 transition-all relative">
+
+                                                        {/* Compact Header */}
+                                                        <div className="flex justify-between items-center mb-2 pb-2 border-b border-white/5">
+                                                            <div className="flex items-center gap-3">
+                                                                {/* Source Indicator */}
+                                                                <span className="text-[10px] font-bold bg-stone-800 text-babel-gold px-2 py-0.5 rounded border border-white/5">
+                                                                    No. {word._sourceTitle}
+                                                                </span>
+
+                                                                <input
+                                                                    className="bg-transparent font-bold text-babel-gold text-lg outline-none w-28"
+                                                                    value={word.word}
+                                                                    onChange={(e) => updateAnalyzedWord(word._passageId, word._wordIndex, { word: e.target.value })}
+                                                                />
+                                                                <input
+                                                                    className="bg-transparent text-stone-500 text-xs font-mono outline-none w-20"
+                                                                    value={word.phonetic}
+                                                                    onChange={(e) => updateAnalyzedWord(word._passageId, word._wordIndex, { phonetic: e.target.value })}
+                                                                />
+                                                                <input
+                                                                    className="bg-stone-800 text-stone-300 text-[10px] px-1.5 py-0.5 rounded outline-none w-12 text-center"
+                                                                    value={word.part_of_speech}
+                                                                    onChange={(e) => updateAnalyzedWord(word._passageId, word._wordIndex, { part_of_speech: e.target.value })}
+                                                                />
+                                                            </div>
+                                                            <button
+                                                                onClick={() => removeAnalyzedWord(word._passageId, word._wordIndex)}
+                                                                className="text-stone-600 hover:text-red-400 p-1 rounded"
+                                                            >
+                                                                <Trash2 size={14} />
+                                                            </button>
+                                                        </div>
+
+                                                        {/* Compact Body - Meanings */}
+                                                        <div className="space-y-1 mb-2">
+                                                            {[0, 1, 2].map(i => (
+                                                                <input
+                                                                    key={i}
+                                                                    className="w-full bg-transparent border-b border-white/5 py-1 text-xs text-stone-300 outline-none focus:border-babel-gold/50 placeholder-stone-700"
+                                                                    placeholder={`Meaning ${i + 1} (adj. meaning...)`}
+                                                                    value={word.meanings_kr?.[i] || ''}
+                                                                    onChange={(e) => {
+                                                                        const newMeanings = [...(word.meanings_kr || [])];
+                                                                        newMeanings[i] = e.target.value;
+                                                                        updateAnalyzedWord(word._passageId, word._wordIndex, { meanings_kr: newMeanings });
+                                                                    }}
+                                                                />
+                                                            ))}
+                                                        </div>
+
+                                                        {/* Compact Footer - Single Line Syn/Ant */}
+                                                        <div className="grid grid-cols-2 gap-4 text-[10px] text-stone-500">
+                                                            <div className="flex items-center gap-2">
+                                                                <span className="font-bold opacity-50">SYN</span>
+                                                                <input
+                                                                    className="bg-transparent w-full outline-none text-stone-400"
+                                                                    value={word.synonyms?.join(', ') || ''}
+                                                                    onChange={(e) => updateAnalyzedWord(word._passageId, word._wordIndex, { synonyms: e.target.value.split(',').map(s => s.trim()) })}
+                                                                    placeholder="syn1, syn2, syn3"
+                                                                />
+                                                            </div>
+                                                            <div className="flex items-center gap-2">
+                                                                <span className="font-bold opacity-50">ANT</span>
+                                                                <input
+                                                                    className="bg-transparent w-full outline-none text-stone-400"
+                                                                    value={word.antonyms?.join(', ') || ''}
+                                                                    onChange={(e) => updateAnalyzedWord(word._passageId, word._wordIndex, { antonyms: e.target.value.split(',').map(s => s.trim()) })}
+                                                                    placeholder="ant1, ant2, ant3"
+                                                                />
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                ))}
+                                                <div className="h-20" />
+                                            </>
+                                        );
+                                    })()}
                                 </div>
                             </div>
                         </div>

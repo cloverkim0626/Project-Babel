@@ -40,23 +40,31 @@ export const ProjectList = ({ onCreate: _legacyOnCreate }: { onCreate: () => voi
     };
 
     const handleCreateProject = async (name: string, displayName: string, themeColor: string, metadata: any) => {
-        // Ensure metadata is a valid object before insert
-        const { data, error } = await supabase.from('continents').insert({
-            name,
-            display_name: displayName,
-            theme_color: themeColor,
-            metadata: metadata // New Column
-        }).select().single();
+        try {
+            // Ensure metadata is a valid object before insert
+            const { data, error } = await supabase.from('continents').insert({
+                name,
+                display_name: displayName,
+                theme_color: themeColor,
+                metadata: metadata // New Column
+            }).select().single();
 
-        if (error) {
-            alert("생성 실패: " + error.message);
-        } else {
-            // Success: Switch to this project immediately
-            // Tag it as 'isNew' to trigger initialView='add' downstream
-            const newProject = { ...data, isNew: true };
-            setContinents(prev => [newProject, ...prev]); // Optimistic update
-            setSelectedContinent(newProject);
-            setShowCreateModal(false);
+            if (error) {
+                // Ignore AbortErrors - harmless navigation cancellations
+                if (error.message?.includes('abort')) return;
+                alert("생성 실패: " + error.message);
+            } else {
+                // Success: Switch to this project immediately
+                // Tag it as 'isNew' to trigger initialView='add' downstream
+                const newProject = { ...data, isNew: true };
+                setContinents(prev => [newProject, ...prev]); // Optimistic update
+                setSelectedContinent(newProject);
+                setShowCreateModal(false);
+            }
+        } catch (e: any) {
+            // Catch fetch-level AbortErrors
+            if (e?.message?.includes('abort') || e?.name === 'AbortError') return;
+            alert("생성 실패: " + e.message);
         }
     };
 

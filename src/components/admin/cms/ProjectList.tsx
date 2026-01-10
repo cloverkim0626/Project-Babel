@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { supabase } from '../../../lib/supabase';
 import { Plus, MoreVertical, Calendar, Globe, BookOpen } from 'lucide-react';
 import { ContinentManager } from '../ContinentManager';
+import { CreateProjectModal } from '../modals/CreateProjectModal';
 
 interface Continent {
     id: string;
@@ -16,6 +17,7 @@ export const ProjectList = ({ onCreate: _legacyOnCreate }: { onCreate: () => voi
     const [continents, setContinents] = useState<Continent[]>([]);
     const [loading, setLoading] = useState(true);
     const [selectedContinent, setSelectedContinent] = useState<Continent | null>(null);
+    const [showCreateModal, setShowCreateModal] = useState(false);
 
     useEffect(() => {
         fetchContinents();
@@ -29,27 +31,24 @@ export const ProjectList = ({ onCreate: _legacyOnCreate }: { onCreate: () => voi
 
         if (!error && data) {
             setContinents(data);
+        } else if (error) {
+            console.error(error); // Log schema errors
         }
         setLoading(false);
     };
 
-    const handleCreateProject = async () => {
-        const name = prompt("프로젝트 이름 (폴더명)을 입력하세요:", "New Project 2024");
-        if (!name) return;
-
-        const displayName = prompt("화면에 표시될 이름 (Display Name):", name);
-        if (!displayName) return;
-
+    const handleCreateProject = async (name: string, displayName: string, themeColor: string) => {
         const { error } = await supabase.from('continents').insert({
             name,
             display_name: displayName,
-            theme_color: '#D4AF37'
+            theme_color: themeColor
         });
 
         if (error) {
             alert("생성 실패: " + error.message);
         } else {
             fetchContinents();
+            setShowCreateModal(false);
         }
     };
 
@@ -57,6 +56,13 @@ export const ProjectList = ({ onCreate: _legacyOnCreate }: { onCreate: () => voi
 
     return (
         <div className="p-8 max-w-7xl mx-auto min-h-screen bg-transparent">
+            {showCreateModal && (
+                <CreateProjectModal
+                    onClose={() => setShowCreateModal(false)}
+                    onConfirm={handleCreateProject}
+                />
+            )}
+
             {selectedContinent && (
                 <ContinentManager
                     continent={selectedContinent}
@@ -76,10 +82,10 @@ export const ProjectList = ({ onCreate: _legacyOnCreate }: { onCreate: () => voi
                 </div>
                 <div className="flex gap-2">
                     <button
-                        onClick={handleCreateProject}
+                        onClick={() => setShowCreateModal(true)}
                         className="bg-babel-gold hover:bg-yellow-500 text-black px-6 py-3 rounded font-bold flex items-center gap-2 transition-transform hover:scale-105 shadow-[0_0_15px_rgba(212,175,55,0.3)]"
                     >
-                        <Plus size={18} /> 새 프로젝트 생성 (Create New)
+                        <Plus size={18} /> 새 프로젝트 (New Project)
                     </button>
                 </div>
             </div>
@@ -87,7 +93,7 @@ export const ProjectList = ({ onCreate: _legacyOnCreate }: { onCreate: () => voi
             <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-8">
                 {/* Create New Card */}
                 <div
-                    onClick={handleCreateProject}
+                    onClick={() => setShowCreateModal(true)}
                     className="border-2 border-dashed border-white/10 rounded-xl p-8 flex flex-col items-center justify-center gap-4 cursor-pointer hover:border-babel-gold/50 hover:bg-white/5 transition-all group h-64"
                 >
                     <div className="w-16 h-16 rounded-full bg-stone-900 flex items-center justify-center group-hover:bg-babel-gold group-hover:text-black transition-colors border border-white/10">

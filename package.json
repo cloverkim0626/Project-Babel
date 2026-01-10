@@ -1,7 +1,7 @@
 {
   "name": "project-babel",
   "private": true,
-  "version": "0.0.0",
+  "version": "0.0.2",
   "homepage": "https://cloverkim0626.github.io/Project-Babel",
   "type": "module",
   "scripts": {

@@ -61,7 +61,7 @@ export const CreateProjectModal: React.FC<CreateProjectModalProps> = ({ onClose,
     };
 
     return (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm animate-in fade-in duration-200">
+        <div className="fixed inset-0 z-[200] flex items-center justify-center bg-black/80 backdrop-blur-sm animate-in fade-in duration-200">
             <div className="w-full max-w-lg bg-stone-900 border border-white/10 rounded-xl shadow-2xl overflow-hidden scale-in-95 animate-in duration-200">
                 {/* Header */}
                 <div className="p-4 bg-black/40 border-b border-white/10 flex justify-between items-center">

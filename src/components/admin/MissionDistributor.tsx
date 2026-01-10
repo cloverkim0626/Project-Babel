@@ -313,10 +313,10 @@ export const MissionDistributor: React.FC<MissionDistributorProps> = ({ onClose 
                     </button>
                 </div>
 
-                <div className="flex-1 overflow-hidden grid grid-cols-12 divide-x divide-babel-gold/10">
+                <div className="flex-1 min-h-0 grid grid-cols-12 divide-x divide-babel-gold/10">
 
                     {/* LEFT: Project & Passage Selector */}
-                    <div className="col-span-3 flex flex-col bg-stone-950/50">
+                    <div className="col-span-3 flex flex-col min-h-0 bg-stone-950/50">
                         <div className="p-4 border-b border-babel-gold/10 bg-black/20">
                             <h3 className="text-xs font-bold text-babel-gold/70 uppercase flex items-center gap-2 tracking-[0.2em] font-library">
                                 <Globe size={12} /> Source Archives
@@ -328,7 +328,7 @@ export const MissionDistributor: React.FC<MissionDistributorProps> = ({ onClose 
                                 {errorMsg}
                             </div>
                         )}
-                        <div className="flex-1 min-h-0 overflow-y-auto p-4 space-y-3 custom-scrollbar">
+                        <div className="flex-1 overflow-y-auto p-4 space-y-3 custom-scrollbar">
                             {loadingProjects ? <div className="text-center p-8 text-stone-600 font-library animate-pulse">Accessing Archives...</div> : projects.map(proj => (
                                 <div key={proj.id} className="border border-white/5 rounded overflow-hidden bg-stone-900/40 transition-all hover:border-babel-gold/30 group">
                                     <div
@@ -383,7 +383,7 @@ export const MissionDistributor: React.FC<MissionDistributorProps> = ({ onClose 
                     </div>
 
                     {/* MIDDLE: Configuration & Students */}
-                    <div className="col-span-5 flex flex-col bg-stone-900/20 relative">
+                    <div className="col-span-5 flex flex-col min-h-0 bg-stone-900/20 relative">
                         {/* Subtle grid background */}
                         <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')] opacity-5 pointer-events-none" />
 
@@ -469,7 +469,7 @@ export const MissionDistributor: React.FC<MissionDistributorProps> = ({ onClose 
                     </div>
 
                     {/* RIGHT: Word Output */}
-                    <div className="col-span-4 flex flex-col bg-black/40">
+                    <div className="col-span-4 flex flex-col min-h-0 bg-black/40">
                         <div className="p-4 border-b border-babel-gold/10 bg-black/20 flex justify-between items-center">
                             <h3 className="text-xs font-bold text-babel-gold/70 uppercase flex items-center gap-2 tracking-[0.2em] font-library">
                                 <BookOpen size={12} /> Lux Veritatis

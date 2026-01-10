@@ -1,4 +1,4 @@
-# 📜 TASK.md: 프로젝트 바벨(Project: Babel) 통합 개발 로드맵
+# 📜 TASK.md: 프로젝트 바벨(Project: Babel) 통합 개발 로드맵 (Updated)
 
 ## 🏁 Phase 1. 시스템 기반 및 하이브리드 DB 설계
 * [ ] **1.1 프로젝트 초기화**

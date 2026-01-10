@@ -49,6 +49,7 @@ create table public.continents (
   name text not null, -- Raw Name: "2024 Sep Mock Exam"
   display_name text, -- Paraphrased: "9월의 던전"
   theme_color text, -- "#D4AF37"
+  image_url text, -- "https://images.unsplash.com/..."
   is_conquered boolean default false, -- For individual user tracking, might need a separate table if multi-user
   bgm_url text,
   created_at timestamp with time zone default timezone('utc'::text, now())
@@ -70,6 +71,7 @@ create table public.missions (
   description text,
   data_payload jsonb not null, -- Full word list (e.g., 160 words)
   total_sets int default 1, -- Calculated: Total Words / 20
+  seq_order int default 1, -- Explicit sequencing order
   deadline timestamp with time zone,
   config jsonb default '{}'::jsonb, 
   created_by uuid references auth.users(id),

@@ -45,6 +45,7 @@ export const MissionDistributor: React.FC<MissionDistributorProps> = ({ onClose 
     const [passagesMap, setPassagesMap] = useState<Record<string, Passage[]>>({});
     const [loadingProjects, setLoadingProjects] = useState(true);
     const [loadingPassages, setLoadingPassages] = useState<Set<string>>(new Set());
+    const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
     // --- State: Selection ---
     const [expandedProjects, setExpandedProjects] = useState<Set<string>>(new Set());
@@ -313,6 +314,12 @@ export const MissionDistributor: React.FC<MissionDistributorProps> = ({ onClose 
                                 <Globe size={12} /> Source Archives
                             </h3>
                         </div>
+                        {errorMsg && (
+                            <div className="p-2 bg-red-900/20 border-b border-red-500/30 text-red-400 text-[10px] font-mono whitespace-pre-wrap">
+                                <AlertCircle size={12} className="inline mr-1" />
+                                {errorMsg}
+                            </div>
+                        )}
                         <div className="flex-1 overflow-y-auto p-4 space-y-3 custom-scrollbar">
                             {loadingProjects ? <div className="text-center p-8 text-stone-600 font-library animate-pulse">Accessing Archives...</div> : projects.map(proj => (
                                 <div key={proj.id} className="border border-white/5 rounded overflow-hidden bg-stone-900/40 transition-all hover:border-babel-gold/30 group">

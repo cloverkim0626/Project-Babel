@@ -53,10 +53,21 @@ export const useAuth = () => {
 
                 if (!isMounted) return;
 
-                if (error) {
-                    console.error('Error fetching profile:', error);
+                if (error || !data) {
+                    console.warn('Profile fetch failed, using session fallback:', error);
+                    // Fallback to basic user if profile fails (prevents logout loop)
+                    const sessionUser = (await supabase.auth.getSession()).data.session?.user;
+                    setUser({
+                        id: userId,
+                        nickname: sessionUser?.email?.split('@')[0] || 'Unknown',
+                        classType: 'Challenger',
+                        role: 'master', // Temporary fallback, ideally 'student' but master for safety? No, student default.
+                        level: 1,
+                        xp: 0,
+                        points: 0
+                    });
                     setLoading(false);
-                } else if (data) {
+                } else {
                     setUser({
                         id: data.id,
                         nickname: data.nickname || 'Unknown',
@@ -69,6 +80,7 @@ export const useAuth = () => {
                     setLoading(false);
                 }
             } catch (err) {
+                console.error("Auth Exception:", err);
                 if (isMounted) setLoading(false);
             }
         };

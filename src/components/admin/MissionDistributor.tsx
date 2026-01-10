@@ -205,9 +205,10 @@ export const MissionDistributor: React.FC<MissionDistributorProps> = ({ onClose 
     // If no words extracted, we just assign passages. Sequences might not be calculable yet, or just 1?
     // User strategy: Assign first, choose test type later. 
     // If words are present, we use them. If not, we assume 1 "set" per passage or just 1 placeholder set.
-    const totalSequences = totalWords > 0
-        ? Math.ceil(totalWords / wordsPerSeq)
-        : selectedPassageIds.size; // Fallback: 1 set per passage if no words extracted? Or just 1 set total? Let's say 1.
+    // If no words extracted, we just assign passages.
+    const totalSequences = isWordListReady && generatedWords.length > 0
+        ? Math.ceil(generatedWords.length / wordsPerSeq)
+        : selectedPassageIds.size; // Default: 1 set per passage for Reading missions
 
     const schedule = useMemo(() => {
         if (totalSequences === 0) return [];
@@ -296,7 +297,7 @@ export const MissionDistributor: React.FC<MissionDistributorProps> = ({ onClose 
             <div className="absolute inset-0 bg-black/90 backdrop-blur-xl" />
             <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/dark-matter.png')] opacity-30 pointer-events-none" />
 
-            <div className="relative bg-stone-950 border border-babel-gold/30 rounded-lg w-full max-w-7xl h-[90vh] flex flex-col overflow-hidden shadow-[0_0_100px_rgba(212,175,55,0.15)] font-body">
+            <div className="relative bg-stone-950 border border-babel-gold/30 rounded-lg w-full max-w-7xl max-h-[90vh] flex flex-col shadow-[0_0_100px_rgba(212,175,55,0.15)] font-body">
 
                 {/* Header */}
                 <div className="p-6 border-b border-babel-gold/20 flex justify-between items-center bg-gradient-to-r from-stone-950 via-stone-900 to-stone-950">
@@ -366,7 +367,7 @@ export const MissionDistributor: React.FC<MissionDistributorProps> = ({ onClose 
                                                     </div>
                                                     <div className="flex-1 cursor-pointer" onClick={() => togglePassageSelection(p.id)}>
                                                         <div className={`text-xs transition-colors font-serif ${selectedPassageIds.has(p.id) ? 'text-babel-gold' : 'text-stone-400 group-hover:text-stone-200'}`}>{p.title}</div>
-                                                        <div className="text-[10px] text-stone-700 mt-0.5 font-library">{p.word_count} words</div>
+                                                        <div className="text-[10px] text-stone-700 mt-0.5 font-library">{p.words_data?.length || 0} extracted words</div>
                                                     </div>
                                                 </div>
                                             )) : (

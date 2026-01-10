@@ -43,6 +43,14 @@ export const useAuth = () => {
             }
         };
 
+        // SAFETY TIMEOUT: Force stop loading after 5 seconds to prevent "Verifying..." hang
+        const safetyTimer = setTimeout(() => {
+            if (mounted && loading) {
+                console.warn("Auth check timed out - forcing Loading to false");
+                setLoading(false);
+            }
+        }, 5000);
+
         const fetchProfile = async (userId: string, isMounted: boolean) => {
             try {
                 const { data, error } = await supabase
@@ -102,6 +110,7 @@ export const useAuth = () => {
 
         return () => {
             mounted = false;
+            clearTimeout(safetyTimer);
             subscription.unsubscribe();
         };
     }, [navigate]);

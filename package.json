@@ -2,7 +2,7 @@
   "name": "project-babel",
   "private": true,
   "version": "0.0.0",
-  "homepage": "https://babel-os.github.io/Project-Babel",
+  "homepage": "https://cloverkim0626.github.io/Project-Babel",
   "type": "module",
   "scripts": {
     "dev": "vite",

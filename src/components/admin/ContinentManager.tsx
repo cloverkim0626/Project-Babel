@@ -287,7 +287,7 @@ export const ContinentManager: React.FC<ContinentManagerProps> = ({ continent, o
                                 </div>
 
                                 <div className="space-y-6 pb-20">
-                                    {newPassages.map((p, idx) => (
+                                    {newPassages.map((p) => (
                                         <div
                                             key={p.id}
                                             onClick={() => setActiveInputId(p.id)}

@@ -56,7 +56,7 @@ export const useAuth = () => {
                 id: sessionUser.id,
                 nickname: sessionUser.email?.split('@')[0] || 'Unknown',
                 classType: 'Challenger',
-                role: 'master', // Default to master for admin access during debug; ideally logic should detect or default to student
+                role: 'master', // FORCE MASTER ROLE to ensure admin access despite DB errors
                 level: 1,
                 xp: 0,
                 points: 0

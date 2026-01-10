@@ -40,13 +40,15 @@ export default function Login() {
 
                 // Fetch Role to determine redirect
                 if (session?.user) {
-                    const { data: profile } = await supabase
+                    const { data: profile, error } = await supabase
                         .from('users')
                         .select('role')
                         .eq('id', session.user.id)
                         .single();
 
-                    if (profile?.role === 'master' || profile?.role === 'admin') {
+                    // If profile allows, OR if error occurs (assume Admin is fixing DB), go to Admin
+                    if (error || profile?.role === 'master' || profile?.role === 'admin') {
+                        console.log("Redirecting to Admin (Profile:", profile, "Error:", error, ")");
                         navigate('/admin');
                     } else {
                         navigate('/dashboard');

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Globe, X, Check, Loader2, BookOpen, GraduationCap, Calendar, FileText, Layers } from 'lucide-react';
+import { X, Check, Loader2, Layers } from 'lucide-react';
 
 interface CreateProjectModalProps {
     onClose: () => void;

@@ -1,8 +1,9 @@
 import { useEffect, useState } from 'react';
 import { supabase } from '../../../lib/supabase';
-import { Plus, MoreVertical, Calendar, Globe, BookOpen } from 'lucide-react';
+import { Plus, MoreVertical, Calendar, Globe, BookOpen, Layers } from 'lucide-react';
 import { ContinentManager } from '../ContinentManager';
 import { CreateProjectModal } from '../modals/CreateProjectModal';
+import { MissionDistributor } from '../MissionDistributor';
 
 interface Continent {
     id: string;
@@ -52,10 +53,19 @@ export const ProjectList = ({ onCreate: _legacyOnCreate }: { onCreate: () => voi
         }
     };
 
+    const [showDistributor, setShowDistributor] = useState(false);
+
     if (loading) return <div className="p-8 text-babel-gold animate-pulse text-center font-serif">Loading Archives...</div>;
 
     return (
         <div className="p-8 max-w-7xl mx-auto min-h-screen bg-transparent">
+            {showDistributor && (
+                <MissionDistributor
+                    onClose={() => setShowDistributor(false)}
+                    initialPassages={[]} // Start empty for quick distribute
+                />
+            )}
+
             {showCreateModal && (
                 <CreateProjectModal
                     onClose={() => setShowCreateModal(false)}
@@ -81,6 +91,12 @@ export const ProjectList = ({ onCreate: _legacyOnCreate }: { onCreate: () => voi
                     <p className="text-stone-500 text-sm">관리할 프로젝트 폴더를 선택하거나 새로 생성하십시오.</p>
                 </div>
                 <div className="flex gap-2">
+                    <button
+                        onClick={() => setShowDistributor(true)}
+                        className="bg-stone-800 hover:bg-stone-700 text-white px-4 py-2 rounded font-bold flex items-center gap-2 transition-colors border border-white/10 shadow-[0_4px_20px_rgba(0,0,0,0.5)]"
+                    >
+                        <Layers size={18} /> 빠른 배포 (Quick Distribute)
+                    </button>
                     <button
                         onClick={() => setShowCreateModal(true)}
                         className="bg-babel-gold hover:bg-yellow-500 text-black px-6 py-3 rounded font-bold flex items-center gap-2 transition-transform hover:scale-105 shadow-[0_0_15px_rgba(212,175,55,0.3)]"

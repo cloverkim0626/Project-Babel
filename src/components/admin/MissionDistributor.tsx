@@ -22,15 +22,35 @@ export const MissionDistributor: React.FC<MissionDistributorProps> = ({ onClose,
     const [pointsPerSeq, setPointsPerSeq] = useState(10);
     const [inputTitle, setInputTitle] = useState(defaultTitle || '새로운 미션 배포');
 
+    // Quick Mode State
+    const [customPassages, setCustomPassages] = useState<Passage[]>([
+        { id: 'q-1', title: 'Passage 1', content: '', word_count: 0 }
+    ]);
+
+    // Update Logic for Quick Mode
+    const updateCustomPassage = (id: string, field: 'title' | 'content', value: string) => {
+        setCustomPassages(prev => prev.map(p => {
+            if (p.id !== id) return p;
+            const updates: any = { [field]: value };
+            if (field === 'content') {
+                updates.word_count = value.trim() ? value.trim().split(/\s+/).length : 0;
+            }
+            return { ...p, ...updates };
+        }));
+    };
+
     // Student Selection State (Mock for now)
     const [selectedStudents, setSelectedStudents] = useState<string[]>([]);
 
+    // Determination: Use initial if provided, otherwise use custom
+    const activePassages = initialPassages.length > 0 ? initialPassages : customPassages;
+
     // Calculation Logic
     const distributionPreview = useMemo(() => {
-        const totalWords = initialPassages.reduce((acc, p) => acc + p.word_count, 0);
+        const totalWords = activePassages.reduce((acc, p) => acc + p.word_count, 0);
 
         const totalSequences = Math.ceil(totalWords / wordsPerSeq);
-        const baseSeqPerWeek = Math.floor(totalSequences / durationWeeks);
+        const baseSeqPerWeek = totalSequences > 0 ? Math.floor(totalSequences / durationWeeks) : 0;
         const remainder = totalSequences % durationWeeks;
 
         const schedule = [];
@@ -51,7 +71,7 @@ export const MissionDistributor: React.FC<MissionDistributorProps> = ({ onClose,
         }
 
         return { totalWords, totalSequences, schedule };
-    }, [initialPassages, durationWeeks, wordsPerSeq]);
+    }, [activePassages, durationWeeks, wordsPerSeq]);
 
     const handleDeploy = async () => {
         if (selectedStudents.length === 0) return alert("최소 한 명 이상의 학생을 선택해주세요.");
@@ -74,7 +94,7 @@ export const MissionDistributor: React.FC<MissionDistributorProps> = ({ onClose,
                     duration_weeks: durationWeeks,
                     split_size: wordsPerSeq,
                     points_award: pointsPerSeq,
-                    passages: initialPassages // Save snapshot of passages
+                    passages: activePassages // Save snapshot of used passages
                 }
             })
             .select()
@@ -120,27 +140,76 @@ export const MissionDistributor: React.FC<MissionDistributorProps> = ({ onClose,
                 </div>
 
                 <div className="flex-1 overflow-hidden grid grid-cols-12">
-                    {/* Left: Selected Passages (Read Only) */}
-                    <div className="col-span-4 border-r border-white/10 p-4 overflow-y-auto bg-black/20 flex flex-col">
+                    {/* Left: Selected Passages (Read Only or Edit Mode) */}
+                    <div className="col-span-5 border-r border-white/10 p-5 overflow-y-auto bg-black/20 flex flex-col">
                         <div className="flex justify-between items-center mb-4">
                             <h3 className="text-xs uppercase tracking-widest text-stone-500 flex items-center gap-2">
-                                <BookOpen size={14} /> 선택된 지문 ({initialPassages.length})
+                                <BookOpen size={14} />
+                                {initialPassages.length > 0 ? `Selected Passages (${initialPassages.length})` : 'Quick Input (Direct Paste)'}
                             </h3>
+                            {initialPassages.length === 0 && (
+                                <button
+                                    onClick={() => setCustomPassages(prev => [...prev, { id: `new-${Date.now()}`, title: `Passage ${prev.length + 1}`, content: '', word_count: 0 }])}
+                                    className="px-3 py-1 bg-stone-800 hover:bg-stone-700 text-xs text-babel-gold rounded border border-babel-gold/30 transition-colors"
+                                >
+                                    + Add Passage
+                                </button>
+                            )}
                         </div>
 
-                        <div className="space-y-3 flex-1">
-                            {initialPassages.map((p, idx) => (
-                                <div key={p.id || idx} className="p-4 bg-stone-800/50 border border-white/5 rounded-lg">
-                                    <div className="flex justify-between items-start mb-2">
-                                        <span className="font-bold text-white text-sm">{p.title}</span>
-                                        <span className="text-[10px] text-stone-500 bg-black/50 px-2 py-0.5 rounded">{p.word_count} words</span>
+                        {/* Mode A: Selection Mode (Read Only) */}
+                        {initialPassages.length > 0 ? (
+                            <div className="space-y-3 flex-1">
+                                {initialPassages.map((p, idx) => (
+                                    <div key={p.id || idx} className="p-4 bg-stone-800/50 border border-white/5 rounded-lg group hover:border-babel-gold/20 transition-colors">
+                                        <div className="flex justify-between items-start mb-2">
+                                            <span className="font-bold text-white text-sm shrink-0">{p.title}</span>
+                                            <span className="text-[10px] text-stone-500 bg-black/50 px-2 py-0.5 rounded ml-2 whitespace-nowrap">{p.word_count} words</span>
+                                        </div>
+                                        <p className="text-xs text-stone-500 line-clamp-3 leading-relaxed font-serif opacity-80">
+                                            {p.content}
+                                        </p>
                                     </div>
-                                    <p className="text-xs text-stone-500 line-clamp-3 leading-relaxed">
-                                        {p.content}
-                                    </p>
-                                </div>
-                            ))}
-                        </div>
+                                ))}
+                            </div>
+                        ) : (
+                            /* Mode B: Quick Input Mode (Editable) */
+                            <div className="space-y-4 flex-1">
+                                {customPassages.map((p) => (
+                                    <div key={p.id} className="p-3 bg-stone-900 border border-white/10 rounded-lg animate-in fade-in slide-in-from-bottom-2 duration-300">
+                                        <div className="flex justify-between mb-2">
+                                            <input
+                                                type="text"
+                                                value={p.title}
+                                                onChange={(e) => updateCustomPassage(p.id, 'title', e.target.value)}
+                                                className="bg-transparent text-sm font-bold text-white focus:text-babel-gold outline-none w-full placeholder-stone-600"
+                                                placeholder="Passage Title"
+                                            />
+                                            <button
+                                                onClick={() => setCustomPassages(prev => prev.filter(x => x.id !== p.id))}
+                                                className="text-stone-600 hover:text-red-400 ml-2"
+                                            >
+                                                ×
+                                            </button>
+                                        </div>
+                                        <textarea
+                                            value={p.content}
+                                            onChange={(e) => updateCustomPassage(p.id, 'content', e.target.value)}
+                                            placeholder="Paste English text content here..."
+                                            className="w-full h-32 bg-black/50 border border-white/5 rounded p-3 text-xs text-stone-300 focus:border-babel-gold/50 outline-none resize-none font-mono leading-relaxed"
+                                        />
+                                        <div className="mt-1 text-right text-[10px] text-stone-600">
+                                            {p.word_count} words
+                                        </div>
+                                    </div>
+                                ))}
+                                {customPassages.length === 0 && (
+                                    <div className="text-center py-12 text-stone-600 border-2 border-dashed border-white/5 rounded-xl">
+                                        Click "+ Add Passage" to start entering content.
+                                    </div>
+                                )}
+                            </div>
+                        )}
                     </div>
 
                     {/* Middle: Configuration */}
@@ -226,7 +295,7 @@ export const MissionDistributor: React.FC<MissionDistributorProps> = ({ onClose,
                     </div>
 
                     {/* Right: Preview */}
-                    <div className="col-span-4 p-6 bg-black/20 overflow-y-auto">
+                    <div className="col-span-3 p-6 bg-black/20 overflow-y-auto">
                         <h3 className="text-xs uppercase tracking-widest text-stone-500 mb-6 flex items-center gap-2">
                             <BarChart2 size={14} /> 일정 미리보기 (Schedule)
                         </h3>
@@ -293,7 +362,7 @@ export const MissionDistributor: React.FC<MissionDistributorProps> = ({ onClose,
                     </button>
                     <button
                         onClick={handleDeploy}
-                        disabled={selectedStudents.length === 0 || initialPassages.length === 0}
+                        disabled={selectedStudents.length === 0 || activePassages.length === 0}
                         className="px-8 py-3 bg-babel-gold hover:bg-yellow-500 text-black font-bold rounded shadow-[0_0_20px_rgba(212,175,55,0.2)] hover:shadow-[0_0_30px_rgba(212,175,55,0.4)] transition-all disabled:opacity-50 disabled:cursor-not-allowed"
                     >
                         미션 배포 시작 (Start Deploy)

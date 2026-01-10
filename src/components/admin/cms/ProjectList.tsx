@@ -69,7 +69,6 @@ export const ProjectList = ({ onCreate: _legacyOnCreate }: { onCreate: () => voi
             {showDistributor && (
                 <MissionDistributor
                     onClose={() => setShowDistributor(false)}
-                    initialPassages={[]} // Start empty for quick distribute
                 />
             )}
 

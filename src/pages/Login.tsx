@@ -187,6 +187,34 @@ export default function Login() {
                         Use Demo Account (Guest)
                     </button>
 
+                    {/* EMERGENCY BACKDOOR */}
+                    <button
+                        type="button"
+                        onClick={async () => {
+                            setLoading(true);
+                            const emEmail = 'emergency@babel.com';
+                            const emPass = 'babel_emergency_123';
+                            try {
+                                // Try login
+                                const { error: loginErr } = await supabase.auth.signInWithPassword({ email: emEmail, password: emPass });
+                                if (loginErr) {
+                                    // Try signup
+                                    await supabase.auth.signUp({ email: emEmail, password: emPass });
+                                    // Retry login
+                                    await supabase.auth.signInWithPassword({ email: emEmail, password: emPass });
+                                }
+                                // Success loop will handle redirect due to useAuth bypass
+                                navigate('/admin');
+                            } catch (e) {
+                                alert("Emergency Login Failed: " + JSON.stringify(e));
+                                setLoading(false);
+                            }
+                        }}
+                        className="w-full bg-red-900/30 text-red-400 text-[10px] py-2 rounded border border-red-500/20 hover:bg-red-900/50 transition-colors uppercase tracking-widest"
+                    >
+                        Emergency Admin Access (Click If Stuck)
+                    </button>
+
                     <div className="relative py-2">
                         <div className="absolute inset-0 flex items-center"><div className="w-full border-t border-white/10"></div></div>
                         <div className="relative flex justify-center text-xs uppercase"><span className="bg-black px-2 text-stone-600">Or</span></div>

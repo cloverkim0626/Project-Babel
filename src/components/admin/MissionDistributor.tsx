@@ -77,9 +77,16 @@ export const MissionDistributor: React.FC<MissionDistributorProps> = ({ onClose 
     }, []);
 
     const fetchProjects = async () => {
-        const { data } = await supabase.from('continents').select('*').order('created_at', { ascending: false });
-        if (data) setProjects(data);
-        setLoadingProjects(false);
+        try {
+            const { data, error } = await supabase.from('continents').select('*').order('created_at', { ascending: false });
+            if (error) throw error;
+            if (data) setProjects(data);
+        } catch (e: any) {
+            console.error("Project Fetch Error:", e);
+            setErrorMsg(`Failed to load Archives: ${e.message}`);
+        } finally {
+            setLoadingProjects(false);
+        }
     };
 
     const toggleProjectExpand = async (projectId: string) => {

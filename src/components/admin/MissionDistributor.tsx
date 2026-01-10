@@ -1,51 +1,33 @@
 import React, { useState, useMemo } from 'react';
 import { supabase } from '../../lib/supabase';
-import { Users, Target, Check, AlertCircle, BarChart2, Layers } from 'lucide-react';
+import { Users, Target, Check, AlertCircle, BarChart2, Layers, BookOpen } from 'lucide-react';
 
-export const MissionDistributor: React.FC<{ onClose: () => void }> = ({ onClose }) => {
-    // State for Custom Passages (Bulk Entry)
-    const [customPassages, setCustomPassages] = useState<{ id: string, title: string, content: string, wordCount: number }[]>([
-        { id: 'p-1', title: 'Passage 1', content: '', wordCount: 0 }
-    ]);
+interface Passage {
+    id: string;
+    title: string;
+    content: string;
+    word_count: number;
+}
 
-    // Step 2: Config
+interface MissionDistributorProps {
+    onClose: () => void;
+    initialPassages: Passage[];
+    missionTitle?: string;
+}
+
+export const MissionDistributor: React.FC<MissionDistributorProps> = ({ onClose, initialPassages, missionTitle: defaultTitle }) => {
+    // Config State
     const [durationWeeks, setDurationWeeks] = useState(2);
     const [wordsPerSeq, setWordsPerSeq] = useState(20);
     const [pointsPerSeq, setPointsPerSeq] = useState(10);
-    const [missionTitle, setMissionTitle] = useState('New Mission Assignment');
+    const [inputTitle, setInputTitle] = useState(defaultTitle || '새로운 미션 배포');
 
-    // Step 3: Students
+    // Student Selection State (Mock for now)
     const [selectedStudents, setSelectedStudents] = useState<string[]>([]);
-
-    const addPassageSlot = () => {
-        const id = `p-${Date.now()}`;
-        setCustomPassages(prev => [...prev, {
-            id,
-            title: `Passage ${prev.length + 1}`,
-            content: '',
-            wordCount: 0
-        }]);
-    };
-
-    const updatePassage = (id: string, field: 'title' | 'content', value: string) => {
-        setCustomPassages(prev => prev.map(p => {
-            if (p.id !== id) return p;
-            const updates: any = { [field]: value };
-            if (field === 'content') {
-                // Auto-count words approx
-                updates.wordCount = value.trim() ? value.trim().split(/\s+/).length : 0;
-            }
-            return { ...p, ...updates };
-        }));
-    };
-
-    const removePassage = (id: string) => {
-        setCustomPassages(prev => prev.filter(p => p.id !== id));
-    };
 
     // Calculation Logic
     const distributionPreview = useMemo(() => {
-        const totalWords = customPassages.reduce((acc, p) => acc + p.wordCount, 0);
+        const totalWords = initialPassages.reduce((acc, p) => acc + p.word_count, 0);
 
         const totalSequences = Math.ceil(totalWords / wordsPerSeq);
         const baseSeqPerWeek = Math.floor(totalSequences / durationWeeks);
@@ -69,15 +51,15 @@ export const MissionDistributor: React.FC<{ onClose: () => void }> = ({ onClose 
         }
 
         return { totalWords, totalSequences, schedule };
-    }, [customPassages, durationWeeks, wordsPerSeq]);
+    }, [initialPassages, durationWeeks, wordsPerSeq]);
 
     const handleDeploy = async () => {
-        if (selectedStudents.length === 0) return alert("Select at least one student.");
-        if (distributionPreview.totalWords === 0) return alert("Please add passage content.");
+        if (selectedStudents.length === 0) return alert("최소 한 명 이상의 학생을 선택해주세요.");
+        if (distributionPreview.totalWords === 0) return alert("배포할 지문 내용이 없습니다.");
 
-        const confirmMsg = `Deploying to ${selectedStudents.length} students.\n` +
-            `Total: ${distributionPreview.totalSequences} Sequences (${distributionPreview.totalWords} words).\n` +
-            `Proceed?`;
+        const confirmMsg = `${selectedStudents.length}명의 학생에게 배포합니다.\n` +
+            `총 ${distributionPreview.totalSequences} 시퀀스 (${distributionPreview.totalWords} 단어).\n` +
+            `진행하시겠습니까?`;
 
         if (!confirm(confirmMsg)) return;
 
@@ -85,14 +67,14 @@ export const MissionDistributor: React.FC<{ onClose: () => void }> = ({ onClose 
         const { data: mission, error: missionError } = await supabase
             .from('missions')
             .insert({
-                title: missionTitle,
+                title: inputTitle,
                 category: 'mock',
                 total_sets: distributionPreview.totalSequences,
                 config: {
                     duration_weeks: durationWeeks,
                     split_size: wordsPerSeq,
                     points_award: pointsPerSeq,
-                    passages: customPassages
+                    passages: initialPassages // Save snapshot of passages
                 }
             })
             .select()
@@ -100,7 +82,7 @@ export const MissionDistributor: React.FC<{ onClose: () => void }> = ({ onClose 
 
         if (missionError) {
             console.error(missionError);
-            return alert("Failed to create mission.");
+            return alert("미션 생성 실패.");
         }
 
         // 2. Create Quest Sets for each student
@@ -122,63 +104,40 @@ export const MissionDistributor: React.FC<{ onClose: () => void }> = ({ onClose 
         });
 
         await Promise.all(tasks);
-        alert("Deployment Complete!");
+        alert("배포가 완료되었습니다!");
         onClose();
     };
 
     return (
-        <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-            <div className="bg-stone-900 border border-white/10 rounded-xl w-full max-w-6xl h-[90vh] flex flex-col overflow-hidden shadow-2xl">
+        <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4 animate-in fade-in zoom-in duration-200">
+            <div className="bg-stone-900 border border-white/10 rounded-xl w-full max-w-6xl h-[85vh] flex flex-col overflow-hidden shadow-2xl">
                 {/* Header */}
                 <div className="p-6 border-b border-white/10 flex justify-between items-center bg-black/40">
                     <h2 className="text-2xl font-serif text-babel-gold flex items-center gap-3">
-                        <Layers className="text-white" /> Advanced Mission Distributor
+                        <Layers className="text-white" /> 미션 배포 설정 (Mission Distribution)
                     </h2>
-                    <button onClick={onClose} className="text-stone-400 hover:text-white">Close</button>
+                    <button onClick={onClose} className="text-stone-400 hover:text-white">닫기</button>
                 </div>
 
                 <div className="flex-1 overflow-hidden grid grid-cols-12">
-                    {/* Left: Bulk Passage Editor */}
-                    <div className="col-span-6 border-r border-white/10 p-4 overflow-y-auto bg-black/20 flex flex-col">
+                    {/* Left: Selected Passages (Read Only) */}
+                    <div className="col-span-4 border-r border-white/10 p-4 overflow-y-auto bg-black/20 flex flex-col">
                         <div className="flex justify-between items-center mb-4">
                             <h3 className="text-xs uppercase tracking-widest text-stone-500 flex items-center gap-2">
-                                <Target size={14} /> Passage content ({customPassages.length})
+                                <BookOpen size={14} /> 선택된 지문 ({initialPassages.length})
                             </h3>
-                            <button
-                                onClick={addPassageSlot}
-                                className="px-3 py-1 bg-blue-900/30 text-blue-400 text-xs rounded border border-blue-800 hover:bg-blue-800 hover:text-white transition-colors flex items-center gap-1"
-                            >
-                                + Add Slot
-                            </button>
                         </div>
 
-                        <div className="space-y-4 flex-1">
-                            {customPassages.map((p, idx) => (
-                                <div key={p.id} className="p-3 bg-stone-800/50 border border-white/5 rounded-lg group">
-                                    <div className="flex justify-between mb-2">
-                                        <input
-                                            type="text"
-                                            value={p.title}
-                                            onChange={(e) => updatePassage(p.id, 'title', e.target.value)}
-                                            className="bg-transparent text-sm font-bold text-white focus:text-babel-gold outline-none w-2/3"
-                                            placeholder={`Passage ${idx + 1}`}
-                                        />
-                                        <div className="flex items-center gap-2">
-                                            <span className="text-[10px] text-stone-500">{p.wordCount} words</span>
-                                            <button
-                                                onClick={() => removePassage(p.id)}
-                                                className="text-stone-600 hover:text-red-400 opacity-0 group-hover:opacity-100 transition-opacity"
-                                            >
-                                                ×
-                                            </button>
-                                        </div>
+                        <div className="space-y-3 flex-1">
+                            {initialPassages.map((p, idx) => (
+                                <div key={p.id || idx} className="p-4 bg-stone-800/50 border border-white/5 rounded-lg">
+                                    <div className="flex justify-between items-start mb-2">
+                                        <span className="font-bold text-white text-sm">{p.title}</span>
+                                        <span className="text-[10px] text-stone-500 bg-black/50 px-2 py-0.5 rounded">{p.word_count} words</span>
                                     </div>
-                                    <textarea
-                                        value={p.content}
-                                        onChange={(e) => updatePassage(p.id, 'content', e.target.value)}
-                                        placeholder="Paste passage text here..."
-                                        className="w-full h-24 bg-black/40 border border-white/5 rounded p-2 text-xs text-stone-300 focus:border-babel-gold/50 outline-none resize-none"
-                                    />
+                                    <p className="text-xs text-stone-500 line-clamp-3 leading-relaxed">
+                                        {p.content}
+                                    </p>
                                 </div>
                             ))}
                         </div>
@@ -187,23 +146,23 @@ export const MissionDistributor: React.FC<{ onClose: () => void }> = ({ onClose 
                     {/* Middle: Configuration */}
                     <div className="col-span-4 border-r border-white/10 p-6 overflow-y-auto">
                         <h3 className="text-xs uppercase tracking-widest text-stone-500 mb-6 flex items-center gap-2">
-                            <Target size={14} /> Distribution Config
+                            <Target size={14} /> 설정 (Configuration)
                         </h3>
 
                         <div className="space-y-6">
                             <div>
-                                <label className="block text-sm text-stone-400 mb-2">Mission Title</label>
+                                <label className="block text-sm text-stone-400 mb-2">미션 제목</label>
                                 <input
                                     type="text"
-                                    value={missionTitle}
-                                    onChange={(e) => setMissionTitle(e.target.value)}
-                                    className="w-full bg-black border border-white/20 rounded p-3 text-white focus:border-babel-gold"
+                                    value={inputTitle}
+                                    onChange={(e) => setInputTitle(e.target.value)}
+                                    className="w-full bg-black border border-white/20 rounded p-3 text-white focus:border-babel-gold outline-none"
                                 />
                             </div>
 
                             <div className="bg-stone-800/30 p-4 rounded-lg space-y-4 border border-white/5">
                                 <div>
-                                    <label className="block text-xs uppercase text-stone-500 mb-1">Duration (Weeks)</label>
+                                    <label className="block text-xs uppercase text-stone-500 mb-1">기간 설정 (주 단위)</label>
                                     <div className="flex items-center gap-4">
                                         <input
                                             type="range" min="1" max="10"
@@ -211,23 +170,23 @@ export const MissionDistributor: React.FC<{ onClose: () => void }> = ({ onClose 
                                             onChange={(e) => setDurationWeeks(Number(e.target.value))}
                                             className="flex-1 accent-babel-gold"
                                         />
-                                        <span className="text-xl font-bold text-babel-gold w-8 text-center">{durationWeeks}</span>
+                                        <span className="text-xl font-bold text-babel-gold w-8 text-center">{durationWeeks}주</span>
                                     </div>
                                 </div>
 
                                 <div>
-                                    <label className="block text-xs uppercase text-stone-500 mb-1">Words per Sequence</label>
+                                    <label className="block text-xs uppercase text-stone-500 mb-1">시퀀스 당 단어 수</label>
                                     <input
                                         type="number"
                                         value={wordsPerSeq}
                                         onChange={(e) => setWordsPerSeq(Number(e.target.value))}
                                         className="w-full bg-black border border-white/20 rounded p-2 text-white text-right"
                                     />
-                                    <p className="text-[10px] text-stone-500 mt-1">Recommended: 20-30 words</p>
+                                    <p className="text-[10px] text-stone-500 mt-1">권장: 20-30 단어</p>
                                 </div>
 
                                 <div>
-                                    <label className="block text-xs uppercase text-stone-500 mb-1">Points per Sequence</label>
+                                    <label className="block text-xs uppercase text-stone-500 mb-1">시퀀스 당 보상 포인트</label>
                                     <input
                                         type="number"
                                         value={pointsPerSeq}
@@ -240,7 +199,7 @@ export const MissionDistributor: React.FC<{ onClose: () => void }> = ({ onClose 
                             {/* Target Students Mock */}
                             <div>
                                 <label className="block text-xs uppercase text-stone-500 mb-2 flex items-center gap-2">
-                                    <Users size={12} /> Target Students
+                                    <Users size={12} /> 대상 학생 선택
                                 </label>
                                 <div className="h-40 overflow-y-auto border border-white/10 rounded bg-black/40 p-2 space-y-1">
                                     {['User A', 'User B', 'User C (High Rank)'].map((u, i) => {
@@ -253,7 +212,7 @@ export const MissionDistributor: React.FC<{ onClose: () => void }> = ({ onClose 
                                                     if (isSel) setSelectedStudents(prev => prev.filter(id => id !== uid));
                                                     else setSelectedStudents(prev => [...prev, uid]);
                                                 }}
-                                                className={`p-2 rounded text-sm cursor-pointer flex justify-between items-center ${isSel ? 'bg-green-900/30 text-green-300' : 'text-stone-400 hover:bg-white/5'
+                                                className={`p-2 rounded text-sm cursor-pointer flex justify-between items-center transition-colors ${isSel ? 'bg-green-900/30 text-green-300 border border-green-800' : 'text-stone-400 hover:bg-white/5 border border-transparent'
                                                     }`}
                                             >
                                                 <span>{u}</span>
@@ -269,18 +228,18 @@ export const MissionDistributor: React.FC<{ onClose: () => void }> = ({ onClose 
                     {/* Right: Preview */}
                     <div className="col-span-4 p-6 bg-black/20 overflow-y-auto">
                         <h3 className="text-xs uppercase tracking-widest text-stone-500 mb-6 flex items-center gap-2">
-                            <BarChart2 size={14} /> Schedule Preview
+                            <BarChart2 size={14} /> 일정 미리보기 (Schedule)
                         </h3>
 
                         <div className="space-y-4">
                             <div className="flex justify-between items-end border-b border-white/10 pb-4">
                                 <div>
                                     <div className="text-3xl font-bold text-white">{distributionPreview.totalSequences}</div>
-                                    <div className="text-xs text-stone-500">Total Sequences</div>
+                                    <div className="text-xs text-stone-500">총 시퀀스 (Total Sequences)</div>
                                 </div>
                                 <div className="text-right">
                                     <div className="text-xl font-bold text-babel-gold">{distributionPreview.totalWords}</div>
-                                    <div className="text-xs text-stone-500">Total Words</div>
+                                    <div className="text-xs text-stone-500">총 단어 수 (Total Words)</div>
                                 </div>
                             </div>
 
@@ -317,8 +276,8 @@ export const MissionDistributor: React.FC<{ onClose: () => void }> = ({ onClose 
                                 <div className="mt-4 p-3 bg-yellow-900/20 border border-yellow-700/30 rounded text-xs text-yellow-500 flex items-start gap-2">
                                     <AlertCircle size={14} className="mt-0.5 shrink-0" />
                                     <div>
-                                        Distribution is uneven (Top-heavy). <br />
-                                        Last week has fewer sequences to handle remainder.
+                                        배분 불균형 감지 (Top-heavy). <br />
+                                        나머지 시퀀스가 앞쪽 주차에 배치되었습니다.
                                     </div>
                                 </div>
                             )}
@@ -330,14 +289,14 @@ export const MissionDistributor: React.FC<{ onClose: () => void }> = ({ onClose 
                 {/* Footer */}
                 <div className="p-4 border-t border-white/10 flex justify-end gap-3 bg-black/40">
                     <button onClick={onClose} className="px-6 py-3 rounded text-stone-400 hover:text-white transition-colors">
-                        Cancel
+                        취소
                     </button>
                     <button
                         onClick={handleDeploy}
-                        disabled={selectedStudents.length === 0 || customPassages.length === 0}
+                        disabled={selectedStudents.length === 0 || initialPassages.length === 0}
                         className="px-8 py-3 bg-babel-gold hover:bg-yellow-500 text-black font-bold rounded shadow-[0_0_20px_rgba(212,175,55,0.2)] hover:shadow-[0_0_30px_rgba(212,175,55,0.4)] transition-all disabled:opacity-50 disabled:cursor-not-allowed"
                     >
-                        Deploy Mission
+                        미션 배포 시작 (Start Deploy)
                     </button>
                 </div>
             </div>

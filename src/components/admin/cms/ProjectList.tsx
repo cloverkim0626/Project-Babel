@@ -1,121 +1,146 @@
-
 import { useEffect, useState } from 'react';
 import { supabase } from '../../../lib/supabase';
-import { Folder, Plus, MoreVertical, Calendar, BookOpen, FileText, Layers } from 'lucide-react';
-import { MissionDistributor } from '../MissionDistributor';
+import { Plus, MoreVertical, Calendar, Globe, BookOpen } from 'lucide-react';
+import { ContinentManager } from '../ContinentManager';
 
-interface Mission {
+interface Continent {
     id: string;
-    title: string;
-    category: 'textbook' | 'mock' | 'custom';
-    metadata: any;
-    total_sets: number;
+    name: string;
+    display_name: string;
+    theme_color: string;
+    image_url: string;
     created_at: string;
 }
 
-export const ProjectList = ({ onCreate }: { onCreate: () => void }) => {
-    const [missions, setMissions] = useState<Mission[]>([]);
+export const ProjectList = ({ onCreate: _legacyOnCreate }: { onCreate: () => void }) => {
+    const [continents, setContinents] = useState<Continent[]>([]);
     const [loading, setLoading] = useState(true);
+    const [selectedContinent, setSelectedContinent] = useState<Continent | null>(null);
 
     useEffect(() => {
-        fetchMissions();
+        fetchContinents();
     }, []);
 
-    const fetchMissions = async () => {
+    const fetchContinents = async () => {
         const { data, error } = await supabase
-            .from('missions')
+            .from('continents')
             .select('*')
             .order('created_at', { ascending: false });
 
         if (!error && data) {
-            setMissions(data as any);
+            setContinents(data);
         }
         setLoading(false);
     };
 
-    const getIcon = (category: string) => {
-        switch (category) {
-            case 'textbook': return <BookOpen size={24} className="text-blue-400" />;
-            case 'mock': return <FileText size={24} className="text-red-400" />;
-            default: return <Folder size={24} className="text-babel-gold" />;
+    const handleCreateProject = async () => {
+        const name = prompt("프로젝트 이름 (폴더명)을 입력하세요:", "New Project 2024");
+        if (!name) return;
+
+        const displayName = prompt("화면에 표시될 이름 (Display Name):", name);
+        if (!displayName) return;
+
+        const { error } = await supabase.from('continents').insert({
+            name,
+            display_name: displayName,
+            theme_color: '#D4AF37'
+        });
+
+        if (error) {
+            alert("생성 실패: " + error.message);
+        } else {
+            fetchContinents();
         }
     };
 
-    const [showDistributor, setShowDistributor] = useState(false);
-
-    if (loading) return <div className="p-8 text-stone-500 animate-pulse">Loading Projects...</div>;
+    if (loading) return <div className="p-8 text-babel-gold animate-pulse text-center font-serif">Loading Archives...</div>;
 
     return (
-        <div className="p-8 max-w-7xl mx-auto">
-            {showDistributor && <MissionDistributor onClose={() => setShowDistributor(false)} />}
+        <div className="p-8 max-w-7xl mx-auto min-h-screen bg-transparent">
+            {selectedContinent && (
+                <ContinentManager
+                    continent={selectedContinent}
+                    onClose={() => {
+                        setSelectedContinent(null);
+                        fetchContinents(); // Refresh list on close
+                    }}
+                />
+            )}
 
-            <div className="flex justify-between items-center mb-8">
+            <div className="flex justify-between items-center mb-12 border-b border-white/10 pb-6">
                 <div>
-                    <h2 className="text-2xl font-serif text-white mb-2">My Projects</h2>
-                    <p className="text-stone-500 text-sm">Manage your curriculum folders or distribute assignments.</p>
+                    <h2 className="text-3xl font-serif text-white mb-2 flex items-center gap-3">
+                        <Globe className="text-babel-gold" /> Project : Babel Library
+                    </h2>
+                    <p className="text-stone-500 text-sm">관리할 프로젝트 폴더를 선택하거나 새로 생성하십시오.</p>
                 </div>
                 <div className="flex gap-2">
                     <button
-                        onClick={() => setShowDistributor(true)}
-                        className="bg-stone-800 hover:bg-stone-700 text-white px-4 py-2 rounded font-bold flex items-center gap-2 transition-colors border border-white/10"
+                        onClick={handleCreateProject}
+                        className="bg-babel-gold hover:bg-yellow-500 text-black px-6 py-3 rounded font-bold flex items-center gap-2 transition-transform hover:scale-105 shadow-[0_0_15px_rgba(212,175,55,0.3)]"
                     >
-                        <Layers size={18} /> Distribute Mission
-                    </button>
-                    <button
-                        onClick={onCreate}
-                        className="bg-babel-gold hover:bg-yellow-500 text-black px-4 py-2 rounded font-bold flex items-center gap-2 transition-colors"
-                    >
-                        <Plus size={18} /> New Project
+                        <Plus size={18} /> 새 프로젝트 생성 (Create New)
                     </button>
                 </div>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-6">
-                {/* Create New Placeholder */}
+            <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-8">
+                {/* Create New Card */}
                 <div
-                    onClick={onCreate}
-                    className="border-2 border-dashed border-white/10 rounded-xl p-6 flex flex-col items-center justify-center gap-4 cursor-pointer hover:border-babel-gold/50 hover:bg-white/5 transition-all group h-48"
+                    onClick={handleCreateProject}
+                    className="border-2 border-dashed border-white/10 rounded-xl p-8 flex flex-col items-center justify-center gap-4 cursor-pointer hover:border-babel-gold/50 hover:bg-white/5 transition-all group h-64"
                 >
-                    <div className="w-12 h-12 rounded-full bg-stone-800 flex items-center justify-center group-hover:bg-babel-gold group-hover:text-black transition-colors">
-                        <Plus size={24} />
+                    <div className="w-16 h-16 rounded-full bg-stone-900 flex items-center justify-center group-hover:bg-babel-gold group-hover:text-black transition-colors border border-white/10">
+                        <Plus size={32} />
                     </div>
-                    <span className="text-stone-500 font-medium group-hover:text-white">Create New</span>
+                    <span className="text-stone-500 font-medium group-hover:text-white uppercase tracking-widest text-xs">New Project</span>
                 </div>
 
-                {missions.map((mission) => (
-                    <div key={mission.id} className="bg-stone-900 border border-white/10 rounded-xl p-5 hover:border-babel-gold/30 transition-all cursor-pointer group relative hover:shadow-lg hover:shadow-black/50">
-                        <div className="flex justify-between items-start mb-4">
-                            <div className="p-3 bg-black rounded-lg border border-white/5">
-                                {getIcon(mission.category)}
+                {continents.map((cont) => (
+                    <div
+                        key={cont.id}
+                        onClick={() => setSelectedContinent(cont)}
+                        className="bg-black border border-white/10 rounded-xl p-0 hover:border-babel-gold transition-all cursor-pointer group relative hover:shadow-[0_0_30px_rgba(0,0,0,0.8)] overflow-hidden h-64 flex flex-col"
+                    >
+                        {/* Cover Image Area */}
+                        <div className="h-32 bg-stone-900 border-b border-white/5 relative overflow-hidden">
+                            {cont.image_url ? (
+                                <img src={cont.image_url} className="w-full h-full object-cover opacity-50 group-hover:opacity-80 transition-opacity" />
+                            ) : (
+                                <div className="w-full h-full bg-gradient-to-br from-stone-800 to-black flex items-center justify-center">
+                                    <Globe size={48} className="text-white/5" />
+                                </div>
+                            )}
+                            <div className="absolute top-3 right-3">
+                                <button className="text-white/50 hover:text-white bg-black/50 rounded-full p-1">
+                                    <MoreVertical size={16} />
+                                </button>
                             </div>
-                            <button className="text-stone-600 hover:text-white">
-                                <MoreVertical size={16} />
-                            </button>
                         </div>
 
-                        <h3 className="text-white font-bold text-lg mb-1 truncate">{mission.title}</h3>
+                        {/* Info Area */}
+                        <div className="p-5 flex-1 flex flex-col justify-between bg-stone-900/50">
+                            <div>
+                                <h3 className="text-white font-serif font-bold text-lg mb-1 truncate group-hover:text-babel-gold transition-colors">{cont.display_name}</h3>
+                                <p className="text-xs text-stone-500 font-mono truncate">{cont.name}</p>
+                            </div>
 
-                        <div className="text-xs text-stone-500 mb-4 h-10 overflow-hidden">
-                            {mission.metadata?.publisher && <span className="mr-2">[{mission.metadata.publisher}]</span>}
-                            {mission.metadata?.subject && <span>{mission.metadata.subject}</span>}
-                            {mission.metadata?.year && <span>{mission.metadata.year}년 {mission.metadata.month}월</span>}
-                        </div>
-
-                        <div className="flex items-center justify-between pt-4 border-t border-white/5 text-xs text-stone-400">
-                            <span className="flex items-center gap-1">
-                                <Folder size={12} /> {mission.total_sets} Sets
-                            </span>
-                            <span className="flex items-center gap-1">
-                                <Calendar size={12} /> {new Date(mission.created_at).toLocaleDateString()}
-                            </span>
+                            <div className="flex items-center justify-between pt-4 border-t border-white/5 text-[10px] text-stone-400 uppercase tracking-wider">
+                                <span className="flex items-center gap-1">
+                                    <BookOpen size={12} /> Content Lib
+                                </span>
+                                <span className="flex items-center gap-1">
+                                    <Calendar size={12} /> {new Date(cont.created_at).toLocaleDateString()}
+                                </span>
+                            </div>
                         </div>
                     </div>
                 ))}
             </div>
 
-            {missions.length === 0 && (
-                <div className="mt-12 text-center text-stone-600">
-                    No folders yet. Start by creating a project.
+            {continents.length === 0 && (
+                <div className="mt-12 text-center text-stone-600 font-serif">
+                    기록된 프로젝트가 없습니다. (Empty Archive)
                 </div>
             )}
         </div>

@@ -58,8 +58,9 @@
     - [x] [Refine] 유연한 파서 (Tab/Space 지원) 및 API 연동 설계 (Validated)
     - [x] [New] 학생별 미션 할당 및 모니터링 뷰 (Assignments) (Validated)
 * [x] **5.2 고급 미션 배포 시스템 (Advanced Distribution)**
-    - [x] **지문 대량 입력기 (Bulk Passage Editor)**: 슬롯 생성 후 붙여넣기 방식, 단어 수 자동 계산
-    - [x] **주차별 시퀀스 자동 분배 로직**: (총 지문 -> 시퀀스 -> 기간별 균등 배분)
+    - [x] **지문 대량 입력기 및 DB 연동**: Project -> Passage Library -> Bulk Entry -> DB Save (passages table)
+    - [x] **AI 지문 분석**: 입력된 지문에서 단어 및 메타데이터 추출 후 저장 (words_data)
+    - [x] **주차별 시퀀스 자동 분배 로직**: DB 선택 기반 배포 시스템으로 업그레이드 완료
     - [x] **설정 및 미리보기**: 기간(주), Split(20), 보상 설정 및 결과 Preview
 * [ ] **5.3 랭킹 및 데이터 파이프라인**
     - [ ] **오답 누적 시스템**: 20개 누적 시 알람 및 Review Set 자동 제안

@@ -58,6 +58,22 @@ create table public.continents (
 -- Note: In a real multi-user app, 'is_conquered' should be in a user_progress table. 
 -- For this prototype, we'll assume simplicity or add a join table later if needed.
 
+-- 3.5 Passages (Content Library within Continents)
+create table public.passages (
+  id uuid default gen_random_uuid() primary key,
+  continent_id uuid references public.continents(id) on delete cascade,
+  title text not null, -- "Passage 1"
+  content text not null,
+  word_count int default 0,
+  words_data jsonb default '[]'::jsonb, -- AI Analyzed Data (RichWord[])
+  created_at timestamp with time zone default timezone('utc'::text, now())
+);
+
+alter table public.passages enable row level security;
+-- Allow all authenticated users to view/create for now (Teacher role assumption)
+create policy "Enable all access for authenticated users" on public.passages for all using (auth.role() = 'authenticated');
+
+
 -- Mock Data for Continents
 insert into public.continents (id, name, display_name, theme_color) values
 (gen_random_uuid(), '2024 Sep Mock Exam', '9월의 던전 (Sep Dungeon)', '#D4AF37'),

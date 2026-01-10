@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { supabase } from '../../lib/supabase';
 import { extractWordsFromText, type RichWord } from '../../services/ai/extractionService';
-import { ArrowLeft, Save, Plus, Brain, CheckSquare, Trash2, Layers, Check, Edit2, X, ChevronRight, RefreshCw } from 'lucide-react';
+import { ArrowLeft, Save, Plus, Brain, CheckSquare, Trash2, Layers, Check, Edit2, X, RefreshCw } from 'lucide-react';
 import { MissionDistributor } from './MissionDistributor';
 
 // Types

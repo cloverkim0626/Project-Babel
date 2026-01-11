@@ -25,7 +25,7 @@ export default function TeacherDashboard() {
     };
 
     return (
-        <div className="min-h-screen bg-stone-900 text-stone-200 font-sans flex text-sm">
+        <div className="min-h-screen bg-[#0c0a09] text-[#eaddcf] font-serif flex text-sm">
             {/* Sidebar */}
             <aside className="w-64 bg-black border-r border-white/10 flex flex-col">
                 <div className="p-6 border-b border-white/10">

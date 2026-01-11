@@ -1,7 +1,8 @@
 import { useEffect, useState, useMemo } from 'react';
 import {
-    Plus, Globe, Layers,
-    Filter, X, ChevronRight, Check, Trash2, Search
+    Plus, Layers,
+    Filter, X, ChevronRight, Check, Trash2, Search,
+    Book, Scroll
 } from 'lucide-react';
 import { ContinentManager } from '../ContinentManager';
 import { MissionDistributor } from '../MissionDistributor';
@@ -67,10 +68,8 @@ export const ProjectList = ({ onCreate: _legacyOnCreate }: { onCreate: () => voi
             setLoading(true);
             const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
             const supabaseKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
-
             let projectId = '';
             try { projectId = supabaseUrl.split('//')[1].split('.')[0]; } catch (e) { }
-
             const key = `sb-${projectId}-auth-token`;
             const sessionStr = localStorage.getItem(key) ||
                 localStorage.getItem(Object.keys(localStorage).find(k => k.startsWith('sb-') && k.endsWith('-auth-token')) || '');
@@ -112,22 +111,15 @@ export const ProjectList = ({ onCreate: _legacyOnCreate }: { onCreate: () => voi
         try {
             const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
             const supabaseKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
-
             let projectId = '';
             try { projectId = supabaseUrl.split('//')[1].split('.')[0]; } catch (e) { }
-
             const key = `sb-${projectId}-auth-token`;
             const sessionStr = localStorage.getItem(key) ||
                 localStorage.getItem(Object.keys(localStorage).find(k => k.startsWith('sb-') && k.endsWith('-auth-token')) || '');
 
             if (!sessionStr) throw new Error("No Auth Token Found");
             const token = JSON.parse(sessionStr).access_token;
-
-            const headers = {
-                'apikey': supabaseKey,
-                'Authorization': `Bearer ${token}`,
-                'Content-Type': 'application/json'
-            };
+            const headers = { 'apikey': supabaseKey, 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' };
 
             const idString = selectedIds.join(',');
             const response = await fetch(`${supabaseUrl}/rest/v1/continents?id=in.(${idString})`, {
@@ -148,35 +140,25 @@ export const ProjectList = ({ onCreate: _legacyOnCreate }: { onCreate: () => voi
     // --- Filtering Logic ---
     const filteredContinents = useMemo(() => {
         return continents.filter(c => {
-            // 0. Search Term
             if (searchTerm) {
                 const searchLower = searchTerm.toLowerCase();
                 const matchName = c.display_name.toLowerCase().includes(searchLower) || c.name.toLowerCase().includes(searchLower);
                 if (!matchName) return false;
             }
-
-            // 1. Category Filter
             if (filterCategory !== 'ALL' && c.metadata?.category !== filterCategory) return false;
-
-            // 2. Sub Filters
-            if (filterCategory === 'TEXTBOOK') {
-                if (filterTbSubject !== 'ALL' && c.metadata?.textbook?.subject !== filterTbSubject) return false;
-            } else if (filterCategory === 'MOCK') {
+            if (filterCategory === 'TEXTBOOK' && filterTbSubject !== 'ALL' && c.metadata?.textbook?.subject !== filterTbSubject) return false;
+            if (filterCategory === 'MOCK') {
                 if (filterMockYear !== 'ALL' && c.metadata?.mock?.year !== filterMockYear) return false;
                 if (filterMockGrade !== 'ALL' && c.metadata?.mock?.grade !== filterMockGrade) return false;
-            } else if (filterCategory === 'OTHER') {
-                if (filterOtherPublisher !== 'ALL' && c.metadata?.other?.publisher !== filterOtherPublisher) return false;
             }
-
+            if (filterCategory === 'OTHER' && filterOtherPublisher !== 'ALL' && c.metadata?.other?.publisher !== filterOtherPublisher) return false;
             return true;
         });
     }, [continents, searchTerm, filterCategory, filterTbSubject, filterMockYear, filterMockGrade, filterOtherPublisher]);
 
     // --- Dynamic Filter Options ---
     const filterOptions = useMemo(() => {
-        const getUnique = (path: (c: Continent) => string | undefined) =>
-            Array.from(new Set(continents.map(path).filter(Boolean))).sort();
-
+        const getUnique = (path: (c: Continent) => string | undefined) => Array.from(new Set(continents.map(path).filter(Boolean))).sort();
         return {
             subjects: getUnique(c => c.metadata?.category === 'TEXTBOOK' ? c.metadata.textbook?.subject : undefined),
             years: getUnique(c => c.metadata?.category === 'MOCK' ? c.metadata.mock?.year : undefined),
@@ -194,43 +176,35 @@ export const ProjectList = ({ onCreate: _legacyOnCreate }: { onCreate: () => voi
         setSearchTerm('');
     };
 
-    if (loading) return <div className="p-8 text-babel-gold animate-pulse text-center font-serif">Loading Archives...</div>;
+    if (loading) return <div className="p-8 text-[#d4af37] animate-pulse text-center font-serif text-xl mt-20">Unsealing the Archives...</div>;
 
     return (
-        <div className="p-8 max-w-7xl mx-auto min-h-screen bg-transparent">
-            {showDistributor && (
-                <MissionDistributor
-                    onClose={() => setShowDistributor(false)}
-                />
-            )}
-
+        <div className="p-8 max-w-7xl mx-auto min-h-screen bg-[url('https://www.transparenttextures.com/patterns/dark-leather.png')] bg-fixed">
+            {showDistributor && <MissionDistributor onClose={() => setShowDistributor(false)} />}
             {selectedContinent && (
                 <ContinentManager
                     continent={selectedContinent}
                     initialView={selectedContinent.isNew ? 'add' : 'list'}
-                    onClose={() => {
-                        setSelectedContinent(null);
-                        fetchContinents();
-                    }}
+                    onClose={() => { setSelectedContinent(null); fetchContinents(); }}
                 />
             )}
 
-            <div className="flex flex-col gap-6 mb-8">
+            <div className="flex flex-col gap-8 mb-12">
                 {/* Header Row */}
-                <div className="flex justify-between items-center border-b border-white/10 pb-6">
+                <div className="flex justify-between items-end border-b border-[#44403c] pb-6">
                     <div>
-                        <h2 className="text-3xl font-serif text-white mb-2 flex items-center gap-3">
-                            <Globe className="text-babel-gold" /> The Knowledge Repository
+                        <h2 className="text-4xl font-serif text-[#d4af37] mb-2 flex items-center gap-3 drop-shadow-md">
+                            <Book size={32} className="text-[#d4af37]" /> The Knowledge Repository
                         </h2>
-                        <p className="text-stone-500 text-sm">관리할 프로젝트 폴더를 선택하거나 새로 생성하십시오.</p>
+                        <p className="text-[#d6c4a6] text-sm italic opacity-80 pl-1">"Select a Time to open, or inscribe a new one."</p>
                     </div>
-                    <div className="flex gap-2">
+                    <div className="flex gap-3">
                         {selectedIds.length > 0 && (
                             <button
                                 onClick={handleBulkDelete}
-                                className="bg-red-900/50 hover:bg-red-900 text-red-200 border border-red-800 px-4 py-2 rounded font-bold flex items-center gap-2 transition-colors text-sm"
+                                className="bg-[#450a0a] hover:bg-[#7f1d1d] text-[#fca5a5] border border-[#7f1d1d] px-5 py-2 rounded-sm font-serif font-bold flex items-center gap-2 transition-colors shadow-lg"
                             >
-                                <Trash2 size={16} /> 삭제 ({selectedIds.length})
+                                <Trash2 size={16} /> Burn Selected ({selectedIds.length})
                             </button>
                         )}
                         <button
@@ -238,177 +212,207 @@ export const ProjectList = ({ onCreate: _legacyOnCreate }: { onCreate: () => voi
                                 if (selectedIds.length === filteredContinents.length) setSelectedIds([]);
                                 else setSelectedIds(filteredContinents.map(c => c.id));
                             }}
-                            className="bg-stone-800 hover:bg-stone-700 text-stone-300 px-4 py-2 rounded font-bold transition-colors border border-white/10 text-sm"
+                            className="bg-[#292524] hover:bg-[#1c1917] text-[#a8a29e] px-5 py-2 rounded-sm font-serif font-bold transition-all border border-[#57534e] hover:border-[#d4af37]"
                         >
-                            {selectedIds.length > 0 && selectedIds.length === filteredContinents.length ? '선택 해제' : '전체 선택'}
+                            {selectedIds.length > 0 && selectedIds.length === filteredContinents.length ? 'Deselect All' : 'Select All'}
                         </button>
                         <button
                             onClick={() => setShowDistributor(true)}
-                            className="bg-stone-800 hover:bg-stone-700 text-white px-4 py-2 rounded font-bold flex items-center gap-2 transition-colors border border-white/10 shadow-[0_4px_20px_rgba(0,0,0,0.5)] text-sm"
+                            className="bg-[#292524] hover:bg-[#1c1917] text-[#eaddcf] px-5 py-2 rounded-sm font-serif font-bold flex items-center gap-2 transition-all border border-[#57534e] hover:border-[#d4af37] shadow-lg"
                         >
-                            <Layers size={16} /> 빠른 배포
+                            <Layers size={16} /> Quick Deploy
                         </button>
                         <button
                             onClick={() => navigate('/admin/create-project')}
-                            className="bg-babel-gold hover:bg-yellow-500 text-black px-6 py-2 rounded font-bold flex items-center gap-2 transition-transform hover:scale-105 shadow-[0_0_15px_rgba(212,175,55,0.3)] text-sm"
+                            className="bg-gradient-to-b from-[#d4af37] to-[#b49020] hover:from-[#fcd34d] hover:to-[#d4af37] text-[#292524] px-6 py-2 rounded-sm font-serif font-bold flex items-center gap-2 transition-all shadow-[0_0_15px_rgba(212,175,55,0.4)] hover:shadow-[0_0_25px_rgba(212,175,55,0.6)] transform hover:-translate-y-0.5"
                         >
-                            <Plus size={16} /> 새 프로젝트
+                            <Plus size={16} /> Inscribe New
                         </button>
                     </div>
                 </div>
 
-                {/* Filter Bar */}
-                <div className="flex flex-wrap items-center gap-4 bg-black/40 p-4 rounded-xl border border-white/10">
-                    <div className="flex items-center gap-2 text-stone-400 mr-2 border-r border-white/10 pr-4">
-                        <Filter size={16} />
-                        <span className="text-xs font-bold uppercase tracking-wider">Filters</span>
+                {/* Ancient Filter Bar */}
+                <div className="relative">
+                    {/* Decorative ends */}
+                    <div className="absolute -left-2 top-0 bottom-0 w-2 bg-[#57534e] rounded-l-md shadow-md" />
+                    <div className="absolute -right-2 top-0 bottom-0 w-2 bg-[#57534e] rounded-r-md shadow-md" />
+
+                    <div className="flex flex-wrap items-center gap-4 bg-[#eaddcf] p-4 shadow-[inset_0_0_20px_rgba(0,0,0,0.2)] border-y-4 double border-[#78350f]">
+                        <div className="flex items-center gap-2 text-[#78350f] mr-4 pr-4 border-r border-[#d6c4a6]">
+                            <Filter size={18} />
+                            <span className="text-xs font-serif font-bold tracking-widest uppercase">Filters</span>
+                        </div>
+
+                        {/* Category Select - Parchment Style */}
+                        <select
+                            value={filterCategory}
+                            onChange={(e) => {
+                                setFilterCategory(e.target.value as any);
+                                setFilterTbSubject('ALL'); setFilterMockYear('ALL'); setFilterMockGrade('ALL'); setFilterOtherPublisher('ALL');
+                            }}
+                            className="bg-[#f5ebe0] border border-[#d6c4a6] rounded-sm px-3 py-1.5 text-xs text-[#57534e] font-serif font-bold outline-none focus:border-[#78350f] shadow-inner"
+                        >
+                            <option value="ALL">All Categories</option>
+                            <option value="TEXTBOOK">교과서 (Textbooks)</option>
+                            <option value="MOCK">모의고사 (Mock Tests)</option>
+                            <option value="OTHER">기타 (Others)</option>
+                        </select>
+
+                        {/* Dynamic Sub Filters */}
+                        {filterCategory === 'TEXTBOOK' && (
+                            <div className="flex items-center gap-2 animate-in fade-in slide-in-from-left-4">
+                                <ChevronRight size={14} className="text-[#a8a29e]" />
+                                <select value={filterTbSubject} onChange={(e) => setFilterTbSubject(e.target.value)} className="bg-[#f5ebe0] border border-[#d6c4a6] rounded-sm px-3 py-1.5 text-xs text-[#57534e] font-serif font-bold outline-none focus:border-[#78350f] shadow-inner">
+                                    <option value="ALL">All XML Subjects</option>
+                                    {filterOptions.subjects.map(s => <option key={s} value={s}>{s}</option>)}
+                                </select>
+                            </div>
+                        )}
+                        {filterCategory === 'MOCK' && (
+                            <div className="flex items-center gap-2 animate-in fade-in slide-in-from-left-4">
+                                <ChevronRight size={14} className="text-[#a8a29e]" />
+                                <select value={filterMockYear} onChange={(e) => setFilterMockYear(e.target.value)} className="bg-[#f5ebe0] border border-[#d6c4a6] rounded-sm px-3 py-1.5 text-xs text-[#57534e] font-serif font-bold outline-none focus:border-[#78350f] shadow-inner">
+                                    <option value="ALL">Year</option>
+                                    {filterOptions.years.map(y => <option key={y} value={y}>{y}</option>)}
+                                </select>
+                                <select value={filterMockGrade} onChange={(e) => setFilterMockGrade(e.target.value)} className="bg-[#f5ebe0] border border-[#d6c4a6] rounded-sm px-3 py-1.5 text-xs text-[#57534e] font-serif font-bold outline-none focus:border-[#78350f] shadow-inner">
+                                    <option value="ALL">Grade</option>
+                                    {filterOptions.grades.map(g => <option key={g} value={g}>{g === 'High 1' ? '고1' : g === 'High 2' ? '고2' : '고3'}</option>)}
+                                </select>
+                            </div>
+                        )}
+                        {filterCategory === 'OTHER' && (
+                            <div className="flex items-center gap-2 animate-in fade-in slide-in-from-left-4">
+                                <ChevronRight size={14} className="text-[#a8a29e]" />
+                                <select value={filterOtherPublisher} onChange={(e) => setFilterOtherPublisher(e.target.value)} className="bg-[#f5ebe0] border border-[#d6c4a6] rounded-sm px-3 py-1.5 text-xs text-[#57534e] font-serif font-bold outline-none focus:border-[#78350f] shadow-inner">
+                                    <option value="ALL">Publisher</option>
+                                    {filterOptions.publishers.map(p => <option key={p} value={p}>{p}</option>)}
+                                </select>
+                            </div>
+                        )}
+
+                        <div className="ml-auto relative">
+                            <input
+                                type="text"
+                                placeholder="Search the archives..."
+                                value={searchTerm}
+                                onChange={(e) => setSearchTerm(e.target.value)}
+                                className="bg-[#f5ebe0] border border-[#d6c4a6] rounded-full pl-9 pr-4 py-1.5 text-xs text-[#57534e] font-serif w-56 focus:w-72 transition-all outline-none focus:border-[#78350f] shadow-inner placeholder-[#a8a29e]"
+                            />
+                            <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-[#a8a29e]" />
+                        </div>
+
+                        {(filterCategory !== 'ALL' || searchTerm) && (
+                            <button onClick={resetFilters} className="text-[#a8a29e] hover:text-[#7f1d1d] p-1 transition-colors">
+                                <X size={16} />
+                            </button>
+                        )}
                     </div>
-
-                    {/* Category Select */}
-                    <select
-                        value={filterCategory}
-                        onChange={(e) => {
-                            setFilterCategory(e.target.value as any);
-                            // Reset sub-filters when category changes
-                            setFilterTbSubject('ALL');
-                            setFilterMockYear('ALL');
-                            setFilterMockGrade('ALL');
-                            setFilterOtherPublisher('ALL');
-                        }}
-                        className="bg-stone-900 border border-white/20 rounded px-3 py-1.5 text-xs text-white outline-none focus:border-babel-gold"
-                    >
-                        <option value="ALL">전체 카테고리</option>
-                        <option value="TEXTBOOK">교과서</option>
-                        <option value="MOCK">모의고사</option>
-                        <option value="OTHER">기타</option>
-                    </select>
-
-                    {/* Dynamic Sub Filters */}
-                    {filterCategory === 'TEXTBOOK' && (
-                        <div className="flex items-center gap-2 animate-in fade-in slide-in-from-left-4">
-                            <ChevronRight size={14} className="text-stone-600" />
-                            <select value={filterTbSubject} onChange={(e) => setFilterTbSubject(e.target.value)} className="bg-stone-900 border border-white/20 rounded px-3 py-1.5 text-xs text-white outline-none focus:border-babel-gold">
-                                <option value="ALL">전체 과목 (Subjects)</option>
-                                {filterOptions.subjects.map(s => <option key={s} value={s}>{s}</option>)}
-                            </select>
-                        </div>
-                    )}
-
-                    {filterCategory === 'MOCK' && (
-                        <div className="flex items-center gap-2 animate-in fade-in slide-in-from-left-4">
-                            <ChevronRight size={14} className="text-stone-600" />
-                            <select value={filterMockYear} onChange={(e) => setFilterMockYear(e.target.value)} className="bg-stone-900 border border-white/20 rounded px-3 py-1.5 text-xs text-white outline-none focus:border-babel-gold">
-                                <option value="ALL">전체 연도 (Year)</option>
-                                {filterOptions.years.map(y => <option key={y} value={y}>{y}</option>)}
-                            </select>
-                            <select value={filterMockGrade} onChange={(e) => setFilterMockGrade(e.target.value)} className="bg-stone-900 border border-white/20 rounded px-3 py-1.5 text-xs text-white outline-none focus:border-babel-gold">
-                                <option value="ALL">전체 학년 (Grade)</option>
-                                {filterOptions.grades.map(g => <option key={g} value={g}>{g === 'High 1' ? '고1' : g === 'High 2' ? '고2' : '고3'}</option>)}
-                            </select>
-                        </div>
-                    )}
-
-                    {filterCategory === 'OTHER' && (
-                        <div className="flex items-center gap-2 animate-in fade-in slide-in-from-left-4">
-                            <ChevronRight size={14} className="text-stone-600" />
-                            <select value={filterOtherPublisher} onChange={(e) => setFilterOtherPublisher(e.target.value)} className="bg-stone-900 border border-white/20 rounded px-3 py-1.5 text-xs text-white outline-none focus:border-babel-gold">
-                                <option value="ALL">전체 출판사 (Publisher)</option>
-                                {filterOptions.publishers.map(p => <option key={p} value={p}>{p}</option>)}
-                            </select>
-                        </div>
-                    )}
-
-                    {/* Search Input */}
-                    <div className="ml-auto relative">
-                        <input
-                            type="text"
-                            placeholder="프로젝트 검색..."
-                            value={searchTerm}
-                            onChange={(e) => setSearchTerm(e.target.value)}
-                            className="bg-black/50 border border-white/10 rounded-full pl-8 pr-4 py-1.5 text-xs text-white w-48 focus:w-64 transition-all outline-none focus:border-babel-gold"
-                        />
-                        <Search size={12} className="absolute left-3 top-1/2 -translate-y-1/2 text-stone-500" />
-                    </div>
-
-                    {(filterCategory !== 'ALL' || searchTerm) && (
-                        <button onClick={resetFilters} className="text-stone-500 hover:text-white p-1">
-                            <X size={14} />
-                        </button>
-                    )}
                 </div>
             </div>
 
             {/* Grid */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-                {/* Create New Card - Compact */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                {/* Create New Card - Magical Glyph */}
                 <div
                     onClick={() => navigate('/admin/create-project')}
-                    className="h-28 border border-dashed border-white/10 rounded-lg flex items-center justify-center gap-3 cursor-pointer hover:border-babel-gold/50 hover:bg-white/5 transition-all group"
+                    className="h-36 border-2 border-dashed border-[#57534e] rounded bg-[#1c1917]/50 flex flex-col items-center justify-center gap-3 cursor-pointer hover:border-[#d4af37] hover:bg-[#292524] transition-all group relative overflow-hidden"
                 >
-                    <div className="w-8 h-8 rounded-full bg-stone-900 flex items-center justify-center group-hover:bg-babel-gold group-hover:text-black transition-colors border border-white/10">
-                        <Plus size={16} />
+                    <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/stardust.png')] opacity-10 animate-pulse" />
+                    <div className="w-12 h-12 rounded-full bg-[#0c0a09] flex items-center justify-center group-hover:bg-[#d4af37] group-hover:text-[#0c0a09] transition-colors border border-[#44403c] text-[#57534e] z-10">
+                        <Plus size={24} />
                     </div>
-                    <span className="text-stone-500 font-medium group-hover:text-white uppercase tracking-widest text-xs">New</span>
+                    <span className="text-[#57534e] font-serif font-bold tracking-widest text-xs group-hover:text-[#d4af37] transition-colors z-10">INSCRIBE NEW</span>
                 </div>
 
                 {filteredContinents.map((cont) => {
-                    // Extract tag info for display
                     let tag = '';
                     if (cont.metadata?.category === 'TEXTBOOK') tag = `${cont.metadata.textbook?.subject}`;
                     else if (cont.metadata?.category === 'MOCK') tag = `${cont.metadata.mock?.year} · ${cont.metadata.mock?.month}`;
                     else if (cont.metadata?.category === 'OTHER') tag = cont.metadata.other?.publisher || 'Other';
 
+                    const categoryLabel = {
+                        'TEXTBOOK': '교과서',
+                        'MOCK': '모의고사',
+                        'OTHER': '기타'
+                    }[cont.metadata?.category || 'OTHER'] || '기타';
+
+                    const isSelected = selectedIds.includes(cont.id);
+
                     return (
                         <div
                             key={cont.id}
                             onClick={() => setSelectedContinent(cont)}
-                            className={`h-28 bg-stone-900/40 border rounded-lg p-0 transition-all group relative hover:shadow-[0_4px_20px_rgba(0,0,0,0.5)] overflow-hidden flex ${selectedIds.includes(cont.id) ? 'border-babel-gold ring-1 ring-babel-gold/20 bg-babel-gold/5' : 'border-white/5 hover:border-babel-gold/50 hover:bg-stone-900/80'}`}
+                            className={`h-36 relative rounded border-2 p-0 transition-all group overflow-hidden flex flex-col cursor-pointer shadow-lg hover:transform hover:-translate-y-1 hover:shadow-2xl ${isSelected
+                                ? 'border-[#d4af37] bg-[#292524]'
+                                : 'border-[#292524] bg-[#1c1917] hover:border-[#78716c]'
+                                }`}
                         >
-                            {/* Checkbox Overlay */}
+                            {/* Book Spine / Accent */}
+                            <div className={`absolute left-0 top-0 bottom-0 w-3 z-10 border-r border-black/20 ${cont.metadata?.category === 'TEXTBOOK' ? 'bg-[#1e3a8a]' :
+                                cont.metadata?.category === 'MOCK' ? 'bg-[#581c87]' : 'bg-[#44403c]'
+                                }`} />
+
+                            {/* Book Cover Texture */}
+                            <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/dark-leather.png')] opacity-50 pointer-events-none" />
+
+                            {/* Checkbox (Seal) */}
                             <div
-                                className="absolute top-2 left-2 z-20 p-2 -m-2 cursor-pointer"
+                                className="absolute top-2 left-5 z-20 cursor-pointer p-2 -m-2"
                                 onClick={(e) => {
                                     e.stopPropagation();
                                     setSelectedIds(prev => prev.includes(cont.id) ? prev.filter(id => id !== cont.id) : [...prev, cont.id]);
                                 }}
                             >
-                                <div className={`w-4 h-4 rounded border flex items-center justify-center transition-colors ${selectedIds.includes(cont.id) ? 'bg-babel-gold border-babel-gold text-black' : 'bg-black/40 border-white/20 hover:border-white/50 text-transparent'}`}>
-                                    <Check size={10} />
+                                <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center transition-all shadow-md ${isSelected
+                                    ? 'bg-[#d4af37] border-[#fffbeb] text-[#422006]'
+                                    : 'bg-[#0c0a09]/60 border-[#57534e] text-transparent hover:border-[#d4af37]'
+                                    }`}>
+                                    <Check size={12} strokeWidth={4} />
                                 </div>
                             </div>
 
-                            {/* Accent Bar */}
-                            <div className={`w-1 h-full ${cont.metadata?.category === 'TEXTBOOK' ? 'bg-blue-500' :
-                                cont.metadata?.category === 'MOCK' ? 'bg-purple-500' : 'bg-stone-500'
-                                }`} />
+                            {/* Corner Decorations */}
+                            <div className="absolute top-0 right-0 w-8 h-8 border-t-2 border-r-2 border-[#d4af37]/20 rounded-tr group-hover:border-[#d4af37]/50 transition-colors" />
+                            <div className="absolute bottom-0 right-0 w-8 h-8 border-b-2 border-r-2 border-[#d4af37]/20 rounded-br group-hover:border-[#d4af37]/50 transition-colors" />
 
                             {/* Content */}
-                            <div className="flex-1 p-3 flex flex-col justify-between cursor-pointer max-w-full overflow-hidden">
-                                <div>
-                                    <div className="flex justify-between items-start mb-1">
-                                        <span className={`text-[9px] px-1.5 py-0.5 rounded border ${cont.metadata?.category === 'TEXTBOOK' ? 'bg-blue-900/20 text-blue-400 border-blue-500/30' :
-                                            cont.metadata?.category === 'MOCK' ? 'bg-purple-900/20 text-purple-400 border-purple-500/30' : 'bg-stone-800 text-stone-400 border-white/10'
-                                            }`}>
-                                            {cont.metadata?.category || 'UNKNOWN'}
-                                        </span>
-                                        <span className="text-[10px] text-stone-600 font-mono">
-                                            {new Date(cont.created_at).toLocaleDateString()}
-                                        </span>
+                            <div className="flex-1 pl-6 p-4 flex flex-col justify-between relative z-0">
+                                <div className="flex flex-col gap-1">
+                                    {/* Date Stamp */}
+                                    <div className="text-[10px] text-[#78716c] font-mono flex justify-end">
+                                        {new Date(cont.created_at).toLocaleDateString()}
                                     </div>
-                                    <h3 className="text-white font-bold text-sm truncate pr-4 group-hover:text-babel-gold transition-colors leading-tight">
+
+                                    {/* Title */}
+                                    <h3
+                                        className={`font-serif font-bold text-lg leading-tight truncate pr-2 transition-colors ${isSelected ? 'text-[#d4af37]' : 'text-[#eaddcf] group-hover:text-[#f5ebe0]'
+                                            }`}
+                                    >
                                         {cont.display_name}
                                     </h3>
-                                    <p className="text-[10px] text-stone-500 font-mono truncate mt-0.5">
-                                        {cont.name}
+
+                                    {/* Subtitle */}
+                                    <p className="text-[10px] text-[#a8a29e] font-serif truncate">
+                                        ID: {cont.name}
                                     </p>
                                 </div>
 
-                                <div className="flex items-center gap-2 text-[10px] text-stone-400">
-                                    {tag && (
-                                        <span className="flex items-center gap-1 opacity-70">
-                                            <Layers size={10} /> {tag}
+                                {/* Footer Row */}
+                                <div className="flex items-end justify-between mt-2">
+                                    <div className="flex items-center gap-2">
+                                        <span className="flex items-center gap-1.5 text-[10px] text-[#78716c] bg-[#0c0a09]/40 px-2 py-1 rounded border border-[#292524]">
+                                            <Layers size={10} /> {tag || 'General'}
                                         </span>
-                                    )}
+                                    </div>
+
+                                    {/* Category Seal (Bottom Right) */}
+                                    <span className={`text-[10px] px-2 py-0.5 rounded-sm border font-serif font-bold uppercase tracking-wider ${cont.metadata?.category === 'TEXTBOOK' ? 'bg-[#1e3a8a]/20 text-[#60a5fa] border-[#1e3a8a]/40' :
+                                        cont.metadata?.category === 'MOCK' ? 'bg-[#581c87]/20 text-[#c084fc] border-[#581c87]/40' :
+                                            'bg-[#292524] text-[#a8a29e] border-[#44403c]'
+                                        }`}>
+                                        {categoryLabel}
+                                    </span>
                                 </div>
                             </div>
                         </div>
@@ -417,9 +421,9 @@ export const ProjectList = ({ onCreate: _legacyOnCreate }: { onCreate: () => voi
             </div>
 
             {filteredContinents.length === 0 && (
-                <div className="mt-20 text-center text-stone-600 font-serif">
-                    <div className="mb-4 opacity-20"><Filter size={48} className="mx-auto" /></div>
-                    <p>조건에 맞는 프로젝트가 없습니다.</p>
+                <div className="mt-20 text-center text-[#57534e] font-serif">
+                    <div className="mb-4 opacity-30"><Scroll size={64} className="mx-auto" /></div>
+                    <p className="text-xl">No Tomes found in the Archives.</p>
                 </div>
             )}
         </div>

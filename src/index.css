@@ -2,34 +2,97 @@
 @tailwind components;
 @tailwind utilities;
 
-@layer base {
-  body {
-    @apply bg-obsidian text-paper font-mono overflow-x-hidden;
-  }
+/* Ancient Library Theme Fonts */
+@import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700;900&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;0,700;1,400&display=swap');
 
-  h1,
-  h2,
-  h3,
-  h4,
-  h5,
-  h6 {
-    @apply font-serif text-babel-gold;
-  }
+:root {
+  /* RPG / Ancient Theme Palette */
+  --bg-ancient-dark: #0c0a09;
+  /* Very dark stone */
+  --bg-parchment: #eaddcf;
+  /* Light parchment */
+  --bg-parchment-dark: #d6c4a6;
+  /* Darker parchment */
+
+  --text-parchment: #eaddcf;
+  --text-ink: #292524;
+  /* Dark ink color */
+
+  --border-gold: #d4af37;
+  /* Classic Gold */
+  --border-gold-dim: #997b28;
+
+  --accent-ruby: #7f1d1d;
+  --accent-emerald: #064e3b;
+  --accent-sapphire: #1e3a8a;
 }
 
-/* Custom Scrollbar for 'Babel Library' feel */
+body {
+  background-color: var(--bg-ancient-dark);
+  color: var(--text-parchment);
+  font-family: 'Cormorant Garamond', serif;
+}
+
+/* Scrollbar Customization */
 ::-webkit-scrollbar {
-  width: 8px;
-}
-
-::-webkit-scrollbar-track {
-  @apply bg-obsidian;
+  width: 10px;
+  background-color: #1c1917;
 }
 
 ::-webkit-scrollbar-thumb {
-  @apply bg-stone-800 rounded;
+  background-color: #44403c;
+  border: 1px solid #78716c;
+  border-radius: 4px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  @apply bg-stone-700;
+  background-color: #57534e;
+}
+
+/* Typography Overrides */
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-family: 'Cinzel', serif;
+  letter-spacing: 0.05em;
+}
+
+/* Utility Classes for Ancient Look */
+.ancient-panel {
+  background-color: #1c191799;
+  /* Stone-900 with opacity */
+  border: 1px solid #44403c;
+  /* Stone-700 */
+  box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.8);
+  backdrop-filter: blur(4px);
+}
+
+.ancient-border-gold {
+  border: 1px solid var(--border-gold-dim);
+  box-shadow: 0 0 10px rgba(212, 175, 55, 0.1);
+}
+
+.ancient-scroll {
+  background-color: var(--bg-parchment);
+  color: var(--text-ink);
+  border: 4px double #78350f;
+  /* Leather brown border */
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.5);
+}
+
+.ancient-button {
+  background: linear-gradient(to bottom, #292524, #1c1917);
+  border: 1px solid #57534e;
+  color: #e7e5e4;
+  font-family: 'Cinzel', serif;
+  transition: all 0.2s;
+}
+
+.ancient-button:hover {
+  border-color: var(--border-gold);
+  color: var(--border-gold);
+  box-shadow: 0 0 15px rgba(212, 175, 55, 0.2);
 }

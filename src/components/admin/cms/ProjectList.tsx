@@ -179,7 +179,7 @@ export const ProjectList = ({ onCreate: _legacyOnCreate }: { onCreate: () => voi
     if (loading) return <div className="p-8 text-[#d4af37] animate-pulse text-center font-serif text-xl mt-20">Unsealing the Archives...</div>;
 
     return (
-        <div className="p-8 max-w-7xl mx-auto min-h-screen bg-[url('https://www.transparenttextures.com/patterns/dark-leather.png')] bg-fixed">
+        <div className="p-8 max-w-7xl mx-auto min-h-screen">
             {showDistributor && <MissionDistributor onClose={() => setShowDistributor(false)} />}
             {selectedContinent && (
                 <ContinentManager
@@ -191,12 +191,12 @@ export const ProjectList = ({ onCreate: _legacyOnCreate }: { onCreate: () => voi
 
             <div className="flex flex-col gap-8 mb-12">
                 {/* Header Row */}
-                <div className="flex justify-between items-end border-b border-[#44403c] pb-6">
+                <div className="flex justify-between items-end border-b border-[#78350f] pb-6">
                     <div>
-                        <h2 className="text-4xl font-serif text-[#d4af37] mb-2 flex items-center gap-3 drop-shadow-md">
-                            <Book size={32} className="text-[#d4af37]" /> The Knowledge Repository
+                        <h2 className="text-4xl font-serif text-[#fbbf24] mb-2 flex items-center gap-3 drop-shadow-md text-glow-gold">
+                            <Book size={32} className="text-[#fbbf24]" /> The Knowledge Repository
                         </h2>
-                        <p className="text-[#d6c4a6] text-sm italic opacity-80 pl-1">"Select a Time to open, or inscribe a new one."</p>
+                        <p className="text-[#a8a29e] text-sm italic opacity-80 pl-1">"Select a Time to open, or inscribe a new one."</p>
                     </div>
                     <div className="flex gap-3">
                         {selectedIds.length > 0 && (
@@ -224,7 +224,7 @@ export const ProjectList = ({ onCreate: _legacyOnCreate }: { onCreate: () => voi
                         </button>
                         <button
                             onClick={() => navigate('/admin/create-project')}
-                            className="bg-gradient-to-b from-[#d4af37] to-[#b49020] hover:from-[#fcd34d] hover:to-[#d4af37] text-[#292524] px-6 py-2 rounded-sm font-serif font-bold flex items-center gap-2 transition-all shadow-[0_0_15px_rgba(212,175,55,0.4)] hover:shadow-[0_0_25px_rgba(212,175,55,0.6)] transform hover:-translate-y-0.5"
+                            className="ancient-button px-6 py-2 rounded-sm font-serif font-bold flex items-center gap-2 shadow-[0_0_15px_rgba(212,175,55,0.4)] hover:shadow-[0_0_25px_rgba(212,175,55,0.6)] transform hover:-translate-y-0.5 border border-[#d4af37]"
                         >
                             <Plus size={16} /> Inscribe New
                         </button>
@@ -250,7 +250,7 @@ export const ProjectList = ({ onCreate: _legacyOnCreate }: { onCreate: () => voi
                                 setFilterCategory(e.target.value as any);
                                 setFilterTbSubject('ALL'); setFilterMockYear('ALL'); setFilterMockGrade('ALL'); setFilterOtherPublisher('ALL');
                             }}
-                            className="bg-[#f5ebe0] border border-[#d6c4a6] rounded-sm px-3 py-1.5 text-xs text-[#57534e] font-serif font-bold outline-none focus:border-[#78350f] shadow-inner"
+                            className="bg-[#f5ebe0] border border-[#d6c4a6] rounded-sm px-3 py-1.5 text-xs text-[#57534e] font-serif font-bold outline-none focus:border-[#78350f] shadow-inner cursor-pointer"
                         >
                             <option value="ALL">All Categories</option>
                             <option value="TEXTBOOK">교과서 (Textbooks)</option>
@@ -262,7 +262,7 @@ export const ProjectList = ({ onCreate: _legacyOnCreate }: { onCreate: () => voi
                         {filterCategory === 'TEXTBOOK' && (
                             <div className="flex items-center gap-2 animate-in fade-in slide-in-from-left-4">
                                 <ChevronRight size={14} className="text-[#a8a29e]" />
-                                <select value={filterTbSubject} onChange={(e) => setFilterTbSubject(e.target.value)} className="bg-[#f5ebe0] border border-[#d6c4a6] rounded-sm px-3 py-1.5 text-xs text-[#57534e] font-serif font-bold outline-none focus:border-[#78350f] shadow-inner">
+                                <select value={filterTbSubject} onChange={(e) => setFilterTbSubject(e.target.value)} className="bg-[#f5ebe0] border border-[#d6c4a6] rounded-sm px-3 py-1.5 text-xs text-[#57534e] font-serif font-bold outline-none focus:border-[#78350f] shadow-inner cursor-pointer">
                                     <option value="ALL">All XML Subjects</option>
                                     {filterOptions.subjects.map(s => <option key={s} value={s}>{s}</option>)}
                                 </select>
@@ -271,11 +271,11 @@ export const ProjectList = ({ onCreate: _legacyOnCreate }: { onCreate: () => voi
                         {filterCategory === 'MOCK' && (
                             <div className="flex items-center gap-2 animate-in fade-in slide-in-from-left-4">
                                 <ChevronRight size={14} className="text-[#a8a29e]" />
-                                <select value={filterMockYear} onChange={(e) => setFilterMockYear(e.target.value)} className="bg-[#f5ebe0] border border-[#d6c4a6] rounded-sm px-3 py-1.5 text-xs text-[#57534e] font-serif font-bold outline-none focus:border-[#78350f] shadow-inner">
+                                <select value={filterMockYear} onChange={(e) => setFilterMockYear(e.target.value)} className="bg-[#f5ebe0] border border-[#d6c4a6] rounded-sm px-3 py-1.5 text-xs text-[#57534e] font-serif font-bold outline-none focus:border-[#78350f] shadow-inner cursor-pointer">
                                     <option value="ALL">Year</option>
                                     {filterOptions.years.map(y => <option key={y} value={y}>{y}</option>)}
                                 </select>
-                                <select value={filterMockGrade} onChange={(e) => setFilterMockGrade(e.target.value)} className="bg-[#f5ebe0] border border-[#d6c4a6] rounded-sm px-3 py-1.5 text-xs text-[#57534e] font-serif font-bold outline-none focus:border-[#78350f] shadow-inner">
+                                <select value={filterMockGrade} onChange={(e) => setFilterMockGrade(e.target.value)} className="bg-[#f5ebe0] border border-[#d6c4a6] rounded-sm px-3 py-1.5 text-xs text-[#57534e] font-serif font-bold outline-none focus:border-[#78350f] shadow-inner cursor-pointer">
                                     <option value="ALL">Grade</option>
                                     {filterOptions.grades.map(g => <option key={g} value={g}>{g === 'High 1' ? '고1' : g === 'High 2' ? '고2' : '고3'}</option>)}
                                 </select>
@@ -284,7 +284,7 @@ export const ProjectList = ({ onCreate: _legacyOnCreate }: { onCreate: () => voi
                         {filterCategory === 'OTHER' && (
                             <div className="flex items-center gap-2 animate-in fade-in slide-in-from-left-4">
                                 <ChevronRight size={14} className="text-[#a8a29e]" />
-                                <select value={filterOtherPublisher} onChange={(e) => setFilterOtherPublisher(e.target.value)} className="bg-[#f5ebe0] border border-[#d6c4a6] rounded-sm px-3 py-1.5 text-xs text-[#57534e] font-serif font-bold outline-none focus:border-[#78350f] shadow-inner">
+                                <select value={filterOtherPublisher} onChange={(e) => setFilterOtherPublisher(e.target.value)} className="bg-[#f5ebe0] border border-[#d6c4a6] rounded-sm px-3 py-1.5 text-xs text-[#57534e] font-serif font-bold outline-none focus:border-[#78350f] shadow-inner cursor-pointer">
                                     <option value="ALL">Publisher</option>
                                     {filterOptions.publishers.map(p => <option key={p} value={p}>{p}</option>)}
                                 </select>
@@ -343,18 +343,15 @@ export const ProjectList = ({ onCreate: _legacyOnCreate }: { onCreate: () => voi
                         <div
                             key={cont.id}
                             onClick={() => setSelectedContinent(cont)}
-                            className={`h-36 relative rounded border-2 p-0 transition-all group overflow-hidden flex flex-col cursor-pointer shadow-lg hover:transform hover:-translate-y-1 hover:shadow-2xl ${isSelected
-                                ? 'border-[#d4af37] bg-[#292524]'
-                                : 'border-[#292524] bg-[#1c1917] hover:border-[#78716c]'
+                            className={`h-36 relative rounded border p-0 transition-all group overflow-hidden flex flex-col cursor-pointer shadow-lg hover:transform hover:-translate-y-1 hover:shadow-[0_10px_30px_rgba(0,0,0,0.5)] bg-[url('/assets/tex-sidebar.png')] bg-cover ${isSelected
+                                ? 'border-[#d4af37] ring-2 ring-[#d4af37]'
+                                : 'border-[#451a03] hover:border-[#b45309]'
                                 }`}
                         >
                             {/* Book Spine / Accent */}
                             <div className={`absolute left-0 top-0 bottom-0 w-3 z-10 border-r border-black/20 ${cont.metadata?.category === 'TEXTBOOK' ? 'bg-[#1e3a8a]' :
                                 cont.metadata?.category === 'MOCK' ? 'bg-[#581c87]' : 'bg-[#44403c]'
                                 }`} />
-
-                            {/* Book Cover Texture */}
-                            <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/dark-leather.png')] opacity-50 pointer-events-none" />
 
                             {/* Checkbox (Seal) */}
                             <div
@@ -373,20 +370,20 @@ export const ProjectList = ({ onCreate: _legacyOnCreate }: { onCreate: () => voi
                             </div>
 
                             {/* Corner Decorations */}
-                            <div className="absolute top-0 right-0 w-8 h-8 border-t-2 border-r-2 border-[#d4af37]/20 rounded-tr group-hover:border-[#d4af37]/50 transition-colors" />
-                            <div className="absolute bottom-0 right-0 w-8 h-8 border-b-2 border-r-2 border-[#d4af37]/20 rounded-br group-hover:border-[#d4af37]/50 transition-colors" />
+                            <div className="absolute top-0 right-0 w-8 h-8 border-t-2 border-r-2 border-[#d4af37]/20 rounded-tr group-hover:border-[#d4af37]/50 transition-colors pointer-events-none" />
+                            <div className="absolute bottom-0 right-0 w-8 h-8 border-b-2 border-r-2 border-[#d4af37]/20 rounded-br group-hover:border-[#d4af37]/50 transition-colors pointer-events-none" />
 
                             {/* Content */}
                             <div className="flex-1 pl-6 p-4 flex flex-col justify-between relative z-0">
                                 <div className="flex flex-col gap-1">
                                     {/* Date Stamp */}
-                                    <div className="text-[10px] text-[#78716c] font-mono flex justify-end">
+                                    <div className="text-[10px] text-[#292524] font-mono flex justify-end font-bold opacity-60">
                                         {new Date(cont.created_at).toLocaleDateString()}
                                     </div>
 
                                     {/* Title */}
                                     <h3
-                                        className={`font-serif font-bold text-lg leading-tight truncate pr-2 transition-colors ${isSelected ? 'text-[#d4af37]' : 'text-[#eaddcf] group-hover:text-[#f5ebe0]'
+                                        className={`font-serif font-bold text-lg leading-tight truncate pr-2 transition-colors drop-shadow-sm ${isSelected ? 'text-[#d4af37]' : 'text-[#eaddcf] group-hover:text-[#f5ebe0]'
                                             }`}
                                     >
                                         {cont.display_name}
@@ -401,7 +398,7 @@ export const ProjectList = ({ onCreate: _legacyOnCreate }: { onCreate: () => voi
                                 {/* Footer Row */}
                                 <div className="flex items-end justify-between mt-2">
                                     <div className="flex items-center gap-2">
-                                        <span className="flex items-center gap-1.5 text-[10px] text-[#78716c] bg-[#0c0a09]/40 px-2 py-1 rounded border border-[#292524]">
+                                        <span className="flex items-center gap-1.5 text-[10px] text-[#78716c] bg-[#eaddcf]/90 px-2 py-1 rounded border border-[#292524] font-bold">
                                             <Layers size={10} /> {tag || 'General'}
                                         </span>
                                     </div>

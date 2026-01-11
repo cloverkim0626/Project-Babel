@@ -3,50 +3,24 @@
 @tailwind utilities;
 
 /* Ancient Library Theme Fonts */
-@import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700;900&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;0,700;1,400&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@400;700;900&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;0,700;1,400&display=swap');
 
 :root {
-  /* RPG / Ancient Theme Palette */
+  /* RPG palette */
   --bg-ancient-dark: #0c0a09;
-  /* Very dark stone */
-  --bg-parchment: #eaddcf;
-  /* Light parchment */
-  --bg-parchment-dark: #d6c4a6;
-  /* Darker parchment */
-
   --text-parchment: #eaddcf;
+  --text-gold: #fbbf24;
   --text-ink: #292524;
-  /* Dark ink color */
 
-  --border-gold: #d4af37;
-  /* Classic Gold */
-  --border-gold-dim: #997b28;
-
-  --accent-ruby: #7f1d1d;
-  --accent-emerald: #064e3b;
-  --accent-sapphire: #1e3a8a;
+  /* Text Glows */
+  --glow-gold: 0 0 10px rgba(251, 191, 36, 0.5);
+  --glow-fire: 0 0 10px rgba(239, 68, 68, 0.6);
 }
 
 body {
   background-color: var(--bg-ancient-dark);
   color: var(--text-parchment);
   font-family: 'Cormorant Garamond', serif;
-}
-
-/* Scrollbar Customization */
-::-webkit-scrollbar {
-  width: 10px;
-  background-color: #1c1917;
-}
-
-::-webkit-scrollbar-thumb {
-  background-color: #44403c;
-  border: 1px solid #78716c;
-  border-radius: 4px;
-}
-
-::-webkit-scrollbar-thumb:hover {
-  background-color: #57534e;
 }
 
 /* Typography Overrides */
@@ -56,43 +30,114 @@ h3,
 h4,
 h5,
 h6 {
-  font-family: 'Cinzel', serif;
+  font-family: 'Cinzel Decorative', cursive;
   letter-spacing: 0.05em;
 }
 
-/* Utility Classes for Ancient Look */
-.ancient-panel {
-  background-color: #1c191799;
-  /* Stone-900 with opacity */
-  border: 1px solid #44403c;
-  /* Stone-700 */
-  box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.8);
-  backdrop-filter: blur(4px);
+/* --- VISUAL OVERHAUL CLASSES --- */
+
+/* 1. Global Background: Wooden Desk */
+.ancient-bg {
+  background-image: url('/assets/bg-desk.png');
+  background-size: cover;
+  background-position: center;
+  background-attachment: fixed;
+  background-repeat: no-repeat;
+  box-shadow: inset 0 0 100px rgba(0, 0, 0, 0.8);
 }
 
-.ancient-border-gold {
-  border: 1px solid var(--border-gold-dim);
-  box-shadow: 0 0 10px rgba(212, 175, 55, 0.1);
+/* 2. Sidebar: Wood Planks & Leather */
+.ancient-sidebar {
+  background-image: url('/assets/tex-sidebar.png');
+  background-size: cover;
+  /* Cover or contain depending on texture resolution */
+  background-repeat: no-repeat;
+  box-shadow: 5px 0 20px rgba(0, 0, 0, 0.8);
+  border-right: 2px solid #451a03;
 }
 
-.ancient-scroll {
-  background-color: var(--bg-parchment);
-  color: var(--text-ink);
-  border: 4px double #78350f;
-  /* Leather brown border */
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.5);
+/* Active Menu Glow */
+.ancient-menu-active {
+  background: linear-gradient(90deg, rgba(234, 88, 12, 0.2), transparent);
+  border-left: 3px solid #f59e0b;
+  box-shadow: 0 0 15px rgba(245, 158, 11, 0.3);
+  text-shadow: var(--glow-gold);
+  color: #fbbf24 !important;
 }
 
-.ancient-button {
-  background: linear-gradient(to bottom, #292524, #1c1917);
-  border: 1px solid #57534e;
-  color: #e7e5e4;
-  font-family: 'Cinzel', serif;
-  transition: all 0.2s;
+/* 3. Cards: Bronze/Stone Tablet */
+.ancient-card {
+  background-image: url('/assets/tex-stone.png');
+  background-size: cover;
+  border: 4px solid #78350f;
+  /* Bronze-like border base */
+  border-image: linear-gradient(to bottom right, #b45309, #451a03) 1;
+  box-shadow:
+    inset 0 0 20px rgba(0, 0, 0, 0.9),
+    /* Deep inset */
+    0 10px 20px rgba(0, 0, 0, 0.5);
+  /* Drop shadow */
+  position: relative;
+  overflow: hidden;
 }
 
-.ancient-button:hover {
-  border-color: var(--border-gold);
-  color: var(--border-gold);
-  box-shadow: 0 0 15px rgba(212, 175, 55, 0.2);
+/* Inner Bevel/Rune effect */
+.ancient-card::before {
+  content: '';
+  position: absolute;
+  inset: 4px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.8);
+  pointer-events: none;
+}
+
+/* 4. Table: Parchment Scroll */
+.ancient-table {
+  background-image: url('/assets/tex-paper.png');
+  background-size: cover;
+  /* Tiled parchment */
+  color: #292524;
+  /* Ink color */
+  border: 8px solid transparent;
+  border-image: repeating-linear-gradient(45deg, #78350f 0, #78350f 10px, transparent 10px, transparent 20px) 30;
+  /* Rough edge simulation */
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6);
+  font-weight: 600;
+}
+
+.ancient-table th {
+  border-bottom: 2px solid #57534e;
+  /* Old ink line */
+  color: #451a03;
+  font-family: 'Cinzel Decorative', cursive;
+  font-weight: 900;
+}
+
+.ancient-table td {
+  border-bottom: 1px solid rgba(87, 83, 78, 0.3);
+}
+
+/* 5. Typography Glows */
+.text-glow-gold {
+  text-shadow: var(--glow-gold);
+}
+
+.text-glow-fire {
+  text-shadow: var(--glow-fire);
+}
+
+/* Scrollbar Customization */
+::-webkit-scrollbar {
+  width: 10px;
+  background-color: #1c1917;
+}
+
+::-webkit-scrollbar-thumb {
+  background-color: #57534e;
+  border: 1px solid #292524;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background-color: #78350f;
 }

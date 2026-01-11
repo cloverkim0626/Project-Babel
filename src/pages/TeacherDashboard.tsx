@@ -25,14 +25,17 @@ export default function TeacherDashboard() {
     };
 
     return (
-        <div className="min-h-screen bg-[#0c0a09] text-[#eaddcf] font-serif flex text-sm">
-            {/* Sidebar */}
-            <aside className="w-64 bg-black border-r border-white/10 flex flex-col">
-                <div className="p-6 border-b border-white/10">
-                    <h1 className="text-xl font-serif text-babel-gold tracking-widest">VOCA UNIVERSE<span className="text-stone-500 text-xs block mt-1 font-sans">The Observatory</span></h1>
+        <div className="min-h-screen ancient-bg text-[#292524] font-serif flex text-sm">
+            {/* Sidebar (Wood & Leather) */}
+            <aside className="w-64 ancient-sidebar flex flex-col shadow-2xl z-20">
+                <div className="p-6 border-b border-[#451a03]/30">
+                    <h1 className="text-2xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-[#fbbf24] to-[#d97706] tracking-widest drop-shadow-[0_2px_2px_rgba(0,0,0,0.8)]">
+                        VOCA UNIVERSE
+                        <span className="text-[#a8a29e] text-xs block mt-1 font-sans tracking-normal font-normal opacity-80">The Observatory</span>
+                    </h1>
                 </div>
 
-                <nav className="flex-1 p-4 space-y-1">
+                <nav className="flex-1 p-4 space-y-2">
                     <SidebarItem
                         icon={<LayoutDashboard size={18} />}
                         label="Overview"
@@ -57,7 +60,7 @@ export default function TeacherDashboard() {
                         active={activeTab === 'print'}
                         onClick={() => setActiveTab('print')}
                     />
-                    <div className="pt-4 mt-4 border-t border-white/10">
+                    <div className="pt-4 mt-4 border-t border-[#451a03]/30">
                         <SidebarItem
                             icon={<Settings size={18} />}
                             label="Settings"
@@ -67,10 +70,10 @@ export default function TeacherDashboard() {
                     </div>
                 </nav>
 
-                <div className="p-4 border-t border-white/10">
+                <div className="p-4 border-t border-[#451a03]/30">
                     <button
                         onClick={handleSignOut}
-                        className="flex items-center gap-3 text-stone-500 hover:text-red-400 transition-colors w-full px-4 py-2"
+                        className="flex items-center gap-3 text-[#78350f] hover:text-[#b45309] transition-colors w-full px-4 py-2 font-bold"
                     >
                         <LogOut size={18} />
                         <span>Sign Out</span>
@@ -78,23 +81,23 @@ export default function TeacherDashboard() {
                 </div>
             </aside>
 
-            {/* Main Content */}
-            <main className="flex-1 flex flex-col bg-stone-950">
-                <header className="h-16 border-b border-white/5 flex items-center justify-between px-8 bg-stone-900/50 backdrop-blur-sm">
-                    <h2 className="text-lg font-medium text-white">
+            {/* Main Content (Transparent to show Desk) */}
+            <main className="flex-1 flex flex-col relative z-10">
+                <header className="h-16 flex items-center justify-between px-8 bg-[#0c0a09]/40 backdrop-blur-sm border-b border-[#78350f]/30 shadow-lg">
+                    <h2 className="text-xl font-bold text-[#eaddcf] text-glow-gold tracking-wide">
                         {activeTab === 'overview' && 'Dashboard Overview'}
                         {activeTab === 'projects' && 'Project Management'}
                         {activeTab === 'students' && 'Student Database'}
                         {activeTab === 'print' && 'Paper Test Generator'}
                         {activeTab === 'settings' && 'System Configuration'}
                     </h2>
-                    <div className="flex items-center gap-4 text-xs text-stone-500">
+                    <div className="flex items-center gap-4 text-xs text-[#a8a29e]">
                         <span>Instructor Mode</span>
-                        <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse" />
+                        <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse shadow-[0_0_8px_#22c55e]" />
                     </div>
                 </header>
 
-                <div className="flex-1 overflow-auto">
+                <div className="flex-1 overflow-auto p-6 scrollbar-hide">
                     {activeTab === 'overview' && <AdminOverview />}
                     {activeTab === 'projects' && (
                         showWizard ? (
@@ -110,7 +113,7 @@ export default function TeacherDashboard() {
                     )}
                     {activeTab === 'students' && <StudentMonitor />}
                     {activeTab === 'print' && <PaperTestBuilder />}
-                    {activeTab === 'settings' && <div className="p-8">Settings</div>}
+                    {activeTab === 'settings' && <div className="p-8 ancient-card text-[#eaddcf]">Settings Window (Under Construction)</div>}
                 </div>
             </main>
         </div>
@@ -121,11 +124,13 @@ const SidebarItem = ({ icon, label, active, onClick }: { icon: React.ReactNode, 
     <button
         onClick={onClick}
         className={clsx(
-            "w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-all duration-200",
-            active ? "bg-babel-gold/10 text-babel-gold border border-babel-gold/20" : "text-stone-400 hover:bg-white/5 hover:text-stone-200"
+            "w-full flex items-center gap-3 px-4 py-3 rounded-sm transition-all duration-300 border-l-2",
+            active
+                ? "ancient-menu-active"
+                : "border-transparent text-[#a8a29e] hover:text-[#fbbf24] hover:bg-[#0c0a09]/30"
         )}
     >
         {icon}
-        <span className="font-medium">{label}</span>
+        <span className={clsx("font-medium", active ? "font-bold" : "")}>{label}</span>
     </button>
 );

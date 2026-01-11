@@ -159,19 +159,19 @@ export const AdminOverview: React.FC = () => {
     if (loading) return <div className="p-12 text-center text-babel-gold font-serif animate-pulse text-2xl">Loading the Archives...</div>;
 
     return (
-        <div className="p-8 space-y-8 min-h-screen bg-[url('https://www.transparenttextures.com/patterns/dark-leather.png')] bg-fixed">
+        <div className="p-8 space-y-8 min-h-screen">
             {/* Header */}
-            <div className="flex items-center justify-between border-b border-[#44403c] pb-6">
+            <div className="flex items-center justify-between border-b border-[#78350f] pb-6">
                 <div>
-                    <h2 className="text-4xl font-serif text-[#d4af37] flex items-center gap-4 drop-shadow-md">
-                        <Scroll size={32} className="text-[#d4af37]" />
+                    <h2 className="text-4xl font-serif text-[#fbbf24] flex items-center gap-4 text-glow-gold">
+                        <Scroll size={32} className="text-[#fbbf24]" />
                         Grand Observatory
                     </h2>
-                    <p className="text-[#d6c4a6] text-sm mt-2 ml-1 font-serif italic opacity-80">
+                    <p className="text-[#a8a29e] text-sm mt-2 ml-1 font-serif italic opacity-80">
                         "The lighthouse that watches over the sea of knowledge."
                     </p>
                 </div>
-                <div className="flex items-center gap-3 px-4 py-2 bg-[#0c0a09]/80 border border-[#d4af37]/30 rounded-lg text-[#d4af37] font-mono text-xs">
+                <div className="flex items-center gap-3 px-4 py-2 ancient-panel rounded-sm text-[#fbbf24] font-mono text-xs ancient-border-gold">
                     <Calendar size={14} />
                     {new Date().toLocaleDateString()}
                 </div>
@@ -211,21 +211,21 @@ export const AdminOverview: React.FC = () => {
                 <div className="lg:col-span-2 space-y-8">
 
                     {/* 7-Day Study Volume (Mana Battery) */}
-                    <section className="bg-[#1c1917]/90 border-2 border-[#57534e] rounded-sm p-6 relative overflow-hidden group">
+                    <section className="ancient-card p-6 relative group">
                         <div className="absolute top-0 left-0 w-full h-1 bg-[#d4af37]/50" />
                         <div className="flex items-center justify-between mb-6">
-                            <h3 className="text-xl text-[#eaddcf] font-serif flex items-center gap-2">
-                                <History className="text-[#d4af37]" />
+                            <h3 className="text-xl text-[#eaddcf] font-serif flex items-center gap-2 text-glow-gold">
+                                <History className="text-[#fbbf24]" />
                                 Weekly Mana Flow (7 Days)
                             </h3>
                         </div>
                         <div className="flex items-end justify-between gap-2 h-32 px-4">
                             {studyVolume.map((vol, idx) => (
                                 <div key={idx} className="flex-1 flex flex-col items-center gap-2 group/bar">
-                                    <div className="w-full bg-[#292524] rounded-sm relative overflow-hidden h-full flex flex-col justify-end border border-[#44403c]">
+                                    <div className="w-full bg-[#1c1917] rounded-sm relative overflow-hidden h-full flex flex-col justify-end border border-[#44403c] shadow-inner">
                                         <div
                                             style={{ height: `${Math.min(100, vol.count * 2)}%` }}
-                                            className="w-full bg-gradient-to-t from-[#78350f] to-[#d4af37] opacity-80 group-hover/bar:opacity-100 transition-all duration-500 relative"
+                                            className="w-full bg-gradient-to-t from-[#78350f] to-[#fbbf24] opacity-80 group-hover/bar:opacity-100 transition-all duration-500 relative shadow-[0_0_10px_#fbbf24]"
                                         >
                                             <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/diagmonds-light.png')] opacity-20"></div>
                                         </div>
@@ -238,19 +238,19 @@ export const AdminOverview: React.FC = () => {
 
                     {/* Slump Alerts (Cursed Scrolls) */}
                     <section className="space-y-4">
-                        <h3 className="text-xl text-[#ef4444] font-serif flex items-center gap-2 pl-2 border-l-4 border-[#ef4444]">
+                        <h3 className="text-xl text-[#ef4444] font-serif flex items-center gap-2 pl-2 border-l-4 border-[#ef4444] text-glow-fire">
                             <Skull size={20} />
                             Cursed Condition Detected (Slump &gt; 20%)
                         </h3>
                         {slumps.length > 0 ? (
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                 {slumps.map((slump) => (
-                                    <div key={slump.studentId} className="bg-[#2a0a0a]/80 border border-[#7f1d1d] p-4 rounded-sm flex justify-between items-center shadow-[0_0_15px_rgba(127,29,29,0.2)]">
+                                    <div key={slump.studentId} className="ancient-panel border border-[#7f1d1d] p-4 rounded-sm flex justify-between items-center shadow-[0_0_15px_rgba(127,29,29,0.2)]">
                                         <div>
                                             <div className="text-lg text-[#fca5a5] font-serif font-bold">{slump.studentName}</div>
                                             <div className="text-xs text-[#f87171] mt-1">Avg Score Drop: {slump.prevAvg}% → {slump.currentAvg}%</div>
                                         </div>
-                                        <div className="text-2xl font-black text-[#dc2626] animate-pulse">
+                                        <div className="text-2xl font-black text-[#dc2626] animate-pulse text-glow-fire">
                                             -{slump.dropRate}%
                                         </div>
                                     </div>
@@ -268,12 +268,12 @@ export const AdminOverview: React.FC = () => {
                 {/* Right Sidebar (1/3) */}
                 <div className="space-y-8">
                     {/* Top 3 Wrong Words (The Forbidden Scroll) */}
-                    <div className="relative bg-[#eaddcf] text-[#292524] p-8 rounded-sm shadow-xl ancient-scroll transform rotate-1 hover:rotate-0 transition-transform duration-500">
+                    <div className="relative ancient-scroll p-8 rounded-sm shadow-xl transform rotate-1 hover:rotate-0 transition-transform duration-500">
                         {/* Scroll Ends Decoration */}
-                        <div className="absolute -top-3 left-0 right-0 h-4 bg-[#57534e] rounded-full shadow-lg" />
-                        <div className="absolute -bottom-3 left-0 right-0 h-4 bg-[#57534e] rounded-full shadow-lg" />
+                        <div className="absolute -top-3 left-0 right-0 h-6 bg-[url('/assets/tex-sidebar.png')] bg-cover rounded shadow-lg border-b border-[#292524]" />
+                        <div className="absolute -bottom-3 left-0 right-0 h-6 bg-[url('/assets/tex-sidebar.png')] bg-cover rounded shadow-lg border-t border-[#292524]" />
 
-                        <h3 className="text-center font-serif text-2xl font-bold border-b-2 border-[#292524] pb-2 mb-4 tracking-wider">
+                        <h3 className="text-center font-serif text-2xl font-bold border-b-2 border-[#292524] pb-2 mb-4 tracking-wider text-[#451a03]">
                             FORBIDDEN WORDS
                         </h3>
 
@@ -284,7 +284,7 @@ export const AdminOverview: React.FC = () => {
                                         {idx + 1}
                                     </span>
                                     <div>
-                                        <div className="text-lg font-bold font-serif">{item.word}</div>
+                                        <div className="text-lg font-bold font-serif text-[#292524]">{item.word}</div>
                                         <div className="text-sm font-serif italic text-[#57534e] mt-1">{item.meaning}</div>
                                         <div className="text-xs text-[#7f1d1d] mt-1 font-mono">{item.incorrectCount} Failures recorded</div>
                                     </div>
@@ -302,27 +302,27 @@ export const AdminOverview: React.FC = () => {
 
 const AncientStatCard = ({ icon, label, value, sub, isGold }: { icon: React.ReactNode, label: string, value: number, sub: string, isGold?: boolean }) => (
     <div className={clsx(
-        "relative p-6 rounded-sm border-2 transition-all duration-300 group overflow-hidden",
-        isGold ? "bg-gradient-to-br from-[#422006] to-[#713f12] border-[#d4af37]" : "bg-[#1c1917] border-[#44403c] hover:border-[#78716c]"
+        "ancient-card p-6 transition-all duration-300 group cursor-pointer hover:-translate-y-1 hover:shadow-[0_10px_30px_rgba(0,0,0,0.5)]",
+        isGold ? "border-opacity-100 ring-1 ring-[#fbbf24]" : "border-opacity-80"
     )}>
         {/* Glow Effect */}
-        <div className="absolute -right-12 -top-12 w-24 h-24 bg-white/5 rounded-full blur-2xl group-hover:bg-white/10 transition-colors" />
+        <div className="absolute -right-12 -top-12 w-24 h-24 bg-white/5 rounded-full blur-2xl group-hover:bg-[#fbbf24]/10 transition-colors" />
 
         <div className="flex items-start justify-between relative z-10">
             <div>
-                <div className={clsx("mb-2 font-serif text-xs uppercase tracking-[0.2em]", isGold ? "text-[#fcd34d]" : "text-[#a8a29e]")}>
+                <div className={clsx("mb-2 font-serif text-xs uppercase tracking-[0.2em]", isGold ? "text-[#fbbf24]" : "text-[#a8a29e]")}>
                     {label}
                 </div>
-                <div className={clsx("text-3xl font-serif font-bold", isGold ? "text-[#fffbeb]" : "text-[#e7e5e4]")}>
+                <div className={clsx("text-3xl font-serif font-bold text-glow-gold", isGold ? "text-[#fffbeb]" : "text-[#eaddcf]")}>
                     {value.toLocaleString()}
                 </div>
-                <div className={clsx("mt-1 text-xs italic", isGold ? "text-[#fde68a]" : "text-[#57534e]")}>
+                <div className={clsx("mt-1 text-xs italic", isGold ? "text-[#fde68a]" : "text-[#a8a29e]")}>
                     {sub}
                 </div>
             </div>
             <div className={clsx(
-                "p-3 rounded border",
-                isGold ? "bg-[#d4af37]/20 border-[#d4af37] text-[#d4af37]" : "bg-[#292524] border-[#44403c] text-[#78716c]"
+                "p-3 rounded border ancient-panel shadow-inner",
+                isGold ? "border-[#fbbf24] text-[#fbbf24]" : "border-[#44403c] text-[#a8a29e]"
             )}>
                 {icon}
             </div>

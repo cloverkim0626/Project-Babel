@@ -164,295 +164,328 @@ export const ProjectWizard = ({ onCancel, onComplete }: { onCancel: () => void, 
     };
 
     return (
-        <div className="bg-stone-900 h-full flex flex-col animate-fade-in relative">
+        <div className="fixed inset-0 z-50 bg-[#020617] flex flex-col font-sans animate-fade-in text-slate-200">
+            {/* Background Atmosphere */}
+            <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-slate-900 via-[#020617] to-black opacity-80" />
+            <div className="caustic-overlay opacity-30 pointer-events-none" />
+            <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-cyan-500 to-transparent opacity-50" />
+
             {/* Header */}
-            <div className="p-6 border-b border-white/10 flex justify-between items-center bg-black/20">
-                <div>
-                    <h2 className="text-xl font-serif text-white">Create Project</h2>
-                    <p className="text-xs text-stone-500">Step {step} of 2</p>
+            <header className="relative z-10 h-20 flex items-center justify-between px-8 border-b border-white/5 bg-slate-950/50 backdrop-blur-md">
+                <div className="flex items-center gap-4">
+                    <div className="w-10 h-10 rounded border border-cyan-500/30 flex items-center justify-center bg-cyan-950/20 text-cyan-400 shadow-[0_0_15px_rgba(34,211,238,0.2)]">
+                        <Layers size={20} />
+                    </div>
+                    <div>
+                        <h2 className="text-xl font-bold text-cinematic tracking-widest text-shadow">
+                            MISSION ARCHITECT
+                        </h2>
+                        <div className="flex items-center gap-2 text-[10px] font-mono text-cyan-500/60 uppercase tracking-[0.2em]">
+                            <span>Protocol: {step === 1 ? 'Initialization' : 'Extraction'}</span>
+                            <span className="w-1 h-1 rounded-full bg-cyan-500 animate-pulse" />
+                            <span>Step {step}/2</span>
+                        </div>
+                    </div>
                 </div>
-                <button onClick={onCancel} className="text-stone-500 hover:text-white"><X size={24} /></button>
-            </div>
+                <button
+                    onClick={onCancel}
+                    className="p-2 text-slate-500 hover:text-red-400 transition-colors rounded-full hover:bg-white/5 border border-transparent hover:border-red-900/30"
+                >
+                    <X size={24} />
+                </button>
+            </header>
 
-            {/* Content */}
-            <div className="flex-1 overflow-y-auto p-8">
+            {/* Content Container */}
+            <div className="relative z-10 flex-1 overflow-hidden flex">
+
+                {/* Step 1: Initialization */}
                 {step === 1 && (
-                    <div className="max-w-3xl mx-auto space-y-8">
-                        {/* Category Select */}
-                        <div className="grid grid-cols-3 gap-4">
-                            {[
-                                { id: 'textbook', icon: BookOpen, label: '교과서 (Textbook)' },
-                                { id: 'mock', icon: GraduationCap, label: '모의고사 (Mock)' },
-                                { id: 'custom', icon: FileText, label: '자유 입력 (Custom)' }
-                            ].map(opt => (
-                                <button
-                                    key={opt.id}
-                                    onClick={() => setCategory(opt.id as any)}
-                                    className={`p-6 rounded-xl border flex flex-col items-center gap-3 transition-all ${category === opt.id
-                                        ? 'bg-babel-gold/10 border-babel-gold text-babel-gold'
-                                        : 'bg-black/40 border-white/10 text-stone-500 hover:bg-white/5'
-                                        }`}
-                                >
-                                    <opt.icon size={32} />
-                                    <span className="font-bold text-sm">{opt.label}</span>
-                                </button>
-                            ))}
-                        </div>
+                    <div className="max-w-5xl mx-auto w-full p-8 md:p-12 overflow-y-auto">
+                        <div className="grid grid-cols-1 lg:grid-cols-12 gap-12">
 
-                        {/* Dynamic Fields */}
-                        <div className="bg-black/30 p-6 rounded-xl border border-white/5 space-y-6">
-                            {category === 'textbook' && (
-                                <div className="grid grid-cols-2 gap-6">
-                                    <div className="space-y-2">
-                                        <label className="text-xs uppercase text-stone-500">과목 (Subject)</label>
-                                        <select
-                                            value={subject} onChange={e => setSubject(e.target.value)}
-                                            className="w-full bg-stone-900 border border-white/10 rounded p-3 text-white focus:border-babel-gold outline-none"
-                                        >
-                                            {['공통영어1', '공통영어2', '영어1', '영어2', '심화영어'].map(s => (
-                                                <option key={s} value={s}>{s}</option>
-                                            ))}
-                                        </select>
+                            {/* Left: Input Panel */}
+                            <div className="lg:col-span-8 space-y-8">
+
+                                {/* Section Title */}
+                                <div>
+                                    <h3 className="text-2xl text-white font-light mb-6 flex items-center gap-3">
+                                        <span className="text-cyan-500 font-bold">01.</span>
+                                        TARGET SOURCE
+                                    </h3>
+
+                                    {/* Category Grid */}
+                                    <div className="grid grid-cols-3 gap-4 mb-8">
+                                        {[
+                                            { id: 'textbook', icon: BookOpen, label: 'TEXTBOOK', sub: '교과서' },
+                                            { id: 'mock', icon: GraduationCap, label: 'MOCK TEST', sub: '모의고사' },
+                                            { id: 'custom', icon: FileText, label: 'CUSTOM', sub: '기타자료' }
+                                        ].map(opt => (
+                                            <button
+                                                key={opt.id}
+                                                onClick={() => setCategory(opt.id as any)}
+                                                className={`group relative h-32 rounded-xl border transition-all duration-300 overflow-hidden ${category === opt.id
+                                                        ? 'bg-cyan-950/30 border-cyan-500 shadow-[0_0_30px_rgba(34,211,238,0.1)]'
+                                                        : 'bg-slate-900/40 border-white/5 hover:border-white/20 hover:bg-slate-800/40'
+                                                    }`}
+                                            >
+                                                <div className={`absolute inset-0 bg-gradient-to-br from-cyan-500/10 to-transparent transition-opacity ${category === opt.id ? 'opacity-100' : 'opacity-0'}`} />
+                                                <div className="relative z-10 h-full flex flex-col items-center justify-center gap-3">
+                                                    <opt.icon size={28} className={category === opt.id ? 'text-cyan-400 drop-shadow-[0_0_10px_rgba(34,211,238,0.5)]' : 'text-slate-500 group-hover:text-slate-300'} />
+                                                    <div className="text-center">
+                                                        <div className={`text-xs font-bold tracking-widest ${category === opt.id ? 'text-white' : 'text-slate-400'}`}>{opt.label}</div>
+                                                        <div className="text-[10px] text-slate-600 mt-1 font-mono">{opt.sub}</div>
+                                                    </div>
+                                                </div>
+                                            </button>
+                                        ))}
                                     </div>
-                                    <div className="space-y-2">
-                                        <label className="text-xs uppercase text-stone-500">출판사 (Publisher)</label>
-                                        <input
-                                            value={publisher} onChange={e => setPublisher(e.target.value)} onBlur={autoTitle}
-                                            className="w-full bg-stone-900 border border-white/10 rounded p-3 text-white"
-                                            placeholder="예: NE능률(김)"
-                                        />
-                                    </div>
-                                    <div className="space-y-2">
-                                        <label className="text-xs uppercase text-stone-500">단원 (Chapter)</label>
-                                        <input
-                                            type="number" value={chapter} onChange={e => setChapter(e.target.value)} onBlur={autoTitle}
-                                            className="w-full bg-stone-900 border border-white/10 rounded p-3 text-white"
-                                            placeholder="숫자만 입력 (예: 1)"
-                                        />
+
+                                    {/* Dynamic Fields Area */}
+                                    <div className="abyss-glass p-8 space-y-6 relative border-t border-cyan-500/30">
+                                        <div className="absolute -top-3 left-4 px-2 bg-[#050b14] text-[10px] text-cyan-500 font-bold tracking-[0.2em] border border-cyan-500/30 rounded">
+                                            METADATA CONFIG
+                                        </div>
+
+                                        {category === 'textbook' && (
+                                            <div className="grid grid-cols-2 gap-6">
+                                                <div className="space-y-2">
+                                                    <label className="text-[10px] uppercase text-slate-500 tracking-wider pl-1">Subject</label>
+                                                    <select
+                                                        value={subject} onChange={e => setSubject(e.target.value)}
+                                                        className="abyss-input w-full"
+                                                    >
+                                                        {['공통영어1', '공통영어2', '영어1', '영어2', '심화영어'].map(s => (
+                                                            <option key={s} value={s}>{s}</option>
+                                                        ))}
+                                                    </select>
+                                                </div>
+                                                <div className="space-y-2">
+                                                    <label className="text-[10px] uppercase text-slate-500 tracking-wider pl-1">Publisher</label>
+                                                    <input
+                                                        value={publisher} onChange={e => setPublisher(e.target.value)} onBlur={autoTitle}
+                                                        className="abyss-input w-full"
+                                                        placeholder="e.g NE능률(김)"
+                                                    />
+                                                </div>
+                                                <div className="space-y-2 col-span-2">
+                                                    <label className="text-[10px] uppercase text-slate-500 tracking-wider pl-1">Chapter / Unit</label>
+                                                    <input
+                                                        type="number" value={chapter} onChange={e => setChapter(e.target.value)} onBlur={autoTitle}
+                                                        className="abyss-input w-full"
+                                                        placeholder="Numeric Value Only"
+                                                    />
+                                                </div>
+                                            </div>
+                                        )}
+
+                                        {category === 'mock' && (
+                                            <div className="grid grid-cols-3 gap-6">
+                                                <div className="space-y-2">
+                                                    <label className="text-[10px] uppercase text-slate-500 tracking-wider pl-1">Year</label>
+                                                    <select value={mockYear} onChange={e => setMockYear(e.target.value)} className="abyss-input w-full">
+                                                        {[2025, 2024, 2023, 2022, 2021, 2020].map(y => <option key={y} value={y}>{y}</option>)}
+                                                    </select>
+                                                </div>
+                                                <div className="space-y-2">
+                                                    <label className="text-[10px] uppercase text-slate-500 tracking-wider pl-1">Month</label>
+                                                    <select value={mockMonth} onChange={e => { setMockMonth(e.target.value); autoTitle(); }} className="abyss-input w-full">
+                                                        {['3', '6', '9', '10', '11(수능)'].map(m => <option key={m} value={m}>{m}월</option>)}
+                                                    </select>
+                                                </div>
+                                                <div className="space-y-2">
+                                                    <label className="text-[10px] uppercase text-slate-500 tracking-wider pl-1">Grade</label>
+                                                    <select value={mockGrade} onChange={e => { setMockGrade(e.target.value); autoTitle(); }} className="abyss-input w-full">
+                                                        {['1', '2', '3'].map(g => <option key={g} value={g}>고{g}</option>)}
+                                                    </select>
+                                                </div>
+                                            </div>
+                                        )}
+
+                                        <div className="pt-2">
+                                            <label className="text-[10px] uppercase text-slate-500 tracking-wider pl-1 mb-2 block">Operation Name (Title)</label>
+                                            <input
+                                                value={title} onChange={e => setTitle(e.target.value)}
+                                                className="abyss-input w-full text-lg font-bold text-cyan-100"
+                                                placeholder="Mission Identifier..."
+                                            />
+                                        </div>
                                     </div>
                                 </div>
-                            )}
 
-                            {category === 'mock' && (
-                                <div className="grid grid-cols-3 gap-6">
-                                    <div className="space-y-2">
-                                        <label className="text-xs uppercase text-stone-500">연도 (Year)</label>
-                                        <select
-                                            value={mockYear} onChange={e => setMockYear(e.target.value)}
-                                            className="w-full bg-stone-900 border border-white/10 rounded p-3 text-white"
-                                        >
-                                            {[2025, 2024, 2023, 2022, 2021, 2020].map(y => <option key={y} value={y}>{y}년</option>)}
-                                        </select>
-                                    </div>
-                                    <div className="space-y-2">
-                                        <label className="text-xs uppercase text-stone-500">시행월 (Month)</label>
-                                        <select
-                                            value={mockMonth} onChange={e => { setMockMonth(e.target.value); autoTitle(); }}
-                                            className="w-full bg-stone-900 border border-white/10 rounded p-3 text-white"
-                                        >
-                                            {['3', '6', '9', '10', '11(수능)'].map(m => <option key={m} value={m}>{m}월</option>)}
-                                        </select>
-                                    </div>
-                                    <div className="space-y-2">
-                                        <label className="text-xs uppercase text-stone-500">학년 (Grade)</label>
-                                        <select
-                                            value={mockGrade} onChange={e => { setMockGrade(e.target.value); autoTitle(); }}
-                                            className="w-full bg-stone-900 border border-white/10 rounded p-3 text-white"
-                                        >
-                                            {['1', '2', '3'].map(g => <option key={g} value={g}>고{g}</option>)}
-                                        </select>
-                                    </div>
-                                </div>
-                            )}
-
-                            <div className="space-y-2 pt-4 border-t border-white/10">
-                                <label className="text-xs uppercase text-stone-500">프로젝트명 (Title)</label>
-                                <input
-                                    value={title} onChange={e => setTitle(e.target.value)}
-                                    className="w-full bg-stone-900 border border-white/10 rounded p-3 text-white font-bold"
-                                    placeholder="자동으로 생성되거나 직접 입력하세요"
-                                />
                             </div>
-                        </div>
 
-                        <div className="flex justify-end">
-                            <button
-                                onClick={() => setStep(2)} disabled={!title}
-                                className="bg-white text-black px-6 py-2 rounded font-bold disabled:opacity-50 flex items-center gap-2 hover:bg-stone-200"
-                            >
-                                Next Step <ArrowRight size={16} />
-                            </button>
+                            {/* Right: Preview / Action */}
+                            <div className="lg:col-span-4 flex flex-col justify-between border-l border-white/5 pl-12 py-4">
+                                <div>
+                                    <h4 className="text-[10px] uppercase tracking-[0.2em] text-slate-500 mb-6">Preview Visualization</h4>
+
+                                    {/* Mock Card Preview */}
+                                    <div className="aspect-[3/4] bg-slate-900/50 rounded-2xl border border-white/10 relative overflow-hidden group">
+                                        <div className="absolute inset-0 bg-gradient-to-b from-transparent to-slate-950" />
+                                        <div className="absolute top-0 right-0 p-4 opacity-50">
+                                            {category === 'textbook' ? <BookOpen size={60} strokeWidth={1} /> : <GraduationCap size={60} strokeWidth={1} />}
+                                        </div>
+                                        <div className="absolute bottom-0 left-0 right-0 p-6">
+                                            <div className="text-[10px] px-2 py-1 border border-cyan-500/30 text-cyan-400 rounded w-fit mb-2 uppercase tracking-wider">{category}</div>
+                                            <div className="text-xl font-bold font-serif text-white mb-1 line-clamp-2 leading-tight">
+                                                {title || 'Untitled Operation'}
+                                            </div>
+                                            <div className="w-8 h-1 bg-cyan-500 rounded-full mt-2" />
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div className="space-y-4">
+                                    <div className="text-xs text-slate-500 font-mono">
+                                        System Ready.<br />Waiting for authorization...
+                                    </div>
+                                    <button
+                                        onClick={() => setStep(2)} disabled={!title}
+                                        className="w-full abyss-btn py-4 flex items-center justify-center gap-2 group disabled:opacity-50 disabled:cursor-not-allowed"
+                                    >
+                                        <span className="font-bold tracking-widest text-sm">INITIALIZE</span>
+                                        <ArrowRight size={16} className="group-hover:translate-x-1 transition-transform" />
+                                    </button>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 )}
 
+                {/* Step 2: Extraction */}
                 {step === 2 && (
-                    <div className="max-w-7xl mx-auto h-full flex flex-col gap-6">
-                        <div className="flex justify-between items-center">
-                            <h3 className="text-xl font-bold text-white flex items-center gap-2">
-                                <Sparkles size={20} className="text-babel-gold" /> AI Batch Extraction
+                    <div className="w-full h-full flex flex-col">
+                        {/* Toolbar */}
+                        <div className="h-14 border-b border-white/5 bg-slate-900/30 flex items-center px-6 gap-6">
+                            <h3 className="text-sm font-bold text-white flex items-center gap-2">
+                                <Search size={16} className="text-cyan-500" />
+                                RAW DATA INGESTION
                             </h3>
-                            <div className="flex items-center gap-4">
-                                <span className="text-stone-500 text-sm">
-                                    {queue.length} passages queued
-                                </span>
+                            <div className="h-4 w-px bg-white/10" />
+                            <div className="flex items-center gap-2 text-xs text-slate-400">
+                                <span className={queue.length > 0 ? "text-cyan-400" : ""}>{queue.length}</span> Fragments Queued
                             </div>
                         </div>
 
-                        <div className="flex-1 flex gap-6 min-h-0">
-                            {/* Left: Input & Queue */}
-                            <div className="flex-1 flex flex-col gap-4">
-                                {/* Input Area */}
-                                <div className="bg-stone-800 rounded-xl border border-white/10 p-4 space-y-4 shadow-lg">
+                        <div className="flex-1 flex overflow-hidden">
+                            {/* Input Column */}
+                            <div className="w-[400px] flex flex-col border-r border-white/5 bg-slate-950/30">
+                                <div className="p-4 space-y-4">
                                     {category === 'mock' && (
-                                        <div className="flex items-center gap-3">
-                                            <span className="text-babel-gold font-bold text-sm bg-black/40 px-3 py-1 rounded">Q.</span>
+                                        <div className="flex items-center gap-2">
+                                            <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Ref ID</span>
                                             <input
                                                 value={currentQNum}
                                                 onChange={e => setCurrentQNum(e.target.value)}
-                                                placeholder="e.g. 39 or 41-42"
-                                                className="bg-black/50 border border-white/10 rounded px-3 py-2 text-white outline-none focus:border-babel-gold w-full text-sm font-mono"
+                                                placeholder="Q.Num"
+                                                className="abyss-input py-1 px-3 w-24 text-center font-mono text-cyan-400"
                                             />
                                         </div>
                                     )}
                                     <textarea
                                         value={rawText}
                                         onChange={e => setRawText(e.target.value)}
-                                        className="w-full h-32 bg-black/50 border border-white/10 rounded p-3 font-serif text-stone-300 resize-none focus:border-babel-gold outline-none text-sm leading-relaxed"
-                                        placeholder="Paste passage text..."
+                                        className="w-full h-48 abyss-input resize-none p-4 font-serif text-sm leading-relaxed"
+                                        placeholder="Input raw text data sequence here..."
                                     />
                                     <button
                                         onClick={addToQueue}
                                         disabled={!rawText}
-                                        className="w-full bg-stone-700 hover:bg-stone-600 text-white py-2 rounded font-bold flex justify-center items-center gap-2 text-sm transition-all"
+                                        className="w-full py-3 bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-bold uppercase tracking-widest rounded transition-colors border border-slate-700 flex items-center justify-center gap-2"
                                     >
-                                        <Plus size={16} /> Add to Queue
+                                        <Plus size={14} /> Enqueue Fragment
                                     </button>
                                 </div>
 
                                 {/* Queue List */}
-                                <div className="flex-1 bg-stone-900 border border-white/10 rounded-xl overflow-hidden flex flex-col">
-                                    <div className="bg-black/40 p-3 border-b border-white/10 flex justify-between items-center">
-                                        <span className="text-xs font-bold text-stone-500">SCANNING QUEUE</span>
-                                        <span className="text-xs text-stone-600">{queue.length} items</span>
-                                    </div>
-                                    <div className="flex-1 overflow-y-auto p-3 space-y-2">
-                                        {queue.length === 0 ? (
-                                            <div className="h-full flex flex-col items-center justify-center text-stone-700 gap-2">
-                                                <Layers size={24} />
-                                                <p className="text-xs">Queue is empty</p>
-                                            </div>
-                                        ) : (
-                                            queue.map((item) => (
-                                                <div key={item.id} className="bg-black/20 p-3 rounded border border-white/5 flex gap-3 group">
-                                                    <div className="flex-1">
-                                                        <div className="flex items-center gap-2 mb-1">
-                                                            <span className="text-babel-gold text-xs font-bold px-2 py-0.5 bg-yellow-900/20 rounded">
-                                                                {item.questionNum}
-                                                            </span>
-                                                        </div>
-                                                        <p className="text-xs text-stone-500 line-clamp-2 font-serif">
-                                                            {item.text}
-                                                        </p>
-                                                    </div>
-                                                    <button
-                                                        onClick={() => removeFromQueue(item.id)}
-                                                        className="text-stone-600 hover:text-red-400 self-start p-1"
-                                                    >
-                                                        <Trash2 size={14} />
-                                                    </button>
-                                                </div>
-                                            ))
-                                        )}
-                                    </div>
-                                    <div className="p-3 bg-black/20 border-t border-white/5">
-                                        <button
-                                            onClick={handleBatchAnalysis}
-                                            disabled={queue.length === 0 || isExtracting}
-                                            className="w-full bg-babel-gold hover:bg-yellow-500 text-black py-3 rounded font-bold flex justify-center items-center gap-2 shadow-[0_0_15px_rgba(212,175,55,0.2)] disabled:opacity-50 disabled:shadow-none"
-                                        >
-                                            {isExtracting ? (
-                                                <Loader2 size={18} className="animate-spin" />
-                                            ) : (
-                                                <Sparkles size={18} />
-                                            )}
-                                            {isExtracting ? 'Analyzing All...' : 'Analyze All'}
-                                        </button>
-                                    </div>
+                                <div className="flex-1 overflow-y-auto border-t border-white/5">
+                                    {queue.map((item) => (
+                                        <div key={item.id} className="p-3 border-b border-white/5 hover:bg-white/5 group relative flex gap-3">
+                                            <div className="text-[10px] font-mono text-slate-500 pt-1 w-8">{item.questionNum}</div>
+                                            <div className="text-xs text-slate-300 line-clamp-2 flex-1 font-serif opacity-80">{item.text}</div>
+                                            <button
+                                                onClick={() => removeFromQueue(item.id)}
+                                                className="absolute right-2 top-2 text-slate-600 hover:text-red-400 opacity-0 group-hover:opacity-100 transition-all"
+                                            >
+                                                <Trash2 size={12} />
+                                            </button>
+                                        </div>
+                                    ))}
+                                    {queue.length === 0 && (
+                                        <div className="p-8 text-center text-slate-600 text-xs uppercase tracking-widest">
+                                            Queue Empty
+                                        </div>
+                                    )}
+                                </div>
+
+                                <div className="p-4 border-t border-white/5">
+                                    <button
+                                        onClick={handleBatchAnalysis}
+                                        disabled={queue.length === 0 || isExtracting}
+                                        className="w-full abyss-btn py-3 text-xs font-bold flex items-center justify-center gap-2"
+                                    >
+                                        {isExtracting ? <Loader2 size={14} className="animate-spin" /> : <Sparkles size={14} />}
+                                        {isExtracting ? 'PROCESSING...' : 'INITIATE ANALYSIS'}
+                                    </button>
                                 </div>
                             </div>
 
-                            {/* Right: Aggregated Results */}
-                            <div className="flex-1 bg-stone-900 border border-white/10 rounded-xl overflow-hidden flex flex-col shadow-2xl">
-                                <div className="bg-black/40 p-4 border-b border-white/10 flex justify-between items-center">
-                                    <span className="font-bold text-babel-gold text-sm flex items-center gap-2">
-                                        <ArrowRight size={14} /> ANALYSIS RESULTS
-                                    </span>
-                                    <span className="text-xs text-stone-500">{extractedWords.length} Words Found</span>
-                                </div>
-
-                                <div className="flex-1 overflow-y-auto p-4 space-y-3">
+                            {/* Results Column */}
+                            <div className="flex-1 flex flex-col bg-black/20">
+                                <div className="flex-1 p-6 overflow-y-auto grid grid-cols-1 xl:grid-cols-2 gap-4 content-start">
                                     {extractedWords.length === 0 ? (
-                                        <div className="h-full flex flex-col items-center justify-center text-stone-600 gap-4">
-                                            <div className="w-16 h-16 rounded-full bg-stone-800 flex items-center justify-center">
-                                                <Search size={24} />
+                                        <div className="col-span-full h-96 flex flex-col items-center justify-center text-slate-600 gap-4">
+                                            <div className="w-20 h-20 rounded-full border border-slate-800 flex items-center justify-center animate-pulse">
+                                                <Search size={32} className="opacity-50" />
                                             </div>
-                                            <p className="text-sm">Results will appear here</p>
+                                            <div className="text-xs uppercase tracking-[0.2em]">Awaiting Analysis Output</div>
                                         </div>
                                     ) : (
                                         extractedWords.map((item, idx) => (
-                                            <div key={idx} className="group bg-black/20 p-3 rounded border border-white/5 hover:border-babel-gold/30 transition-all flex gap-3 items-start">
-                                                <div className="flex-1 space-y-1">
-                                                    <div className="flex items-center gap-2 justify-between">
+                                            <div key={idx} className="abyss-glass p-4 group hover:border-cyan-500/30 transition-all">
+                                                <div className="flex items-start justify-between mb-2">
+                                                    <div className="flex items-center gap-3">
+                                                        <div className="w-6 h-6 rounded bg-cyan-950/50 flex items-center justify-center text-xs font-bold text-cyan-500 font-mono">
+                                                            {idx + 1}
+                                                        </div>
                                                         <input
                                                             value={item.word}
                                                             onChange={e => updateWord(idx, 'word', e.target.value)}
-                                                            className="bg-transparent font-bold text-white outline-none w-full"
-                                                        />
-                                                        {item.source_question_ref && (
-                                                            <span className="text-[10px] text-stone-500 bg-stone-800 px-2 py-0.5 rounded">
-                                                                {item.source_question_ref}
-                                                            </span>
-                                                        )}
-                                                    </div>
-                                                    <div className="flex gap-2">
-                                                        <span className="text-[10px] text-stone-500 bg-white/5 px-1 rounded">{item.phonetic}</span>
-                                                        <input
-                                                            value={item.meanings_kr?.[0] || ''}
-                                                            onChange={e => {
-                                                                const newMeanings = [...(item.meanings_kr || [])];
-                                                                newMeanings[0] = e.target.value;
-                                                                updateWord(idx, 'meanings_kr', newMeanings);
-                                                            }}
-                                                            className="bg-transparent text-sm text-babel-gold outline-none w-full placeholder-stone-600"
-                                                            placeholder="Meaning..."
+                                                            className="bg-transparent text-lg font-bold text-white outline-none w-40"
                                                         />
                                                     </div>
-                                                    {item.example_variations?.[0] && (
-                                                        <p className="text-[10px] text-stone-500 italic truncate">"{item.example_variations[0]}"</p>
-                                                    )}
-                                                    <div className="flex gap-1 text-[10px] text-stone-600">
-                                                        <span>Syn: {item.synonyms?.slice(0, 2).join(', ')}</span>
-                                                    </div>
+                                                    <button onClick={() => removeWord(idx)} className="text-slate-600 hover:text-red-400"><X size={14} /></button>
                                                 </div>
-                                                <button
-                                                    onClick={() => removeWord(idx)}
-                                                    className="opacity-0 group-hover:opacity-100 p-2 text-stone-600 hover:text-red-400 transition-all"
-                                                >
-                                                    <X size={14} />
-                                                </button>
+
+                                                <div className="pl-9 space-y-2">
+                                                    <div className="flex gap-2 text-[10px] text-slate-500 font-mono">
+                                                        <span className="bg-white/5 px-1.5 py-0.5 rounded text-slate-400">{item.phonetic || 'N/A'}</span>
+                                                        <span className="bg-white/5 px-1.5 py-0.5 rounded text-cyan-700/70">{item.part_of_speech || 'noun'}</span>
+                                                        {item.source_question_ref && <span className="text-amber-700/50">Ref: {item.source_question_ref}</span>}
+                                                    </div>
+                                                    <input
+                                                        value={item.meanings_kr?.[0] || ''}
+                                                        onChange={e => {
+                                                            const newMeanings = [...(item.meanings_kr || [])];
+                                                            newMeanings[0] = e.target.value;
+                                                            updateWord(idx, 'meanings_kr', newMeanings);
+                                                        }}
+                                                        className="w-full bg-transparent text-sm text-cyan-100/90 outline-none placeholder-slate-700"
+                                                        placeholder="Meaning definition..."
+                                                    />
+                                                </div>
                                             </div>
                                         ))
                                     )}
                                 </div>
 
-                                <div className="p-4 bg-black/40 border-t border-white/10">
+                                <div className="p-4 border-t border-white/5 bg-slate-950/80 backdrop-blur flex justify-end">
                                     <button
                                         onClick={handleSubmit}
                                         disabled={extractedWords.length === 0}
-                                        className="w-full bg-green-600 hover:bg-green-500 disabled:opacity-50 text-white py-3 rounded-lg font-bold flex justify-center gap-2 shadow-lg"
+                                        className="px-8 py-3 bg-emerald-600/20 hover:bg-emerald-600/40 text-emerald-400 border border-emerald-500/50 rounded text-sm font-bold tracking-widest uppercase transition-all flex items-center gap-2 hover:shadow-[0_0_20px_rgba(16,185,129,0.2)]"
                                     >
-                                        <Save size={18} /> Save Complete Project
+                                        <Save size={16} /> Save To Database ({extractedWords.length})
                                     </button>
                                 </div>
                             </div>

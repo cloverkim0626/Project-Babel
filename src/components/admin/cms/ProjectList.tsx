@@ -337,7 +337,7 @@ export const ProjectList = ({ onCreate: _legacyOnCreate }: { onCreate: () => voi
                                 }`} />
 
                             <div
-                                className="absolute top-2 left-4 z-20 cursor-pointer opacity-0 group-hover:opacity-100 transition-opacity"
+                                className="absolute top-2 right-2 z-20 cursor-pointer opacity-0 group-hover:opacity-100 transition-opacity"
                                 style={{ opacity: isSelected ? 1 : undefined }}
                                 onClick={(e) => {
                                     e.stopPropagation();
@@ -354,8 +354,8 @@ export const ProjectList = ({ onCreate: _legacyOnCreate }: { onCreate: () => voi
 
                             <div className="flex-1 pl-5 p-4 flex flex-col justify-between">
                                 <div>
-                                    <div className="flex justify-between items-start">
-                                        <h3 className={`font-medium text-sm truncate pr-2 ${isSelected ? 'text-cyan-300' : 'text-slate-200 group-hover:text-white'}`}>
+                                    <div className="flex justify-between items-start pt-2">
+                                        <h3 className={`font-medium text-sm truncate pr-8 ${isSelected ? 'text-cyan-300' : 'text-slate-200 group-hover:text-white'}`}>
                                             {cont.display_name}
                                         </h3>
                                     </div>

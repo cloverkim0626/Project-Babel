@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Layers, Loader2, ArrowLeft, BookOpen, GraduationCap, Archive } from 'lucide-react';
+import { ContinentManager } from '../components/admin/ContinentManager';
 
 type Category = 'TEXTBOOK' | 'MOCK' | 'OTHER';
 
@@ -15,6 +16,7 @@ export default function CreateProjectPage() {
     const [name, setName] = useState('');
     const [loading, setLoading] = useState(false);
     const [status, setStatus] = useState<string>('');
+    const [createdProject, setCreatedProject] = useState<any>(null);
 
     // Rich UI State
     const [category, setCategory] = useState<Category>('TEXTBOOK');
@@ -66,21 +68,24 @@ export default function CreateProjectPage() {
             // 1. Extract Project ID
             let projectId = '';
             try {
-                const urlParts = supabaseUrl.split('//')[1];
+                const urlParts = supabaseUrl.split('//')[1]; // [project-ref].supabase.co
                 projectId = urlParts.split('.')[0];
             } catch (e) {
                 console.error("URL Parsing failed", e);
+                // Fallback: try to find any key in localstorage
             }
 
-            // 2. Construct LocalStorage Key
+            // 2. Construct LocalStorage Key: sb-[id]-auth-token
             let storageKey = `sb-${projectId}-auth-token`;
             let sessionStr = localStorage.getItem(storageKey);
 
-            // 3. Fallback Key Search
+            // 3. Fallback: Search for any key starting with sb- and ending with -auth-token if exact match fails
             if (!sessionStr) {
+                console.warn('[CreatePage] Exact key not found:', storageKey);
                 const allKeys = Object.keys(localStorage);
                 const potentialKey = allKeys.find(k => k.startsWith('sb-') && k.endsWith('-auth-token'));
                 if (potentialKey) {
+                    console.log('[CreatePage] Found fallback key:', potentialKey);
                     sessionStr = localStorage.getItem(potentialKey);
                 } else {
                     throw new Error("브라우저에 저장된 로그인 정보가 없습니다. (No Token Found)");
@@ -121,7 +126,7 @@ export default function CreateProjectPage() {
                     name: name,
                     display_name: finalDisplayName,
                     theme_color: '#D4AF37',
-                    metadata: metadata // Save the rich metadata
+                    metadata: metadata
                 })
             });
 
@@ -132,12 +137,13 @@ export default function CreateProjectPage() {
 
             const result = await response.json();
             console.log('[CreatePage] Success:', result);
-            setStatus('Success! Redirecting...');
+            setStatus('Success! Starting Workflow...');
 
+            // DIRECT TRANSITION: Open ContinentManager immediately instead of redirecting
             setTimeout(() => {
                 const newProject = Array.isArray(result) ? result[0] : result;
-                navigate('/admin', { state: { newProjectId: newProject?.id } });
-            }, 1000);
+                setCreatedProject(newProject);
+            }, 500);
 
         } catch (e: any) {
             console.error('[CreatePage] Error:', e);
@@ -147,6 +153,19 @@ export default function CreateProjectPage() {
             setLoading(false);
         }
     };
+
+    // If project created, show the manager full screen
+    if (createdProject) {
+        return (
+            <div className="fixed inset-0 z-50 bg-stone-950">
+                <ContinentManager
+                    continent={createdProject}
+                    initialView="add"
+                    onClose={() => navigate('/admin')}
+                />
+            </div>
+        );
+    }
 
     return (
         <div className="min-h-screen bg-stone-950 flex items-center justify-center p-4">

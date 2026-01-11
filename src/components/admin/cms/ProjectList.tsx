@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { supabase } from '../../../lib/supabase';
 import { Plus, MoreVertical, Calendar, Globe, BookOpen, Layers } from 'lucide-react';
 import { ContinentManager } from '../ContinentManager';
-import { CreateProjectModal } from '../modals/CreateProjectModal';
+import { SimpleCreateModal } from '../modals/SimpleCreateModal';
 import { MissionDistributor } from '../MissionDistributor';
 
 interface Continent {
@@ -20,6 +20,7 @@ export const ProjectList = ({ onCreate: _legacyOnCreate }: { onCreate: () => voi
     const [loading, setLoading] = useState(true);
     const [selectedContinent, setSelectedContinent] = useState<Continent | null>(null);
     const [showCreateModal, setShowCreateModal] = useState(false);
+    const [showDistributor, setShowDistributor] = useState(false);
 
     useEffect(() => {
         fetchContinents();
@@ -34,45 +35,16 @@ export const ProjectList = ({ onCreate: _legacyOnCreate }: { onCreate: () => voi
         if (!error && data) {
             setContinents(data);
         } else if (error) {
-            console.error(error); // Log schema errors
+            console.error(error);
         }
         setLoading(false);
     };
 
-    const handleCreateProject = async (name: string, displayName: string, themeColor: string, _metadata: any) => {
-        console.log('[ProjectList] handleCreateProject called:', { name, displayName, themeColor });
-        try {
-            // Note: metadata column doesn't exist in continents table per schema.sql
-            const { data, error } = await supabase.from('continents').insert({
-                name,
-                display_name: displayName,
-                theme_color: themeColor
-            }).select().single();
-
-            console.log('[ProjectList] Supabase response:', { data, error });
-
-            if (error) {
-                // Ignore AbortErrors - harmless navigation cancellations
-                if (error.message?.includes('abort')) return;
-                console.error('[ProjectList] Insert error:', error);
-                alert("생성 실패: " + error.message);
-            } else if (data) {
-                console.log('[ProjectList] Project created successfully:', data);
-                // Success: Switch to this project immediately
-                const newProject = { ...data, isNew: true };
-                setContinents(prev => [newProject, ...prev]); // Optimistic update
-                setSelectedContinent(newProject);
-                setShowCreateModal(false);
-            }
-        } catch (e: any) {
-            // Catch fetch-level AbortErrors
-            if (e?.message?.includes('abort') || e?.name === 'AbortError') return;
-            console.error('[ProjectList] Caught exception:', e);
-            alert("생성 실패: " + e.message);
-        }
+    const handleProjectCreated = (newProject: any) => {
+        const project = { ...newProject, isNew: true };
+        setContinents(prev => [project, ...prev]);
+        setSelectedContinent(project);
     };
-
-    const [showDistributor, setShowDistributor] = useState(false);
 
     if (loading) return <div className="p-8 text-babel-gold animate-pulse text-center font-serif">Loading Archives...</div>;
 
@@ -85,9 +57,9 @@ export const ProjectList = ({ onCreate: _legacyOnCreate }: { onCreate: () => voi
             )}
 
             {showCreateModal && (
-                <CreateProjectModal
+                <SimpleCreateModal
                     onClose={() => setShowCreateModal(false)}
-                    onConfirm={handleCreateProject}
+                    onSuccess={handleProjectCreated}
                 />
             )}
 

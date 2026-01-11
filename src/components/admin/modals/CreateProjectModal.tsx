@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { createPortal } from 'react-dom';
 import { X, Check, Loader2, Layers } from 'lucide-react';
 
 interface CreateProjectModalProps {
@@ -41,41 +42,40 @@ export const CreateProjectModal: React.FC<CreateProjectModalProps> = ({ onClose,
         return folderName;
     };
 
-    const handleSubmit = async (e: React.FormEvent) => {
-        e.preventDefault();
-        console.log('[CreateProjectModal] Submit triggered, folderName:', folderName);
+    const handleSubmit = async () => {
+        console.log('[CreateProjectModal] Button Clicked. FolderName:', folderName);
 
         if (!folderName.trim()) {
-            console.log('[CreateProjectModal] No folder name, aborting');
+            console.warn('[CreateProjectModal] Folder name is empty.');
             return;
         }
 
         setLoading(true);
-        console.log('[CreateProjectModal] Loading started');
 
         const metadata = {
             category,
-            // Save all fields, even if not active, for simplicity or filter only active
             textbook: category === 'TEXTBOOK' ? { subject: tbSubject, unit: tbUnit } : null,
             mock: category === 'MOCK' ? { year: mockYear, month: mockMonth, grade: mockGrade } : null,
             other: category === 'OTHER' ? { workbook: otherWorkbook, publisher: otherPublisher, unit: otherUnit } : null
         };
 
         const autoDisplayName = generateDisplayName();
-        console.log('[CreateProjectModal] Calling onConfirm with:', { folderName, autoDisplayName, metadata });
 
         try {
             await onConfirm(folderName, autoDisplayName, '#D4AF37', metadata);
-            console.log('[CreateProjectModal] onConfirm completed');
         } catch (err) {
-            console.error('[CreateProjectModal] onConfirm error:', err);
+            console.error('[CreateProjectModal] Error:', err);
+        } finally {
+            setLoading(false);
         }
-        setLoading(false);
     };
 
-    return (
-        <div className="fixed inset-0 z-[200] flex items-center justify-center bg-black/80 backdrop-blur-sm animate-in fade-in duration-200">
-            <div className="w-full max-w-lg bg-stone-900 border border-white/10 rounded-xl shadow-2xl overflow-hidden scale-in-95 animate-in duration-200">
+    return createPortal(
+        <div className="fixed inset-0 top-0 left-0 w-full h-full z-[99999] flex items-center justify-center bg-black/80 backdrop-blur-sm animate-in fade-in duration-200">
+            <div
+                className="relative w-full max-w-lg bg-stone-900 border border-white/10 rounded-xl shadow-2xl overflow-hidden scale-in-95 animate-in duration-200"
+                onClick={e => e.stopPropagation()}
+            >
                 {/* Header */}
                 <div className="p-4 bg-black/40 border-b border-white/10 flex justify-between items-center">
                     <h2 className="text-lg font-serif text-babel-gold flex items-center gap-2">
@@ -87,7 +87,7 @@ export const CreateProjectModal: React.FC<CreateProjectModalProps> = ({ onClose,
                     </button>
                 </div>
 
-                <form onSubmit={handleSubmit} className="p-6 space-y-6">
+                <div className="p-6 space-y-6">
                     {/* 1. Folder Name */}
                     <div>
                         <label className="block text-xs uppercase tracking-widest text-stone-500 mb-2">폴더명 (Folder Name)</label>
@@ -125,51 +125,31 @@ export const CreateProjectModal: React.FC<CreateProjectModalProps> = ({ onClose,
 
                     {/* 3. Conditional Inputs */}
                     <div className="bg-black/20 p-4 rounded-lg border border-white/5 space-y-4 animate-in fade-in slide-in-from-top-2">
-
-                        {/* A. TEXTBOOK */}
                         {category === 'TEXTBOOK' && (
                             <>
                                 <div>
                                     <label className="block text-[10px] uppercase text-stone-500 mb-1">과목 선택</label>
-                                    <select
-                                        value={tbSubject}
-                                        onChange={(e) => setTbSubject(e.target.value)}
-                                        className="w-full bg-stone-900 border border-white/10 rounded p-2 text-white outline-none focus:border-babel-gold"
-                                    >
+                                    <select value={tbSubject} onChange={(e) => setTbSubject(e.target.value)} className="w-full bg-stone-900 border border-white/10 rounded p-2 text-white outline-none focus:border-babel-gold">
                                         {TEXTBOOK_SUBJECTS.map(s => <option key={s} value={s}>{s}</option>)}
                                     </select>
                                 </div>
                                 <div>
                                     <label className="block text-[10px] uppercase text-stone-500 mb-1">단원 (Unit)</label>
-                                    <input
-                                        type="text"
-                                        placeholder="예: Lesson 1"
-                                        value={tbUnit}
-                                        onChange={(e) => setTbUnit(e.target.value)}
-                                        className="w-full bg-stone-900 border border-white/10 rounded p-2 text-white outline-none focus:border-babel-gold"
-                                    />
+                                    <input type="text" placeholder="예: Lesson 1" value={tbUnit} onChange={(e) => setTbUnit(e.target.value)} className="w-full bg-stone-900 border border-white/10 rounded p-2 text-white outline-none focus:border-babel-gold" />
                                 </div>
                             </>
                         )}
-
-                        {/* B. MOCK EXAM */}
                         {category === 'MOCK' && (
                             <div className="grid grid-cols-2 gap-4">
                                 <div>
                                     <label className="block text-[10px] uppercase text-stone-500 mb-1">연도 (Year)</label>
-                                    <select
-                                        value={mockYear} onChange={(e) => setMockYear(e.target.value)}
-                                        className="w-full bg-stone-900 border border-white/10 rounded p-2 text-white outline-none focus:border-babel-gold"
-                                    >
+                                    <select value={mockYear} onChange={(e) => setMockYear(e.target.value)} className="w-full bg-stone-900 border border-white/10 rounded p-2 text-white outline-none focus:border-babel-gold">
                                         {MOCK_YEARS.map(y => <option key={y} value={y}>{y}</option>)}
                                     </select>
                                 </div>
                                 <div>
                                     <label className="block text-[10px] uppercase text-stone-500 mb-1">학년 (Grade)</label>
-                                    <select
-                                        value={mockGrade} onChange={(e) => setMockGrade(e.target.value)}
-                                        className="w-full bg-stone-900 border border-white/10 rounded p-2 text-white outline-none focus:border-babel-gold"
-                                    >
+                                    <select value={mockGrade} onChange={(e) => setMockGrade(e.target.value)} className="w-full bg-stone-900 border border-white/10 rounded p-2 text-white outline-none focus:border-babel-gold">
                                         <option value="High 1">고1</option>
                                         <option value="High 2">고2</option>
                                         <option value="High 3">고3</option>
@@ -179,55 +159,26 @@ export const CreateProjectModal: React.FC<CreateProjectModalProps> = ({ onClose,
                                     <label className="block text-[10px] uppercase text-stone-500 mb-1">시행월 (Month)</label>
                                     <div className="flex gap-2">
                                         {MOCK_MONTHS.map(m => (
-                                            <button
-                                                key={m} type="button"
-                                                onClick={() => setMockMonth(m)}
-                                                className={`flex-1 py-2 text-xs rounded border transition-colors ${mockMonth === m
-                                                    ? 'bg-stone-700 text-white border-babel-gold'
-                                                    : 'bg-stone-800 text-stone-500 border-transparent hover:bg-stone-700'
-                                                    }`}
-                                            >
-                                                {m}
-                                            </button>
+                                            <button key={m} type="button" onClick={() => setMockMonth(m)} className={`flex-1 py-2 text-xs rounded border transition-colors ${mockMonth === m ? 'bg-stone-700 text-white border-babel-gold' : 'bg-stone-800 text-stone-500 border-transparent hover:bg-stone-700'}`}>{m}</button>
                                         ))}
                                     </div>
                                 </div>
                             </div>
                         )}
-
-                        {/* C. OTHER */}
                         {category === 'OTHER' && (
                             <>
                                 <div>
                                     <label className="block text-[10px] uppercase text-stone-500 mb-1">문제집 종류</label>
-                                    <input
-                                        type="text"
-                                        placeholder="예: 수능특강"
-                                        value={otherWorkbook}
-                                        onChange={(e) => setOtherWorkbook(e.target.value)}
-                                        className="w-full bg-stone-900 border border-white/10 rounded p-2 text-white outline-none focus:border-babel-gold"
-                                    />
+                                    <input type="text" placeholder="예: 수능특강" value={otherWorkbook} onChange={(e) => setOtherWorkbook(e.target.value)} className="w-full bg-stone-900 border border-white/10 rounded p-2 text-white outline-none focus:border-babel-gold" />
                                 </div>
                                 <div className="grid grid-cols-2 gap-4">
                                     <div>
                                         <label className="block text-[10px] uppercase text-stone-500 mb-1">출판사</label>
-                                        <input
-                                            type="text"
-                                            placeholder="예: EBS"
-                                            value={otherPublisher}
-                                            onChange={(e) => setOtherPublisher(e.target.value)}
-                                            className="w-full bg-stone-900 border border-white/10 rounded p-2 text-white outline-none focus:border-babel-gold"
-                                        />
+                                        <input type="text" placeholder="예: EBS" value={otherPublisher} onChange={(e) => setOtherPublisher(e.target.value)} className="w-full bg-stone-900 border border-white/10 rounded p-2 text-white outline-none focus:border-babel-gold" />
                                     </div>
                                     <div>
                                         <label className="block text-[10px] uppercase text-stone-500 mb-1">단원 (숫자만)</label>
-                                        <input
-                                            type="number"
-                                            placeholder="1"
-                                            value={otherUnit}
-                                            onChange={(e) => setOtherUnit(e.target.value)}
-                                            className="w-full bg-stone-900 border border-white/10 rounded p-2 text-white outline-none focus:border-babel-gold"
-                                        />
+                                        <input type="number" placeholder="1" value={otherUnit} onChange={(e) => setOtherUnit(e.target.value)} className="w-full bg-stone-900 border border-white/10 rounded p-2 text-white outline-none focus:border-babel-gold" />
                                     </div>
                                 </div>
                             </>
@@ -253,8 +204,9 @@ export const CreateProjectModal: React.FC<CreateProjectModalProps> = ({ onClose,
                             프로젝트 생성
                         </button>
                     </div>
-                </form>
+                </div>
             </div>
-        </div>
+        </div>,
+        document.body
     );
 };

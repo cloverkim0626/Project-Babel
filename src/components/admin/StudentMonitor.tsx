@@ -10,7 +10,8 @@ import {
     X,
     ChevronLeft,
     ChevronRight,
-    BarChart3
+    BarChart3,
+    Trash2
 } from 'lucide-react';
 import { clsx } from 'clsx';
 
@@ -259,8 +260,22 @@ export const StudentMonitor: React.FC = () => {
     const [statModal, setStatModal] = useState<StudentData | null>(null);
     const [incompleteModal, setIncompleteModal] = useState<StudentData | null>(null);
 
+    // Local state for mock students to support Refund/Delete updates in UI
+    const [students, setStudents] = useState<StudentData[]>(MOCK_STUDENTS);
+
+    const handleRefundComplete = (studentId: string) => {
+        setStudents(prev => prev.map(s =>
+            s.id === studentId ? { ...s, pendingRefund: null } : s
+        ));
+        setRefundModal(null);
+    };
+
+    const handleDeleteStudent = (studentId: string) => {
+        setStudents(prev => prev.filter(s => s.id !== studentId));
+    };
+
     const filteredStudents = useMemo(() => {
-        let result = [...MOCK_STUDENTS];
+        let result = [...students];
         if (searchTerm) {
             result = result.filter(s => s.name.toLowerCase().includes(searchTerm.toLowerCase()));
         }
@@ -364,8 +379,20 @@ export const StudentMonitor: React.FC = () => {
                                 </div>
                                 {/* Actions */}
                                 <div className="col-span-2 flex justify-end gap-2">
-                                    <button onClick={() => setReportModal(student)} className="px-2 py-1 border border-white/10 rounded text-[10px] text-stone-400 hover:text-white hover:bg-babel-gold/10">
+                                    <button onClick={() => setReportModal(student)} className="px-2 py-1 border border-white/10 rounded text-[10px] text-stone-400 hover:text-white hover:bg-babel-gold/10" title="Report">
                                         <FileBarChart size={12} />
+                                    </button>
+                                    <button
+                                        onClick={() => {
+                                            if (confirm(`${student.name} 학생을 정말 삭제하시겠습니까?`)) {
+                                                handleDeleteStudent(student.id);
+                                                alert('학생이 삭제되었습니다.');
+                                            }
+                                        }}
+                                        className="px-2 py-1 border border-white/10 rounded text-[10px] text-stone-400 hover:text-red-400 hover:bg-red-900/20"
+                                        title="Delete"
+                                    >
+                                        <Trash2 size={12} />
                                     </button>
                                 </div>
                             </div>
@@ -379,7 +406,7 @@ export const StudentMonitor: React.FC = () => {
             </div>
 
             {/* Modals */}
-            {refundModal && <RefundModal student={refundModal} onComplete={() => setRefundModal(null)} onCancel={() => setRefundModal(null)} />}
+            {refundModal && <RefundModal student={refundModal} onComplete={() => handleRefundComplete(refundModal.id)} onCancel={() => setRefundModal(null)} />}
             {reportModal && <MonthlyReportModal student={reportModal} onClose={() => setReportModal(null)} />}
             {statModal && <StatModal student={statModal} onClose={() => setStatModal(null)} />}
             {incompleteModal && <IncompleteModal student={incompleteModal} onClose={() => setIncompleteModal(null)} />}

@@ -20,7 +20,7 @@ export const supabase = isValid
         auth: {
             persistSession: true,
             autoRefreshToken: true,
-            detectSessionInUrl: true
+            detectSessionInUrl: false
         }
     })
     : createClient('https://placeholder.supabase.co', 'placeholder');

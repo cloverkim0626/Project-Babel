@@ -48,7 +48,7 @@ const MOCK_INCOMPLETE_TASKS = [
         id: 'inc-1',
         title: '9월 모의고사 A - Seq 3',
         code: 'sept-mock-03',
-        dueDate: 'Due Today',
+        dueDate: '오늘 마감',
         isOverdue: false,
         missionId: 'mock-mission-A'
     },
@@ -56,7 +56,7 @@ const MOCK_INCOMPLETE_TASKS = [
         id: 'inc-2',
         title: 'Voca Day 1 - Seq 2',
         code: 'voca-d1-s2',
-        dueDate: 'Expired',
+        dueDate: '기한 만료',
         isOverdue: true,
         missionId: 'voca-day-1'
     }
@@ -111,7 +111,7 @@ const Dashboard: React.FC = () => {
                                 {user.classType} Class
                             </span>
                             <span className="flex items-center gap-1.5 text-[10px] text-emerald-400 uppercase tracking-widest animate-pulse">
-                                <Activity size={10} /> Life Support Online
+                                <Activity size={10} /> 생명 유지 장치 가동 (Online)
                             </span>
                         </div>
                     </div>
@@ -121,7 +121,7 @@ const Dashboard: React.FC = () => {
                 <div className="flex items-center gap-8 bg-slate-900/40 backdrop-blur-md px-8 py-4 rounded-2xl border border-white/10 shadow-2xl">
                     <div className="text-right">
                         <div className="text-[9px] text-cyan-500/70 uppercase tracking-[0.2em] mb-1.5 flex items-center justify-end gap-1">
-                            <Wind size={10} /> Oxygen Integrity
+                            <Wind size={10} /> 산소 보존력 (Oxygen)
                         </div>
                         <div className="w-48 h-3 bg-slate-800 rounded-full overflow-hidden border border-slate-700/50 relative">
                             {/* Animated Bubbles in Bar */}
@@ -142,7 +142,7 @@ const Dashboard: React.FC = () => {
 
                     <div className="text-right">
                         <div className="text-[9px] text-amber-500/70 uppercase tracking-[0.2em] mb-1 flex items-center justify-end gap-1">
-                            <Droplets size={10} /> Abyssal Depth
+                            <Droplets size={10} /> 심해 탐사도 (Depth)
                         </div>
                         <div className="text-3xl font-[Cinzel] text-amber-500 flex items-center justify-end gap-1 leading-none text-shadow-gold">
                             {points.toLocaleString()} <span className="text-[10px] font-sans text-amber-500/50 tracking-widest mt-2">M</span>
@@ -159,7 +159,7 @@ const Dashboard: React.FC = () => {
                     <div className="abyss-glass p-6 relative group hover:border-cyan-500/30 transition-colors">
                         <div className="absolute top-4 left-4 flex items-center gap-2 text-cyan-500/50">
                             <Anchor size={14} />
-                            <span className="text-[10px] uppercase tracking-[0.2em]">Diver Metrics</span>
+                            <span className="text-[10px] uppercase tracking-[0.2em]">다이버 능력치 (Metrics)</span>
                         </div>
                         <div className="mt-4 filter drop-shadow-[0_0_10px_rgba(34,211,238,0.2)]">
                             <ObserversLog stats={{
@@ -172,13 +172,13 @@ const Dashboard: React.FC = () => {
                     {/* XP / Depth Progress */}
                     <div className="abyss-glass p-6 space-y-4">
                         <h3 className="text-sm font-serif text-slate-300 flex items-center gap-2 border-b border-white/5 pb-2">
-                            Navigation System
+                            항법 시스템 (Navigation)
                         </h3>
 
                         <div>
                             <div className="flex justify-between text-[10px] text-slate-400 mb-1 uppercase tracking-wider">
-                                <span>Current Depth</span>
-                                <span>Target Depth</span>
+                                <span>현재 수심</span>
+                                <span>목표 수심</span>
                             </div>
                             <div className="relative w-full h-1.5 bg-slate-900 rounded-full overflow-hidden">
                                 <div
@@ -201,14 +201,14 @@ const Dashboard: React.FC = () => {
                     {MOCK_INCOMPLETE_TASKS.length > 0 && (
                         <div className="space-y-4">
                             <h3 className="text-xs font-bold text-red-500 tracking-[0.2em] uppercase flex items-center gap-2 pl-1 animate-pulse">
-                                <AlertTriangle size={14} /> Critical Hull Breaches
+                                <AlertTriangle size={14} /> 선체 파손 경고 (Critical Hull Breach)
                             </h3>
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                 {MOCK_INCOMPLETE_TASKS.map(task => (
                                     <div
                                         key={task.id}
                                         onClick={() => {
-                                            if (confirm(`Attempt to repair breach '${task.title}'?`)) {
+                                            if (confirm(`'${task.title}' 미완료 구역 복구를 시도하시겠습니까?`)) {
                                                 navigate(`/mission/${task.missionId}/play`);
                                             }
                                         }}
@@ -232,7 +232,7 @@ const Dashboard: React.FC = () => {
                     {/* Active Mission */}
                     <div>
                         <h3 className="text-xs font-bold text-cyan-500 tracking-[0.2em] uppercase mb-4 pl-1">
-                            Current Dive Coordinate
+                            현재 탐사 좌표 (Dive Coordinate)
                         </h3>
                         <div
                             className="group relative abyss-glass p-8 overflow-hidden cursor-pointer hover:border-cyan-400/50 transition-all duration-500"
@@ -248,21 +248,21 @@ const Dashboard: React.FC = () => {
                                         Alpha Sector: 01
                                     </h2>
                                     <p className="text-slate-400 text-sm max-w-lg leading-relaxed font-light">
-                                        "20 memory fragments detected in this sector. Retrieve them before corrosion sets in."
+                                        "이 구역에서 20개의 기억 파편이 탐지되었습니다. 부식이 진행되기 전에 회수하십시오."
                                     </p>
 
                                     <div className="flex gap-4 mt-6">
                                         <div className="flex items-center gap-2 text-xs text-amber-500 font-mono bg-amber-950/20 px-3 py-1.5 rounded border border-amber-900/50">
-                                            <Clock size={12} /> 24HRS REMAINING
+                                            <Clock size={12} /> 24시간 남음
                                         </div>
                                         <div className="flex items-center gap-2 text-xs text-cyan-400 font-mono bg-cyan-950/20 px-3 py-1.5 rounded border border-cyan-900/50">
-                                            <Trophy size={12} /> REWARD: +5 M DEPTH
+                                            <Trophy size={12} /> 보상: 수심 +5 M
                                         </div>
                                     </div>
                                 </div>
 
                                 <button className="abyss-btn px-8 py-3 text-sm flex items-center gap-2 shadow-[0_0_20px_rgba(34,211,238,0.3)] group-hover:shadow-[0_0_40px_rgba(34,211,238,0.5)]">
-                                    Initiate Dive <ArrowRight size={14} />
+                                    잠수 개시 <ArrowRight size={14} />
                                 </button>
                             </div>
                         </div>
@@ -271,7 +271,7 @@ const Dashboard: React.FC = () => {
                     {/* Completed */}
                     <div>
                         <h3 className="text-xs font-bold text-slate-500 tracking-[0.2em] uppercase mb-4 pl-1">
-                            Dive Log (Recent)
+                            탐사 기록 (Dive Log)
                         </h3>
                         <div className="space-y-3">
                             {MOCK_COMPLETED_QUESTS.map(quest => (
@@ -292,7 +292,7 @@ const Dashboard: React.FC = () => {
                                     <div className="text-right">
                                         <div className="text-xl font-[Cinzel] text-emerald-500">{quest.score}</div>
                                         <div className="text-[9px] text-slate-500 uppercase tracking-widest flex items-center gap-1 justify-end group-hover:text-emerald-400">
-                                            <BookOpen size={10} /> Inspect
+                                            <BookOpen size={10} /> 기록 열람
                                         </div>
                                     </div>
                                 </div>

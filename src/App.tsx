@@ -3,6 +3,7 @@ import { Routes, Route, Navigate } from 'react-router-dom';
 import RiteOfSelection from './pages/RiteOfSelection';
 import { RoleGuard } from './components/auth/RoleGuard';
 import { AuthProvider } from './context/AuthContext';
+import { CursorRipple } from './components/effects/CursorRipple';
 
 const Login = React.lazy(() => import('./pages/Login'));
 const Dashboard = React.lazy(() => import('./pages/Dashboard'));
@@ -18,6 +19,7 @@ function App() {
     <Suspense fallback={<div className="min-h-screen bg-black text-babel-gold flex items-center justify-center">Loading Babel OS...</div>}>
       <AuthProvider>
         <div className="app-container">
+          <CursorRipple />
           <Routes>
             <Route path="/" element={<Navigate to="/login" replace />} />
             <Route path="/login" element={<Login />} />

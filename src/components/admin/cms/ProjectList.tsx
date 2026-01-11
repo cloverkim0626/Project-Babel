@@ -2,7 +2,7 @@ import { useEffect, useState, useMemo } from 'react';
 import {
     Plus, Layers,
     Filter, X, ChevronRight, Check, Trash2, Search,
-    Book, Scroll
+    Book
 } from 'lucide-react';
 import { ContinentManager } from '../ContinentManager';
 import { MissionDistributor } from '../MissionDistributor';

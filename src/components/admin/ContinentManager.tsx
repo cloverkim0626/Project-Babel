@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'; // Verified Build 4:51
+import React, { useState, useEffect } from 'react';
 import { supabase } from '../../lib/supabase';
 import { extractWordsFromText, type RichWord } from '../../services/ai/extractionService';
 import { ArrowLeft, Save, Plus, Brain, CheckSquare, Trash2, Layers, Check, Edit2, X, RefreshCw } from 'lucide-react';
@@ -57,13 +57,47 @@ export const ContinentManager: React.FC<ContinentManagerProps> = ({ continent, i
     }, [continent.id]);
 
     const fetchPassages = async () => {
-        const { data } = await supabase
-            .from('passages')
-            .select('*')
-            .eq('continent_id', continent.id)
-            .order('created_at', { ascending: true });
+        try {
+            // Nuclear Auth Logic for Fetching
+            // We must use the same manual token to bypass RLS policies
+            const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
+            const supabaseKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
 
-        if (data) setPassages(data);
+            let projectId = '';
+            try { projectId = supabaseUrl.split('//')[1].split('.')[0]; } catch (e) { }
+
+            const key = `sb-${projectId}-auth-token`;
+            const sessionStr = localStorage.getItem(key) ||
+                localStorage.getItem(Object.keys(localStorage).find(k => k.startsWith('sb-') && k.endsWith('-auth-token')) || '');
+
+            if (!sessionStr) {
+                console.warn("[ContinentManager] No auth token found for fetch");
+                return;
+            }
+
+            const token = JSON.parse(sessionStr).access_token;
+
+            console.log("[ContinentManager] Fetching passages with manual token...");
+
+            const response = await fetch(`${supabaseUrl}/rest/v1/passages?continent_id=eq.${continent.id}&order=created_at.asc&select=*`, {
+                method: 'GET',
+                headers: {
+                    'apikey': supabaseKey,
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                }
+            });
+
+            if (response.ok) {
+                const data = await response.json();
+                console.log("[ContinentManager] Fetched:", data.length, "passages");
+                setPassages(data);
+            } else {
+                console.error("[ContinentManager] Fetch error:", await response.text());
+            }
+        } catch (e) {
+            console.error("Fetch failed", e);
+        }
     };
 
     const loadPassageToEdit = (passage: Passage) => {

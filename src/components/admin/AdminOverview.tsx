@@ -75,14 +75,6 @@ const MOCK_WEEKLY_DATA: WeeklyAssignment[] = [
     },
 ];
 
-// Get unique project names for table headers
-const getUniqueProjects = (data: WeeklyAssignment[]) => {
-    const projects = new Set<string>();
-    data.forEach(student => {
-        student.assignments.forEach(a => projects.add(a.projectName));
-    });
-    return Array.from(projects);
-};
 
 // Status badge component
 const StatusBadge: React.FC<{ status: WeeklyAssignment['assignments'][0]['status']; progress: number }> = ({ status, progress }) => {
@@ -123,8 +115,6 @@ const StatCard: React.FC<{ icon: React.ReactNode; label: string; value: number; 
 );
 
 export const AdminOverview: React.FC = () => {
-    const projects = getUniqueProjects(MOCK_WEEKLY_DATA);
-
     return (
         <div className="p-8 space-y-8">
             {/* Header */}
@@ -183,12 +173,8 @@ export const AdminOverview: React.FC = () => {
                     <table className="w-full">
                         <thead>
                             <tr className="border-b border-white/10 bg-black/20">
-                                <th className="text-left p-4 text-[10px] text-stone-500 uppercase tracking-widest font-normal">학생</th>
-                                {projects.map(project => (
-                                    <th key={project} className="text-center p-4 text-[10px] text-stone-500 uppercase tracking-widest font-normal">
-                                        {project}
-                                    </th>
-                                ))}
+                                <th className="text-left p-4 text-[10px] text-stone-500 uppercase tracking-widest font-normal w-40">학생</th>
+                                <th className="text-left p-4 text-[10px] text-stone-500 uppercase tracking-widest font-normal">이번주 과제 현황</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -202,20 +188,19 @@ export const AdminOverview: React.FC = () => {
                                             <span className="text-sm text-white font-medium">{student.studentName}</span>
                                         </div>
                                     </td>
-                                    {projects.map(projectName => {
-                                        const assignment = student.assignments.find(a => a.projectName === projectName);
-                                        return (
-                                            <td key={projectName} className="p-4 text-center">
-                                                {assignment ? (
-                                                    <div className="flex justify-center">
-                                                        <StatusBadge status={assignment.status} progress={assignment.progress} />
-                                                    </div>
-                                                ) : (
-                                                    <span className="text-stone-600 text-xs">-</span>
-                                                )}
-                                            </td>
-                                        );
-                                    })}
+                                    <td className="p-4">
+                                        <div className="flex flex-wrap gap-3">
+                                            {student.assignments.map((assignment, idx) => (
+                                                <div
+                                                    key={idx}
+                                                    className="flex items-center gap-2 bg-black/30 rounded-lg px-3 py-2 border border-white/10"
+                                                >
+                                                    <span className="text-xs text-stone-400 font-medium">{assignment.projectName}:</span>
+                                                    <StatusBadge status={assignment.status} progress={assignment.progress} />
+                                                </div>
+                                            ))}
+                                        </div>
+                                    </td>
                                 </tr>
                             ))}
                         </tbody>

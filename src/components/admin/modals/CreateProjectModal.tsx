@@ -43,9 +43,16 @@ export const CreateProjectModal: React.FC<CreateProjectModalProps> = ({ onClose,
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        if (!folderName) return;
+        console.log('[CreateProjectModal] Submit triggered, folderName:', folderName);
+
+        if (!folderName.trim()) {
+            console.log('[CreateProjectModal] No folder name, aborting');
+            return;
+        }
 
         setLoading(true);
+        console.log('[CreateProjectModal] Loading started');
+
         const metadata = {
             category,
             // Save all fields, even if not active, for simplicity or filter only active
@@ -55,8 +62,14 @@ export const CreateProjectModal: React.FC<CreateProjectModalProps> = ({ onClose,
         };
 
         const autoDisplayName = generateDisplayName();
+        console.log('[CreateProjectModal] Calling onConfirm with:', { folderName, autoDisplayName, metadata });
 
-        await onConfirm(folderName, autoDisplayName, '#D4AF37', metadata);
+        try {
+            await onConfirm(folderName, autoDisplayName, '#D4AF37', metadata);
+            console.log('[CreateProjectModal] onConfirm completed');
+        } catch (err) {
+            console.error('[CreateProjectModal] onConfirm error:', err);
+        }
         setLoading(false);
     };
 

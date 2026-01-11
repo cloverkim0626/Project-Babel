@@ -1,14 +1,14 @@
 import React from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { ArrowLeft, Calendar, Star, Lock, BookOpen } from 'lucide-react';
+import { ArrowLeft, BookOpen, Lock, Activity, Droplets } from 'lucide-react';
 import { clsx } from 'clsx';
 
-// Mock Data for Missions (Weeks)
+// Mock Data (Weeks -> Dive Levels)
 const MISSIONS = [
-    { id: 'week-1', title: 'Week 1: The Awakening', sub: 'Basic Setup & Installation', locked: false, stars: 3, total: 3 },
-    { id: 'week-2', title: 'Week 2: First Contact', sub: 'Variable & Data Types', locked: false, stars: 1, total: 3 },
-    { id: 'week-3', title: 'Week 3: The Logic Gate', sub: 'Control Flow', locked: true, stars: 0, total: 3 },
-    { id: 'week-4', title: 'Week 4: Loop Paradox', sub: 'Iteration & Arrays', locked: true, stars: 0, total: 3 },
+    { id: 'week-1', title: 'LEVEL 01: THE AWAKENING', korTitle: '제1심도: 각성 (The Awakening)', sub: '기본 설정 및 설치 (Setup)', locked: false, depth: 100 },
+    { id: 'week-2', title: 'LEVEL 02: FIRST CONTACT', korTitle: '제2심도: 조우 (First Contact)', sub: '변수와 데이터 타입 (Variables)', locked: false, depth: 250 },
+    { id: 'week-3', title: 'LEVEL 03: THE LOGIC GATE', korTitle: '제3심도: 논리의 문 (Logic Gate)', sub: '제어 흐름 (Control Flow)', locked: true, depth: 500 },
+    { id: 'week-4', title: 'LEVEL 04: LOOP PARADOX', korTitle: '제4심도: 루프 패러독스 (Loop)', sub: '반복문과 배열 (Iteration)', locked: true, depth: 1000 },
 ];
 
 const MissionSelect: React.FC = () => {
@@ -16,82 +16,92 @@ const MissionSelect: React.FC = () => {
     const { continentId } = useParams();
 
     return (
-        <div className="min-h-screen bg-obsidian text-paper font-mono relative overflow-hidden flex flex-col">
-            {/* Background */}
-            <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1451187580459-43490279c0fa?q=80&w=2072&auto=format&fit=crop')] bg-cover bg-center opacity-20 pointer-events-none" />
-            <div className="absolute inset-0 bg-gradient-to-r from-black via-black/80 to-transparent pointer-events-none" />
+        <div className="min-h-screen bg-[#020617] text-slate-200 font-sans relative overflow-hidden flex flex-col">
+            <div className="caustic-overlay" />
 
             {/* Header */}
-            <div className="p-6 md:p-8 z-10 flex items-center justify-between border-b border-white/10 backdrop-blur-sm">
-                <button onClick={() => navigate('/world-map')} className="flex items-center gap-2 text-stone-400 hover:text-white transition-colors group">
-                    <ArrowLeft size={20} className="group-hover:-translate-x-1 transition-transform" />
-                    <span className="uppercase tracking-widest text-sm">Return to Orbit</span>
+            <div className="p-8 z-10 flex flex-col md:flex-row items-start md:items-center justify-between border-b border-white/5 backdrop-blur-md bg-[#020617]/80">
+                <button onClick={() => navigate('/world-map')} className="flex items-center gap-2 text-slate-500 hover:text-cyan-400 transition-colors group mb-4 md:mb-0">
+                    <ArrowLeft size={18} className="group-hover:-translate-x-1 transition-transform" />
+                    <span className="uppercase tracking-widest text-xs font-mono">Return to Surface</span>
                 </button>
                 <div className="text-right">
-                    <h1 className="text-3xl font-serif font-bold text-babel-gold text-shadow-glow">MISSION SELECT</h1>
-                    <p className="text-stone-500 text-xs uppercase tracking-[0.2em]">{continentId || 'Unknown Sector'}</p>
+                    <h1 className="text-3xl text-cinematic tracking-widest mb-1 text-shadow">DIVE OPERATION</h1>
+                    <p className="text-cyan-500/60 text-xs uppercase tracking-[0.3em] font-mono pl-1">Target Sector: {continentId}</p>
                 </div>
             </div>
 
-            {/* List Container */}
-            <div className="flex-1 overflow-auto p-6 md:p-12 z-10 flex justify-center">
-                <div className="w-full max-w-4xl space-y-4">
+            {/* Vertical Depth List */}
+            <div className="flex-1 overflow-y-auto p-8 md:p-12 z-10 flex justify-center custom-scrollbar">
+                <div className="w-full max-w-3xl relative">
+                    {/* Depth Line */}
+                    <div className="absolute left-8 top-0 bottom-0 w-px bg-gradient-to-b from-cyan-500/50 via-cyan-900/20 to-transparent md:left-1/2 md:-ml-px hidden md:block" />
+
                     {MISSIONS.map((mission, idx) => (
                         <div
                             key={mission.id}
                             onClick={() => !mission.locked && navigate(`/quest-progress/${mission.id}`)}
                             className={clsx(
-                                "relative w-full p-6 md:p-8 rounded-xl border flex items-center gap-6 transition-all duration-300 group overflow-hidden",
-                                mission.locked
-                                    ? "bg-black/40 border-white/5 opacity-50 cursor-not-allowed grayscale"
-                                    : "bg-black/60 border-white/10 hover:border-babel-gold hover:bg-black/80 cursor-pointer hover:scale-[1.01] hover:shadow-[0_0_30px_rgba(212,175,55,0.1)]"
+                                "relative mb-8 md:mb-12 last:mb-0 transition-all duration-500 group",
+                                mission.locked ? "opacity-50 grayscale cursor-not-allowed" : "cursor-pointer"
                             )}
                         >
-                            {/* Hover Highlight */}
-                            {!mission.locked && (
-                                <div className="absolute inset-0 bg-gradient-to-r from-babel-gold/5 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-                            )}
-
-                            {/* Index Number */}
-                            <div className={clsx(
-                                "text-4xl font-black font-serif opacity-20",
-                                mission.locked ? "text-stone-600" : "text-white group-hover:text-babel-gold transition-colors"
-                            )}>
-                                {String(idx + 1).padStart(2, '0')}
-                            </div>
-
-                            {/* Content */}
-                            <div className="flex-1 z-10">
-                                <h3 className={clsx(
-                                    "text-xl font-bold mb-1",
-                                    mission.locked ? "text-stone-500" : "text-stone-200 group-hover:text-white"
+                            {/* Depth Marker */}
+                            <div className="absolute left-0 top-1/2 -translate-y-1/2 md:left-1/2 md:-translate-x-1/2 w-16 text-center z-20 hidden md:block">
+                                <div className={clsx(
+                                    "text-[10px] font-mono tracking-widest py-1 px-2 rounded-full border bg-[#020617]",
+                                    mission.locked ? "border-slate-800 text-slate-600" : "border-cyan-500/50 text-cyan-400 group-hover:border-cyan-400 group-hover:shadow-[0_0_15px_rgba(34,211,238,0.4)] transition-all"
                                 )}>
-                                    {mission.title}
-                                </h3>
-                                <div className="flex items-center gap-4 text-xs uppercase tracking-wider opacity-60">
-                                    <span className="flex items-center gap-1"><BookOpen size={12} /> {mission.sub}</span>
-                                    {!mission.locked && (
-                                        <span className="flex items-center gap-1"><Calendar size={12} /> Available until D-2</span>
-                                    )}
+                                    -{mission.depth}M
                                 </div>
                             </div>
 
-                            {/* Status/Action */}
-                            <div className="z-10 text-right">
-                                {mission.locked ? (
-                                    <Lock className="text-stone-600" />
-                                ) : (
-                                    <div className="flex flex-col items-end gap-1">
-                                        <div className="flex text-babel-gold">
-                                            {Array.from({ length: mission.total }).map((_, i) => (
-                                                <Star key={i} size={14} fill={i < mission.stars ? "currentColor" : "none"} className={i >= mission.stars ? "opacity-30" : ""} />
-                                            ))}
+                            <div className={clsx(
+                                "flex flex-col md:flex-row items-center gap-8",
+                                idx % 2 === 0 ? "md:flex-row-reverse" : ""
+                            )}>
+                                {/* Card */}
+                                <div className={clsx(
+                                    "w-full md:w-[calc(50%-2rem)] abyss-glass p-8 border rounded-xl relative overflow-hidden transition-all duration-300",
+                                    !mission.locked && "hover:border-cyan-400/50 hover:bg-slate-900/60 group-hover:shadow-[0_0_30px_rgba(34,211,238,0.1)]"
+                                )}>
+                                    {!mission.locked && (
+                                        <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity text-cyan-500">
+                                            <Activity size={80} />
                                         </div>
-                                        <div className="text-[10px] text-babel-gold border border-babel-gold/30 px-2 py-0.5 rounded uppercase">
-                                            Enter Simulation
+                                    )}
+
+                                    <div className="relative z-10">
+                                        <div className="flex items-center justify-between mb-4">
+                                            <span className={clsx(
+                                                "text-xs font-bold tracking-[0.2em] uppercase",
+                                                mission.locked ? "text-slate-600" : "text-cyan-500"
+                                            )}>
+                                                Sequence 0{idx + 1}
+                                            </span>
+                                            {!mission.locked && <Droplets size={14} className="text-cyan-500 animate-bounce" />}
+                                        </div>
+
+                                        <h3 className={clsx(
+                                            "text-xl md:text-2xl font-serif font-bold mb-2",
+                                            mission.locked ? "text-slate-500" : "text-slate-100 group-hover:text-cyan-300 transition-colors"
+                                        )}>
+                                            {mission.korTitle}
+                                        </h3>
+
+                                        <div className="flex items-center gap-2 text-xs text-slate-500 font-mono mt-4 border-t border-white/5 pt-4">
+                                            <BookOpen size={12} />
+                                            <span>{mission.sub}</span>
                                         </div>
                                     </div>
-                                )}
+
+                                    {mission.locked && (
+                                        <div className="absolute inset-0 flex items-center justify-center bg-black/40 backdrop-blur-[1px]">
+                                            <Lock className="text-slate-600" size={32} />
+                                        </div>
+                                    )}
+                                </div>
+                                <div className="flex-1" />
                             </div>
                         </div>
                     ))}

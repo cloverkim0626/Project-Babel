@@ -72,29 +72,29 @@ export default function WorldMapView() {
             {/* Header */}
             <div className="p-8 pb-4 border-b border-white/5 flex flex-col md:flex-row justify-between items-start md:items-center z-10 bg-[#020617]/80 backdrop-blur-md">
                 <div>
-                    <h1 className="text-4xl text-cinematic mb-2 tracking-widest text-shadow-lg">
-                        ABYSSAL CHART (탐사 구역 선택)
+                    <h1 className="text-5xl md:text-6xl text-cinematic mb-3 tracking-widest text-shadow-lg">
+                        ABYSSAL CHART (탐사 구역)
                     </h1>
-                    <p className="text-xs text-cyan-500/60 tracking-[0.3em] uppercase pl-1 flex items-center gap-2">
-                        <Compass size={14} className="animate-spin-slow" /> Select Sector to Dive
+                    <p className="text-sm text-cyan-500/60 tracking-[0.3em] uppercase pl-1 flex items-center gap-2">
+                        <Compass size={16} className="animate-spin-slow" /> Select Sector to Dive
                     </p>
                 </div>
-                <div className="flex items-center gap-6 text-xs font-mono mt-4 md:mt-0">
+                <div className="flex items-center gap-6 text-sm font-mono mt-6 md:mt-0">
                     <div className="flex items-center gap-2 text-cyan-400">
-                        <Globe size={14} />
-                        <span className="tracking-widest uppercase">Depth Sync: 98%</span>
+                        <Globe size={16} />
+                        <span className="tracking-widest uppercase">Depth Sync: 99.9%</span>
                     </div>
                 </div>
             </div>
 
             {/* Content */}
-            <div className="flex-1 overflow-x-auto flex items-center gap-8 px-12 py-8 snap-x snap-mandatory relative z-10 custom-scrollbar">
+            <div className="flex-1 overflow-x-auto flex items-center gap-6 md:gap-10 px-8 md:px-12 py-8 snap-x snap-mandatory relative z-10 custom-scrollbar">
                 {continents.map((continent, idx) => (
                     <div
                         key={continent.id}
                         onClick={() => handleEnter(continent.id, continent.isLocked)}
                         className={clsx(
-                            "snap-center shrink-0 w-[350px] h-[500px] relative rounded-t-full border transition-all duration-700 cursor-pointer group flex flex-col justify-end p-10 overflow-hidden",
+                            "snap-center shrink-0 w-[85vw] md:w-[400px] h-[60vh] md:h-[600px] relative rounded-t-full border transition-all duration-700 cursor-pointer group flex flex-col justify-end p-8 md:p-12 overflow-hidden",
                             continent.isLocked
                                 ? "border-white/5 bg-slate-950/50 opacity-60 grayscale blur-[1px]"
                                 : "abyss-glass border-cyan-500/30 hover:border-cyan-400 hover:shadow-[0_0_50px_rgba(34,211,238,0.15)] hover:-translate-y-4"

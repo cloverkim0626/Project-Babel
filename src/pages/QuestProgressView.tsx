@@ -73,9 +73,9 @@ export const QuestProgressView: React.FC = () => {
                 </button>
 
                 <div className="text-center">
-                    <h2 className="text-xl md:text-2xl text-cinematic flex items-center justify-center gap-3">
-                        <Database size={20} className="text-cyan-500" />
-                        DATA FRAGMENTS (데이터 파편)
+                    <h2 className="text-2xl md:text-3xl text-cinematic flex items-center justify-center gap-3">
+                        <Database size={24} className="text-cyan-500" />
+                        DATA SEQUENCES (데이터 시퀀스)
                     </h2>
                 </div>
 
@@ -84,17 +84,17 @@ export const QuestProgressView: React.FC = () => {
 
             {/* Main Content: Grid of Fragments */}
             <div className="flex-1 overflow-y-auto p-6 md:p-12 z-10 custom-scrollbar">
-                <div className="max-w-5xl mx-auto">
+                <div className="max-w-6xl mx-auto">
 
                     <div className="mb-12 text-center">
-                        <p className="text-xs font-mono text-cyan-500/60 uppercase tracking-[0.3em] mb-2">Target Source</p>
-                        <h1 className="text-3xl md:text-4xl font-serif text-white mb-4">{missionTitle}</h1>
-                        <p className="text-slate-400 text-sm max-w-2xl mx-auto leading-relaxed">
-                            "이 구역에서 {questSets.length}개의 손상된 기억 파편이 발견되었습니다. 각 큐브를 선택하여 데이터를 복원하십시오."
+                        <p className="text-sm font-mono text-cyan-500/60 uppercase tracking-[0.3em] mb-2">Target Source</p>
+                        <h1 className="text-4xl md:text-5xl font-serif text-white mb-6">{missionTitle}</h1>
+                        <p className="text-slate-400 text-lg max-w-3xl mx-auto leading-relaxed">
+                            "이 구역에서 {questSets.length}개의 손상된 데이터 시퀀스가 발견되었습니다. 각 큐브를 선택하여 데이터를 복원하십시오."
                         </p>
                     </div>
 
-                    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+                    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
                         {questSets.map((set) => (
                             <div
                                 key={set.id}
@@ -106,33 +106,33 @@ export const QuestProgressView: React.FC = () => {
                             >
                                 {/* Cube Container */}
                                 <div className={clsx(
-                                    "w-full h-full border rounded-xl flex flex-col items-center justify-center relative overflow-hidden backdrop-blur-sm",
+                                    "w-full h-full border-2 rounded-2xl flex flex-col items-center justify-center relative overflow-hidden backdrop-blur-sm",
                                     set.status === 'locked' && "bg-slate-900 border-white/5",
-                                    set.status === 'open' && "bg-cyan-950/20 border-cyan-500/50 shadow-[0_0_20px_rgba(34,211,238,0.2)] animate-pulse-slow",
+                                    set.status === 'open' && "bg-cyan-950/20 border-cyan-500/50 shadow-[0_0_30px_rgba(34,211,238,0.2)] animate-pulse-slow",
                                     set.status === 'passed' && "bg-emerald-950/20 border-emerald-500/30"
                                 )}>
 
                                     {/* Icon */}
-                                    <div className="mb-4 relative z-10">
-                                        {set.status === 'locked' && <Lock className="text-slate-600" size={32} />}
-                                        {set.status === 'open' && <Box className="text-cyan-400 animate-pulse" size={40} />}
+                                    <div className="mb-6 relative z-10">
+                                        {set.status === 'locked' && <Lock className="text-slate-600" size={40} />}
+                                        {set.status === 'open' && <Box className="text-cyan-400 animate-pulse" size={48} />}
                                         {set.status === 'passed' && (
-                                            <div className="w-12 h-12 rounded-full bg-emerald-500/20 flex items-center justify-center text-emerald-400">
-                                                <CheckCircle size={24} />
+                                            <div className="w-16 h-16 rounded-full bg-emerald-500/20 flex items-center justify-center text-emerald-400">
+                                                <CheckCircle size={32} />
                                             </div>
                                         )}
                                     </div>
 
                                     {/* Label */}
                                     <h3 className={clsx(
-                                        "text-lg font-serif font-bold z-10",
+                                        "text-xl font-serif font-bold z-10 tracking-wider",
                                         set.status === 'open' ? "text-cyan-100" : "text-slate-500"
                                     )}>
-                                        FRAGMENT {String(set.index).padStart(2, '0')}
+                                        SEQUENCE {String(set.index).padStart(2, '0')}
                                     </h3>
 
                                     {/* Status Text */}
-                                    <span className="text-[9px] uppercase tracking-widest mt-2 font-mono text-slate-500 z-10">
+                                    <span className="text-xs uppercase tracking-widest mt-3 font-mono text-slate-500 z-10 font-bold">
                                         {set.status === 'locked' ? 'ENCRYPTED' : set.status === 'open' ? 'READY TO DECODE' : 'RESTORED'}
                                     </span>
 

@@ -159,25 +159,25 @@ export const AdminOverview: React.FC = () => {
     if (loading) return <div className="p-12 text-center text-babel-gold font-serif animate-pulse text-2xl">Loading the Archives...</div>;
 
     return (
-        <div className="p-8 space-y-8 min-h-screen">
+        <div className="p-8 space-y-8 min-h-screen font-serif">
             {/* Header */}
-            <div className="flex items-center justify-between border-b border-[#78350f] pb-6">
-                <div>
-                    <h2 className="text-4xl font-serif text-[#fbbf24] flex items-center gap-4 text-glow-gold">
-                        <Scroll size={32} className="text-[#fbbf24]" />
+            <div className="flex items-center justify-between border-b border-[#78350f] pb-6 relative">
+                <div className="z-10">
+                    <h2 className="text-4xl text-[#fbbf24] flex items-center gap-4 text-glow-gold">
+                        <Scroll size={32} className="text-[#fbbf24] drop-shadow-[0_0_10px_rgba(251,191,36,0.6)]" />
                         Grand Observatory
                     </h2>
-                    <p className="text-[#a8a29e] text-sm mt-2 ml-1 font-serif italic opacity-80">
+                    <p className="text-[#a8a29e] text-sm mt-2 ml-1 italic opacity-80 decoration-clone bg-clip-text bg-gradient-to-r from-[#d6c4a6] to-transparent">
                         "The lighthouse that watches over the sea of knowledge."
                     </p>
                 </div>
-                <div className="flex items-center gap-3 px-4 py-2 ancient-panel rounded-sm text-[#fbbf24] font-mono text-xs ancient-border-gold">
+                <div className="flex items-center gap-3 px-6 py-3 ancient-card rounded-md text-[#fbbf24] font-mono text-xs border border-[#78350f]">
                     <Calendar size={14} />
                     {new Date().toLocaleDateString()}
                 </div>
             </div>
 
-            {/* Stats Cards (Ancient Style) */}
+            {/* Stats Cards (Ancient Style - Stone Tablets) */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                 <AncientStatCard
                     icon={<FileText size={24} />}
@@ -211,26 +211,26 @@ export const AdminOverview: React.FC = () => {
                 <div className="lg:col-span-2 space-y-8">
 
                     {/* 7-Day Study Volume (Mana Battery) */}
-                    <section className="ancient-card p-6 relative group">
-                        <div className="absolute top-0 left-0 w-full h-1 bg-[#d4af37]/50" />
-                        <div className="flex items-center justify-between mb-6">
-                            <h3 className="text-xl text-[#eaddcf] font-serif flex items-center gap-2 text-glow-gold">
+                    <section className="ancient-card p-8 group">
+                        <div className="flex items-center justify-between mb-8 pb-4 border-b border-[#44403c]">
+                            <h3 className="text-xl text-[#eaddcf] flex items-center gap-2 text-glow-gold">
                                 <History className="text-[#fbbf24]" />
                                 Weekly Mana Flow (7 Days)
                             </h3>
                         </div>
-                        <div className="flex items-end justify-between gap-2 h-32 px-4">
+                        <div className="flex items-end justify-between gap-3 h-40 px-2">
                             {studyVolume.map((vol, idx) => (
-                                <div key={idx} className="flex-1 flex flex-col items-center gap-2 group/bar">
-                                    <div className="w-full bg-[#1c1917] rounded-sm relative overflow-hidden h-full flex flex-col justify-end border border-[#44403c] shadow-inner">
+                                <div key={idx} className="flex-1 flex flex-col items-center gap-3 group/bar">
+                                    <div className="w-full bg-[#0c0a09] rounded-sm relative overflow-hidden h-full flex flex-col justify-end border border-[#44403c] shadow-inner ring-1 ring-white/5">
                                         <div
                                             style={{ height: `${Math.min(100, vol.count * 2)}%` }}
-                                            className="w-full bg-gradient-to-t from-[#78350f] to-[#fbbf24] opacity-80 group-hover/bar:opacity-100 transition-all duration-500 relative shadow-[0_0_10px_#fbbf24]"
+                                            className="w-full bg-gradient-to-t from-[#78350f] via-[#b45309] to-[#fbbf24] opacity-80 group-hover/bar:opacity-100 transition-all duration-500 relative shadow-[0_0_20px_rgba(251,191,36,0.2)]"
                                         >
-                                            <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/diagmonds-light.png')] opacity-20"></div>
+                                            {/* Glow effect at tip */}
+                                            <div className="absolute top-0 left-0 right-0 h-1 bg-white/40 blur-[1px]" />
                                         </div>
                                     </div>
-                                    <span className="text-[10px] text-[#a8a29e] font-serif">{vol.date}</span>
+                                    <span className="text-[11px] text-[#78716c] font-bold uppercase tracking-wider">{vol.date}</span>
                                 </div>
                             ))}
                         </div>
@@ -238,27 +238,30 @@ export const AdminOverview: React.FC = () => {
 
                     {/* Slump Alerts (Cursed Scrolls) */}
                     <section className="space-y-4">
-                        <h3 className="text-xl text-[#ef4444] font-serif flex items-center gap-2 pl-2 border-l-4 border-[#ef4444] text-glow-fire">
-                            <Skull size={20} />
-                            Cursed Condition Detected (Slump &gt; 20%)
-                        </h3>
+                        <div className="flex items-center gap-3 mb-2">
+                            <Skull size={20} className="text-[#ef4444] animate-pulse" />
+                            <h3 className="text-xl text-[#ef4444] text-glow-fire">
+                                Cursed Condition Detected
+                            </h3>
+                        </div>
+
                         {slumps.length > 0 ? (
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                 {slumps.map((slump) => (
-                                    <div key={slump.studentId} className="ancient-panel border border-[#7f1d1d] p-4 rounded-sm flex justify-between items-center shadow-[0_0_15px_rgba(127,29,29,0.2)]">
+                                    <div key={slump.studentId} className="ancient-card border-l-4 border-l-[#ef4444] border-t-0 border-r-0 border-b-0 p-5 flex justify-between items-center shadow-[0_0_20px_rgba(239,68,68,0.1)] bg-gradient-to-r from-[#2a0a0a] to-transparent">
                                         <div>
-                                            <div className="text-lg text-[#fca5a5] font-serif font-bold">{slump.studentName}</div>
-                                            <div className="text-xs text-[#f87171] mt-1">Avg Score Drop: {slump.prevAvg}% → {slump.currentAvg}%</div>
+                                            <div className="text-lg text-[#fca5a5] font-bold tracking-wide">{slump.studentName}</div>
+                                            <div className="text-xs text-[#f87171] mt-1 font-mono">Vitality Drop: {slump.prevAvg}% → {slump.currentAvg}%</div>
                                         </div>
-                                        <div className="text-2xl font-black text-[#dc2626] animate-pulse text-glow-fire">
+                                        <div className="text-3xl font-black text-[#dc2626] animate-pulse text-glow-fire">
                                             -{slump.dropRate}%
                                         </div>
                                     </div>
                                 ))}
                             </div>
                         ) : (
-                            <div className="p-6 text-[#a8a29e] italic text-center border border-dashed border-[#44403c] rounded-sm">
-                                "The sanctuary is peaceful. No curses detected."
+                            <div className="p-8 text-[#57534e] italic text-center border-2 border-dashed border-[#292524] rounded-lg text-lg bg-[#0c0a09]/30">
+                                "The sanctuary remains pure. No curses plague the students."
                             </div>
                         )}
                     </section>
@@ -267,29 +270,37 @@ export const AdminOverview: React.FC = () => {
 
                 {/* Right Sidebar (1/3) */}
                 <div className="space-y-8">
-                    {/* Top 3 Wrong Words (The Forbidden Scroll) */}
-                    <div className="relative ancient-scroll p-8 rounded-sm shadow-xl transform rotate-1 hover:rotate-0 transition-transform duration-500">
-                        {/* Scroll Ends Decoration */}
-                        <div className="absolute -top-3 left-0 right-0 h-6 bg-[url('/assets/tex-sidebar.png')] bg-cover rounded shadow-lg border-b border-[#292524]" />
-                        <div className="absolute -bottom-3 left-0 right-0 h-6 bg-[url('/assets/tex-sidebar.png')] bg-cover rounded shadow-lg border-t border-[#292524]" />
+                    {/* Top 3 Wrong Words (The Forbidden Scroll - Paper Style) */}
+                    <div className="relative ancient-paper p-8 transform rotate-1 hover:rotate-0 transition-transform duration-500 z-10">
+                        {/* Pin Effect */}
+                        <div className="absolute -top-3 left-1/2 -translate-x-1/2 w-4 h-4 rounded-full bg-[#78350f] shadow-[0_2px_5px_rgba(0,0,0,0.5)] border border-[#451a03] z-20" />
 
-                        <h3 className="text-center font-serif text-2xl font-bold border-b-2 border-[#292524] pb-2 mb-4 tracking-wider text-[#451a03]">
+                        <h3 className="text-center text-2xl font-black border-b-2 border-[#5d4037]/20 pb-4 mb-6 tracking-widest text-[#451a03]">
                             FORBIDDEN WORDS
                         </h3>
 
-                        <div className="space-y-6">
+                        <div className="space-y-8">
                             {topWrongWords.map((item, idx) => (
-                                <div key={idx} className="relative pl-8 group cursor-pointer">
-                                    <span className="absolute left-0 top-0 font-serif text-3xl font-black text-[#7f1d1d] opacity-50 group-hover:opacity-100 transition-opacity">
+                                <div key={idx} className="relative pl-10 group cursor-pointer">
+                                    <span className="absolute left-0 top-0 text-4xl font-black text-[#7f1d1d] opacity-20 group-hover:opacity-100 transition-opacity">
                                         {idx + 1}
                                     </span>
-                                    <div>
-                                        <div className="text-lg font-bold font-serif text-[#292524]">{item.word}</div>
-                                        <div className="text-sm font-serif italic text-[#57534e] mt-1">{item.meaning}</div>
-                                        <div className="text-xs text-[#7f1d1d] mt-1 font-mono">{item.incorrectCount} Failures recorded</div>
+                                    <div className="relative z-10">
+                                        <div className="text-xl font-bold text-[#2b1d12] border-b border-dashed border-[#a8a29e] pb-1 inline-block mb-1">
+                                            {item.word}
+                                        </div>
+                                        <div className="text-sm italic text-[#5d4037]">{item.meaning}</div>
+                                        <div className="text-xs text-[#b91c1c] mt-1 font-bold flex items-center gap-1 uppercase tracking-tight">
+                                            <div className="w-1 h-1 rounded-full bg-current" /> {item.incorrectCount} Failures
+                                        </div>
                                     </div>
                                 </div>
                             ))}
+                        </div>
+
+                        {/* Bottom fray */}
+                        <div className="absolute bottom-2 right-4 text-[10px] text-[#78350f]/50 italic">
+                            *Auto-generated from abyss
                         </div>
                     </div>
                 </div>

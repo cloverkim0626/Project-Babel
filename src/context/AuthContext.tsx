@@ -156,6 +156,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
                 if (mountedRef.current) {
                     if (profile) {
+                        // FORCE OVERRIDE for Emergency/Admin emails to prevent DB lockouts
+                        if (isAdminEmail(session.user.email)) {
+                            console.log('[Auth] Emergency Override (Listener): Forcing Master Role');
+                            profile.role = 'master';
+                        }
                         setUser(profile);
                     } else {
                         setUser(createFallbackUser(session.user, isAdminEmail(session.user.email)));

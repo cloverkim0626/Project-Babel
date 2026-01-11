@@ -101,9 +101,58 @@ export default function Login() {
         }
     };
 
+    const handleEmergencyLogin = async () => {
+        setLoading(true);
+        setError(null);
+        const emergencyEmail = 'emergency@babel.com';
+        const emergencyPassword = 'babel_emergency'; // Simple password for dev
+
+        try {
+            // 1. Try Login
+            const { error: signInError } = await supabase.auth.signInWithPassword({
+                email: emergencyEmail,
+                password: emergencyPassword
+            });
+
+            if (signInError) {
+                // 2. If not found, SignUp
+                console.log("Emergency account not found, creating...");
+                const { error: signUpError } = await supabase.auth.signUp({
+                    email: emergencyEmail,
+                    password: emergencyPassword,
+                    options: {
+                        data: {
+                            nickname: 'Emergency Admin',
+                            class_type: 'Master',
+                            role: 'master' // Trigger might use this
+                        }
+                    }
+                });
+
+                if (signUpError) throw new Error("Emergency creation failed: " + signUpError.message);
+
+                // 3. Retry Login
+                const { error: retryError } = await supabase.auth.signInWithPassword({
+                    email: emergencyEmail,
+                    password: emergencyPassword
+                });
+                if (retryError) throw retryError;
+            }
+
+            // 4. Force Navigate
+            // Logic: AuthContext will see 'emergency@' and fallback to 'master' role if DB fetch fails.
+            navigate('/admin');
+
+        } catch (err: any) {
+            console.error(err);
+            setError("Emergency Access Failed: " + err.message);
+        } finally {
+            setLoading(false);
+        }
+    };
+
     return (
         <div className="min-h-screen bg-[#020617] flex items-center justify-center p-6 relative overflow-hidden font-sans">
-
             {/* ATMOSPHERIC LAYER: Caustics */}
             <div className="caustic-overlay" />
             <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-[#0f172a] opacity-80 pointer-events-none" />
@@ -165,7 +214,7 @@ export default function Login() {
                         {error && (
                             <div className="flex items-center gap-2 text-red-300 text-xs bg-red-950/20 p-3 rounded border border-red-500/10">
                                 <AlertCircle size={14} />
-                                {error}
+                                <span className="flex-1">{error}</span>
                             </div>
                         )}
 
@@ -193,6 +242,14 @@ export default function Login() {
                             className="w-full py-3 text-xs font-medium text-slate-400 hover:text-cyan-300 transition-colors border border-dashed border-slate-700 hover:border-cyan-500/30 rounded-lg flex items-center justify-center gap-2"
                         >
                             체험판 접속 (Guest Dive)
+                        </button>
+
+                        <button
+                            onClick={handleEmergencyLogin}
+                            className="w-full py-3 text-xs font-bold text-red-900 hover:text-red-400 hover:bg-red-950/20 transition-colors border border-transparent hover:border-red-900/50 rounded-lg flex items-center justify-center gap-2"
+                        >
+                            <AlertCircle size={12} />
+                            긴급 접속 승인 (Emergency Override)
                         </button>
 
                         <button

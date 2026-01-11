@@ -2,9 +2,49 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { HpBar } from '../components/HpBar';
 import { ObserversLog } from '../components/ObserversLog';
+import { VocabReviewModal } from '../components/VocabReviewModal';
 import { useAuth } from '../hooks/useAuth';
 import { useGameEngine } from '../hooks/useGameEngine';
-import { Shield, UserCog, Zap, Clock, Trophy } from 'lucide-react';
+import { Shield, UserCog, Zap, Clock, Trophy, CheckCircle, BookOpen } from 'lucide-react';
+
+// Mock completed quests data
+interface CompletedQuest {
+    id: string;
+    title: string;
+    code: string;
+    completedAt: string;
+    score: number;
+    words: { word: string; meaning: string; example?: string }[];
+}
+
+const MOCK_COMPLETED_QUESTS: CompletedQuest[] = [
+    {
+        id: 'cq-1',
+        title: '2024 Sep Mock - Set A',
+        code: 'M-24-09A',
+        completedAt: '2일 전',
+        score: 85,
+        words: [
+            { word: 'elaborate', meaning: '정교한, 상세한', example: 'The architect created an elaborate design.' },
+            { word: 'phenomenon', meaning: '현상', example: 'This is a natural phenomenon.' },
+            { word: 'substantial', meaning: '상당한, 실질적인', example: 'There was a substantial increase in sales.' },
+            { word: 'inherent', meaning: '내재하는, 고유의', example: 'Risk is inherent in any investment.' },
+            { word: 'profound', meaning: '심오한, 깊은', example: 'The book had a profound impact on me.' },
+        ]
+    },
+    {
+        id: 'cq-2',
+        title: 'Vocabulary Day 1-5',
+        code: 'V-01-05',
+        completedAt: '5일 전',
+        score: 92,
+        words: [
+            { word: 'ambiguous', meaning: '모호한', example: 'The statement was ambiguous.' },
+            { word: 'contemporary', meaning: '현대의, 동시대의', example: 'Contemporary art is often abstract.' },
+            { word: 'facilitate', meaning: '용이하게 하다', example: 'The software facilitates communication.' },
+        ]
+    }
+];
 
 const Dashboard: React.FC = () => {
     const navigate = useNavigate();
@@ -14,6 +54,7 @@ const Dashboard: React.FC = () => {
 
     // Mock Data State (HP is now derived from engine maxHp, but current HP is local for now)
     const [currentHp, setCurrentHp] = useState(levelSpecs.maxHp);
+    const [reviewModal, setReviewModal] = useState<CompletedQuest | null>(null);
 
     // Sync current HP if max changes (Level Up)
     React.useEffect(() => {
@@ -203,6 +244,42 @@ const Dashboard: React.FC = () => {
                             </div>
                         </div>
                     </div>
+
+                    {/* Completed Quests Section */}
+                    <h3 className="text-stone-400 text-xs uppercase tracking-widest pl-1 mb-2 mt-8">완료된 임무 (Completed)</h3>
+
+                    <div className="space-y-3">
+                        {MOCK_COMPLETED_QUESTS.map(quest => (
+                            <div
+                                key={quest.id}
+                                className="group relative border border-white/10 bg-black/30 rounded-xl p-4 pr-28 transition-all duration-300 hover:border-emerald-500/30"
+                            >
+                                <div className="flex items-start gap-3">
+                                    <div className="p-2 bg-emerald-900/30 rounded-lg border border-emerald-500/30">
+                                        <CheckCircle size={16} className="text-emerald-400" />
+                                    </div>
+                                    <div className="flex-1">
+                                        <div className="flex items-center gap-2 mb-1">
+                                            <h4 className="text-sm font-bold text-white">{quest.title}</h4>
+                                            <span className="text-[10px] font-mono text-stone-600">{quest.code}</span>
+                                        </div>
+                                        <div className="flex items-center gap-3 text-[10px] text-stone-500">
+                                            <span>완료: {quest.completedAt}</span>
+                                            <span className="text-emerald-400 font-bold">득점: {quest.score}%</span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                {/* Review Button */}
+                                <div className="absolute top-0 right-0 bottom-0 w-24 border-l border-white/5 bg-white/5 hover:bg-babel-gold/10 transition-colors flex flex-col items-center justify-center gap-1 cursor-pointer rounded-r-xl"
+                                    onClick={() => setReviewModal(quest)}
+                                >
+                                    <BookOpen size={16} className="text-stone-400 group-hover:text-babel-gold transition-colors" />
+                                    <span className="text-[10px] uppercase text-stone-500 tracking-widest group-hover:text-babel-gold transition-colors">Review</span>
+                                </div>
+                            </div>
+                        ))}
+                    </div>
                 </div>
             </main>
 
@@ -224,6 +301,14 @@ const Dashboard: React.FC = () => {
                     </button>
                 </div>
             </div>
+
+            {/* Vocab Review Modal */}
+            <VocabReviewModal
+                isOpen={reviewModal !== null}
+                onClose={() => setReviewModal(null)}
+                questTitle={reviewModal?.title || ''}
+                words={reviewModal?.words || []}
+            />
         </div>
     );
 };

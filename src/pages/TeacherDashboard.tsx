@@ -1,20 +1,22 @@
 import React, { useState } from 'react';
-import { BookOpen, Users, FileText, Settings, LogOut } from 'lucide-react';
+import { LayoutDashboard, BookOpen, Users, FileText, Settings, LogOut } from 'lucide-react';
 import { clsx } from 'clsx';
 import { useAuth } from '../hooks/useAuth';
 import { useNavigate } from 'react-router-dom';
 
+import { AdminOverview } from '../components/admin/AdminOverview';
+import { StudentMonitor } from '../components/admin/StudentMonitor';
 import { ProjectList } from '../components/admin/cms/ProjectList';
 import { ProjectWizard } from '../components/admin/cms/ProjectWizard';
 
 // Placeholder Components
-const StudentManager = () => <div className="p-8 text-stone-400">Student Database Component (Coming Soon)</div>;
 const PaperTestBuilder = () => <div className="p-8 text-stone-400">Paper Test Builder (Coming Soon)</div>;
+
 
 export default function TeacherDashboard() {
     const { signOut } = useAuth();
     const navigate = useNavigate();
-    const [activeTab, setActiveTab] = useState<'projects' | 'students' | 'print' | 'settings'>('projects');
+    const [activeTab, setActiveTab] = useState<'overview' | 'projects' | 'students' | 'print' | 'settings'>('overview');
     const [showWizard, setShowWizard] = useState(false);
 
     const handleSignOut = async () => {
@@ -31,6 +33,12 @@ export default function TeacherDashboard() {
                 </div>
 
                 <nav className="flex-1 p-4 space-y-1">
+                    <SidebarItem
+                        icon={<LayoutDashboard size={18} />}
+                        label="Overview"
+                        active={activeTab === 'overview'}
+                        onClick={() => setActiveTab('overview')}
+                    />
                     <SidebarItem
                         icon={<BookOpen size={18} />}
                         label="Project Manager"
@@ -74,6 +82,7 @@ export default function TeacherDashboard() {
             <main className="flex-1 flex flex-col bg-stone-950">
                 <header className="h-16 border-b border-white/5 flex items-center justify-between px-8 bg-stone-900/50 backdrop-blur-sm">
                     <h2 className="text-lg font-medium text-white">
+                        {activeTab === 'overview' && 'Dashboard Overview'}
                         {activeTab === 'projects' && 'Project Management'}
                         {activeTab === 'students' && 'Student Database'}
                         {activeTab === 'print' && 'Paper Test Generator'}
@@ -86,6 +95,7 @@ export default function TeacherDashboard() {
                 </header>
 
                 <div className="flex-1 overflow-auto">
+                    {activeTab === 'overview' && <AdminOverview />}
                     {activeTab === 'projects' && (
                         showWizard ? (
                             <div className="p-8">
@@ -98,7 +108,7 @@ export default function TeacherDashboard() {
                             <ProjectList onCreate={() => setShowWizard(true)} />
                         )
                     )}
-                    {activeTab === 'students' && <StudentManager />}
+                    {activeTab === 'students' && <StudentMonitor />}
                     {activeTab === 'print' && <PaperTestBuilder />}
                     {activeTab === 'settings' && <div className="p-8">Settings</div>}
                 </div>

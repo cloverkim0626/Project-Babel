@@ -77,7 +77,7 @@ const MissionSelect: React.FC = () => {
                                                 "text-sm font-bold tracking-[0.2em] uppercase",
                                                 mission.locked ? "text-slate-600" : "text-cyan-500"
                                             )}>
-                                                Sequence 0{idx + 1}
+                                                OPERATION 0{idx + 1}
                                             </span>
                                             {!mission.locked && <Droplets size={16} className="text-cyan-500 animate-bounce" />}
                                         </div>

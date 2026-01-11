@@ -18,24 +18,49 @@ export const SimpleCreateModal: React.FC<SimpleCreateModalProps> = ({ onClose, o
         setLoading(true);
 
         try {
-            // Direct Supabase call here to isolate from parent props
-            const { data, error } = await supabase.from('continents').insert({
-                name: name,
-                display_name: name, // Fallback for now
-                theme_color: '#D4AF37'
-            }).select().single();
+            // STRATEGY: Bypass supabase-js client completely. Use raw fetch.
+            // This rules out client-library internal state issues.
 
-            if (error) {
-                console.error('[SimpleCreate] Error:', error);
-                alert(`Error: ${error.message}`);
-            } else {
-                console.log('[SimpleCreate] Success:', data);
-                onSuccess(data);
-                onClose();
+            const { data: { session } } = await supabase.auth.getSession();
+            const token = session?.access_token;
+            const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
+            const supabaseKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
+
+            if (!token || !supabaseUrl || !supabaseKey) {
+                alert("인증 세션이 없거나 환경변수가 누락되었습니다.");
+                return;
             }
+
+            const response = await fetch(`${supabaseUrl}/rest/v1/continents`, {
+                method: 'POST',
+                headers: {
+                    'apikey': supabaseKey,
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json',
+                    'Prefer': 'return=representation'
+                },
+                body: JSON.stringify({
+                    name: name,
+                    display_name: name,
+                    theme_color: '#D4AF37'
+                })
+            });
+
+            if (!response.ok) {
+                const errorText = await response.text();
+                throw new Error(`HTTP ${response.status}: ${errorText}`);
+            }
+
+            const result = await response.json();
+            const data = result[0];
+
+            console.log('[SimpleCreate] Success via REST:', data);
+            onSuccess(data);
+            onClose();
+
         } catch (e: any) {
             console.error('[SimpleCreate] Exception:', e);
-            alert(`Exception: ${e.message}`);
+            alert(`오류 발생: ${e.message}`);
         } finally {
             setLoading(false);
         }

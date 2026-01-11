@@ -71,7 +71,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     // Check if email is admin (emergency access)
     const isAdminEmail = (email: string | null | undefined): boolean => {
         if (!email) return false;
-        return email.includes('emergency@') || email.includes('admin@') || email.includes('master@');
+        return email.includes('emergency') || email.includes('admin@') || email.includes('master@');
     };
 
     useEffect(() => {

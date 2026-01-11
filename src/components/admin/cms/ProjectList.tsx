@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { supabase } from '../../../lib/supabase';
+
 import { Plus, MoreVertical, Calendar, Globe, BookOpen, Layers } from 'lucide-react';
 import { ContinentManager } from '../ContinentManager';
 import { MissionDistributor } from '../MissionDistributor';
@@ -45,17 +45,48 @@ export const ProjectList = ({ onCreate: _legacyOnCreate }: { onCreate: () => voi
     }, [continents, location]);
 
     const fetchContinents = async () => {
-        const { data, error } = await supabase
-            .from('continents')
-            .select('*')
-            .order('created_at', { ascending: false });
+        try {
+            // Nuclear Auth Logic for Project List
+            const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
+            const supabaseKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
 
-        if (!error && data) {
-            setContinents(data);
-        } else if (error) {
-            console.error(error);
+            let projectId = '';
+            try { projectId = supabaseUrl.split('//')[1].split('.')[0]; } catch (e) { }
+
+            const key = `sb-${projectId}-auth-token`;
+            const sessionStr = localStorage.getItem(key) ||
+                localStorage.getItem(Object.keys(localStorage).find(k => k.startsWith('sb-') && k.endsWith('-auth-token')) || '');
+
+            if (!sessionStr) {
+                // If no token, maybe truly logged out. 
+                // But try fetch anyway just in case RLS allows public read (unlikely for this app)
+                console.warn("[ProjectList] No auth token found");
+                setLoading(false);
+                return;
+            }
+
+            const token = JSON.parse(sessionStr).access_token;
+
+            const response = await fetch(`${supabaseUrl}/rest/v1/continents?select=*&order=created_at.desc`, {
+                method: 'GET',
+                headers: {
+                    'apikey': supabaseKey,
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                }
+            });
+
+            if (response.ok) {
+                const data = await response.json();
+                setContinents(data);
+            } else {
+                console.error("[ProjectList] Fetch failed:", await response.text());
+            }
+        } catch (e) {
+            console.error("[ProjectList] Error:", e);
+        } finally {
+            setLoading(false);
         }
-        setLoading(false);
     };
 
     if (loading) return <div className="p-8 text-babel-gold animate-pulse text-center font-serif">Loading Archives...</div>;

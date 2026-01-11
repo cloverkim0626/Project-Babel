@@ -41,7 +41,8 @@ export const CreateProjectModal: React.FC<CreateProjectModalProps> = ({ onClose,
         return folderName;
     };
 
-    const handleSubmit = async () => {
+    const handleSubmit = async (e: React.FormEvent) => {
+        e.preventDefault();
         console.log('[CreateProjectModal] Submit triggered, folderName:', folderName);
 
         if (!folderName.trim()) {

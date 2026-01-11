@@ -99,36 +99,14 @@ export default function Login() {
                     email: demoEmail,
                     password: demoPassword
                 });
-
-                if (retryError) {
-                    throw new Error("Login after signup failed. Email confirmation may be required.");
-                }
+                if (retryError) throw retryError;
             }
 
-            // Login successful - navigate immediately (don't block on profile update)
-            // Fire-and-forget profile update (no await - don't block navigation)
-            supabase.auth.getSession().then(({ data: { session } }) => {
-                if (session?.user) {
-                    supabase.from('users').upsert({
-                        id: session.user.id,
-                        nickname: 'Demo Student',
-                        class_type: 'Challenger',
-                        role: 'student',
-                        level: 1,
-                        xp: 0,
-                        points: 0
-                    }, { onConflict: 'id' }).then(() => {
-                        console.log('[Guest] Profile updated');
-                    });
-                }
-            });
-
-            // Navigate to student dashboard (has stats/HP)
             navigate('/dashboard');
 
         } catch (err: any) {
-            console.error('[Guest Login Error]:', err);
-            setError(err.message || 'Guest login failed');
+            console.error(err);
+            setError("체험판 입장 실패: " + err.message);
         } finally {
             setLoading(false);
         }
@@ -136,9 +114,10 @@ export default function Login() {
 
     return (
         <div className="min-h-screen bg-[#0a0908] flex items-center justify-center p-4 font-mono text-paper relative overflow-hidden">
-            {/* Background - Ancient Mystical Effect */}
-            <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-amber-900/20 via-[#0a0908] to-[#0a0908]" />
-            <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_bottom,_var(--tw-gradient-stops))] from-purple-900/10 via-transparent to-transparent" />
+            {/* Background Texture & Ambience */}
+            <div className="absolute inset-0 bg-[#0a0a0a] pointer-events-none" />
+            <div className="absolute inset-0 opacity-10 bg-[url('https://www.transparenttextures.com/patterns/dark-matter.png')] pointer-events-none" />
+            <div className="absolute top-0 left-0 w-full h-96 bg-gradient-to-b from-purple-900/20 to-transparent pointer-events-none" />
 
             {/* Floating Particles */}
             <div className="absolute inset-0 overflow-hidden pointer-events-none">
@@ -160,8 +139,8 @@ export default function Login() {
             <div className="absolute inset-4 md:inset-8 border border-babel-gold/10 rounded-3xl pointer-events-none" />
             <div className="absolute inset-6 md:inset-12 border border-babel-gold/5 rounded-2xl pointer-events-none" />
 
-            {/* Main Container */}
-            <div className="w-full max-w-md relative z-10">
+            {/* Main Content */}
+            <div className="w-full max-w-md relative z-50">
                 {/* Title Section - Voca Universe : Babel */}
                 <div className="text-center mb-8 md:mb-12">
                     {/* Mystical Icon */}

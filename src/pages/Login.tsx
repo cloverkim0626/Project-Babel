@@ -69,15 +69,14 @@ export default function Login() {
         const demoPassword = 'password123';
 
         try {
-            // 1. Try Login
-            let loginSuccess = false;
+            // 1. Try Login first
             const { error: signInError } = await supabase.auth.signInWithPassword({
                 email: demoEmail,
                 password: demoPassword
             });
 
             if (signInError) {
-                // 2. If Login fails, Try Sign Up (Auto-create Demo Account)
+                // 2. If Login fails, Try Sign Up
                 console.log("Demo account not found, creating...");
                 const { error: signUpError } = await supabase.auth.signUp({
                     email: demoEmail,
@@ -86,13 +85,13 @@ export default function Login() {
                         data: {
                             nickname: 'Demo Student',
                             class_type: 'Challenger',
-                            role: 'student' // Explicitly set student role
+                            role: 'student'
                         }
                     }
                 });
 
                 if (signUpError) {
-                    throw new Error("Demo creation failed. Please disable 'Confirm Email' in Supabase!");
+                    throw new Error("Demo creation failed. Check Supabase email confirmation settings.");
                 }
 
                 // Retry login after signup
@@ -100,21 +99,17 @@ export default function Login() {
                     email: demoEmail,
                     password: demoPassword
                 });
+
                 if (retryError) {
-                    alert("User created but email not confirmed. Go to Supabase -> Auth -> Providers -> Email -> Disable 'Confirm Email'.");
-                    return;
+                    throw new Error("Login after signup failed. Email confirmation may be required.");
                 }
-                loginSuccess = true;
-            } else {
-                loginSuccess = true;
             }
 
-            if (loginSuccess) {
-                // Get session to find user ID and ensure student role in DB
-                const { data: { session } } = await supabase.auth.getSession();
+            // Login successful - navigate immediately (don't block on profile update)
+            // Fire-and-forget profile update (no await - don't block navigation)
+            supabase.auth.getSession().then(({ data: { session } }) => {
                 if (session?.user) {
-                    // Update or insert user profile with student role
-                    await supabase.from('users').upsert({
+                    supabase.from('users').upsert({
                         id: session.user.id,
                         nickname: 'Demo Student',
                         class_type: 'Challenger',
@@ -122,14 +117,18 @@ export default function Login() {
                         level: 1,
                         xp: 0,
                         points: 0
-                    }, { onConflict: 'id' });
+                    }, { onConflict: 'id' }).then(() => {
+                        console.log('[Guest] Profile updated');
+                    });
                 }
+            });
 
-                // Navigate to student world-map
-                navigate('/world-map');
-            }
+            // Navigate to student area immediately
+            navigate('/world-map');
+
         } catch (err: any) {
-            setError(err.message);
+            console.error('[Guest Login Error]:', err);
+            setError(err.message || 'Guest login failed');
         } finally {
             setLoading(false);
         }

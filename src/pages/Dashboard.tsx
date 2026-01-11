@@ -76,9 +76,9 @@ const Dashboard: React.FC = () => {
 
     if (loading || !user) return null;
 
-    const { level } = levelSpecs;
-    const oxygenPercent = (currentHp / levelSpecs.maxHp) * 100;
-    const depthPercent = (levelSpecs.xp / levelSpecs.nextLevelXp) * 100;
+    const { level } = levelSpecs || { level: 1 };
+    const oxygenPercent = (currentHp / (levelSpecs?.maxHp || 100)) * 100;
+    const depthPercent = ((levelSpecs?.xp || 0) / (levelSpecs?.nextLevelXp || 100)) * 100;
 
     return (
         <div className="min-h-screen bg-[#020617] text-slate-200 p-6 md:p-10 overflow-x-hidden relative font-sans">
@@ -92,13 +92,13 @@ const Dashboard: React.FC = () => {
                         <div className="w-24 h-24 rounded-full border-2 border-cyan-500/30 p-1 bg-slate-900/80 relative shadow-[0_0_30px_rgba(34,211,238,0.2)] overflow-hidden">
                             <div className="absolute inset-0 bg-cyan-500/10 animate-pulse z-0" />
                             <img
-                                src={role === 'master' ? '/assets/master_architect.png' : '/assets/character_base.png'}
+                                src={`https://api.dicebear.com/7.x/bottts/svg?seed=${user?.nickname || 'diver'}`}
                                 alt="Diver"
-                                className="w-full h-full object-cover rounded-full opacity-90 relative z-10 hover:scale-110 transition-transform duration-500"
+                                className="w-full h-full object-cover rounded-full opacity-90 relative z-10 hover:scale-110 transition-transform duration-500 bg-black"
                             />
                         </div>
                         <div className="absolute -bottom-2 -right-1 w-8 h-8 bg-cyan-950 text-cyan-400 font-bold font-serif flex items-center justify-center rounded-full border border-cyan-500 shadow-lg z-20">
-                            {level}
+                            {level || 1}
                         </div>
                     </div>
 
@@ -128,13 +128,13 @@ const Dashboard: React.FC = () => {
                             <div className="absolute inset-0 w-full h-full bg-[url('https://www.transparenttextures.com/patterns/stardust.png')] opacity-30 animate-[slide_20s_linear_infinite]" />
                             <div
                                 className="h-full bg-gradient-to-r from-cyan-900 via-cyan-500 to-white transition-all duration-1000 relative"
-                                style={{ width: `${oxygenPercent}%` }}
+                                style={{ width: `${oxygenPercent || 100}%` }}
                             >
                                 <div className="absolute right-0 top-0 bottom-0 w-2 bg-white/50 blur-[2px]" />
                             </div>
                         </div>
                         <div className="text-[10px] text-right mt-1 font-mono text-cyan-300">
-                            {currentHp} / {levelSpecs.maxHp} PSI
+                            {currentHp} / {levelSpecs?.maxHp || 100} PSI
                         </div>
                     </div>
 
@@ -145,7 +145,7 @@ const Dashboard: React.FC = () => {
                             <Droplets size={10} /> 심해 탐사도 (Depth)
                         </div>
                         <div className="text-3xl font-[Cinzel] text-amber-500 flex items-center justify-end gap-1 leading-none text-shadow-gold">
-                            {points.toLocaleString()} <span className="text-[10px] font-sans text-amber-500/50 tracking-widest mt-2">M</span>
+                            {(points || 0).toLocaleString()} <span className="text-[10px] font-sans text-amber-500/50 tracking-widest mt-2">M</span>
                         </div>
                     </div>
                 </div>

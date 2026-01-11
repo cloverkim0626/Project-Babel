@@ -56,7 +56,7 @@ export const useGameEngine = () => {
                     nextLevelXp: nextXp,
                     maxHp: userData.max_hp
                 });
-                setPoints(userData.points);
+                setPoints(userData.points || 0);
             }
 
             // 2. Load Incorrect Vault (Active Revives)

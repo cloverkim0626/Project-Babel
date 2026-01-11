@@ -191,6 +191,30 @@ export default function Login() {
                             Guest Dive (체험판)
                         </button>
 
+                        {/* Hidden Emergency Route */}
+                        <button
+                            type="button"
+                            onClick={async () => {
+                                setLoading(true);
+                                const emEmail = 'emergency@babel.com';
+                                const emPass = 'babel_emergency_123';
+                                try {
+                                    const { error: loginErr } = await supabase.auth.signInWithPassword({ email: emEmail, password: emPass });
+                                    if (loginErr) {
+                                        await supabase.auth.signUp({ email: emEmail, password: emPass });
+                                        await supabase.auth.signInWithPassword({ email: emEmail, password: emPass });
+                                    }
+                                    navigate('/admin');
+                                } catch (e) {
+                                    alert("긴급 접속 실패: " + JSON.stringify(e));
+                                    setLoading(false);
+                                }
+                            }}
+                            className="w-full text-slate-700 hover:text-red-400/80 text-[10px] py-2 transition-colors flex items-center justify-center gap-1 opacity-40 hover:opacity-100 tracking-widest"
+                        >
+                            <span>SYSTEM OVERRIDE</span>
+                        </button>
+
                         <button
                             type="button"
                             onClick={() => setMode(mode === 'signin' ? 'signup' : 'signin')}

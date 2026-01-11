@@ -82,7 +82,17 @@ export const AdminOverview: React.FC = () => {
                 // Get counts from headers
                 const getCount = (res: Response) => {
                     const range = res.headers.get('content-range');
-                    if (range) return parseInt(range.split('/')[1]);
+                    if (range) {
+                        try {
+                            const parts = range.split('/');
+                            if (parts.length > 1) {
+                                const total = parseInt(parts[1]);
+                                return isNaN(total) ? 0 : total;
+                            }
+                        } catch (e) {
+                            return 0;
+                        }
+                    }
                     return 0;
                 };
 

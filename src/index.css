@@ -2,215 +2,178 @@
 @tailwind components;
 @tailwind utilities;
 
+@import url('https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@400;700;900&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;0,700;1,400&family=Nanum+Myeongjo:wght@400;700;800&family=Montserrat:wght@300;400;500;600&display=swap');
+
 /* 
-  ========================================
-  THE ANCIENT ARCHIVES - PHASE 3: STONE & SCROLLS
-  ========================================
-  Concept: "The Tactician's Table"
-  Background: Dark Stone/Dungeon Floor
-  Foreground: Bright Parchment Documents
-  Vibe: High Contrast, 2D RPG Quest Board
+  THEME: THE ABYSS (SHAPE OF WATER)
+  Concept: Deep Ocean, Bioluminescence, Ancient Technology, Wet Glass
 */
 
-/* Fonts */
-@import url('https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@400;700;900&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;0,700;1,400&family=Nanum+Myeongjo:wght@400;700;800&display=swap');
-
 :root {
-  /* Text Colors */
-  --text-ink: #2b1d12;
-  /* Deep Brown for Paper */
-  --text-ink-muted: #5d4037;
-  /* Faded Brown */
-  --text-light: #eaddcf;
-  /* Off-white for Dark Backgrounds */
-  --text-gold: #fbbf24;
-  /* Gold for Headings */
+  /* Abyss Palette */
+  --bg-deep: #020617;
+  /* Slate 950 - Abyssal Black */
+  --bg-teal: #0f172a;
+  /* Slate 900 - Deep Blue */
+  --accent-cyan: #22d3ee;
+  /* Cyan 400 - Bioluminescence */
+  --accent-teal: #14b8a6;
+  /* Teal 500 - Deep Water */
+  --accent-gold: #fde047;
+  /* Yellow 300 - Faint Glimmer */
 
-  /* Backgrounds */
-  --bg-dark: #1c1917;
-  --bg-paper: #f5ebe0;
+  /* Text */
+  --text-primary: #e2e8f0;
+  /* Slate 200 - Moonlight */
+  --text-secondary: #94a3b8;
+  /* Slate 400 - Muted */
+  --text-glow-cyan: 0 0 10px rgba(34, 211, 238, 0.4);
+  --text-glow-gold: 0 0 10px rgba(253, 224, 71, 0.3);
 
-  /* Borders */
-  --border-gold: #d4af37;
-  --border-ink: #451a03;
+  /* Glassmorphism */
+  --glass-bg: rgba(15, 23, 42, 0.6);
+  --glass-border: rgba(45, 212, 191, 0.2);
+  /* Teal hint */
+  --glass-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.5);
 }
 
-body {
-  /* Global Background: Dark Stone */
-  background-image: url('/assets/tex-stone.png');
-  background-size: cover;
-  background-position: center;
-  background-attachment: fixed;
-  background-color: #1c1917;
-  background-blend-mode: multiply;
-  /* Darken the texture */
+@layer base {
+  body {
+    @apply bg-[#020617] text-slate-200 font-sans antialiased;
+    /* Deep Ocean Gradient Background */
+    background:
+      radial-gradient(circle at 50% 0%, rgba(20, 184, 166, 0.15) 0%, transparent 60%),
+      radial-gradient(circle at 80% 20%, rgba(34, 211, 238, 0.05) 0%, transparent 40%),
+      linear-gradient(to bottom, #020617 0%, #0f172a 100%);
+    background-attachment: fixed;
+    min-height: 100vh;
+  }
 
-  color: var(--text-light);
-  font-family: 'Cormorant Garamond', 'Nanum Myeongjo', serif;
-  overflow-x: hidden;
+  /* Scrollbar - Wet Metal look */
+  ::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: #020617;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background: #1e293b;
+    border: 1px solid #14b8a6;
+    border-radius: 4px;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    background: #14b8a6;
+  }
+
+  /* Selection - Bioluminescent Highlighting */
+  ::selection {
+    background: rgba(34, 211, 238, 0.2);
+    color: #22d3ee;
+  }
+
+  /* Typography Overrides */
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    font-family: 'Cinzel Decorative', cursive;
+    letter-spacing: 0.05em;
+  }
 }
 
-/* Typography Overrides */
-h1,
-h2,
-h3,
-h4,
-h5,
-h6 {
-  font-family: 'Cinzel Decorative', cursive;
-}
+@layer components {
 
-/* --- MASTERPIECE COMPONENTS --- */
+  /* 
+     ABYSS CARD (Replaces Ancient Card)
+     Effect: Wet, dark glass floating in deep water.
+  */
+  .ancient-card {
+    @apply relative border rounded-lg backdrop-blur-md transition-all duration-500;
+    background: linear-gradient(145deg, rgba(30, 41, 59, 0.7) 0%, rgba(15, 23, 42, 0.8) 100%);
+    border-color: rgba(45, 212, 191, 0.2);
+    /* Faint Teal Border */
+    box-shadow:
+      0 4px 6px -1px rgba(0, 0, 0, 0.3),
+      0 2px 4px -1px rgba(0, 0, 0, 0.2),
+      inset 0 1px 0 0 rgba(255, 255, 255, 0.05);
+    /* Top Highlight */
+  }
 
-/* 1. Sidebar: Dark Leather/Wood to blend with Stone */
-.ancient-sidebar {
-  background-image: url('/assets/tex-sidebar.png');
-  background-size: cover;
-  background-position: left;
-  border-right: 2px solid #574d43;
-  box-shadow: 10px 0 30px rgba(0, 0, 0, 0.8);
-}
+  .ancient-card:hover {
+    border-color: rgba(34, 211, 238, 0.4);
+    /* Cyan Glow on Hover */
+    box-shadow:
+      0 10px 15px -3px rgba(0, 0, 0, 0.4),
+      0 4px 6px -2px rgba(0, 0, 0, 0.2),
+      0 0 15px rgba(34, 211, 238, 0.1);
+    /* Subtle Glow */
+  }
 
-.ancient-menu-active {
-  background: linear-gradient(90deg, rgba(212, 175, 55, 0.15), transparent);
-  border-left: 3px solid #fbbf24;
-  color: #fbbf24 !important;
-  text-shadow: 0 0 10px rgba(251, 191, 36, 0.4);
-}
+  /* ABYSS PAPER (Replaces Ancient Paper for Lists) */
+  .ancient-paper {
+    @apply relative overflow-hidden rounded-lg;
+    background: rgba(2, 6, 23, 0.8);
+    /* Darker Glass */
+    border: 1px solid rgba(20, 184, 166, 0.3);
+    backdrop-filter: blur(12px);
+  }
 
-/* 2. The Parchment Card (Main Content Container) */
-/* Used for ALL content boxes: Projects, Stats, Lists */
-.ancient-card,
-.ancient-paper {
-  /* Texture */
-  background-image: url('/assets/tex-paper.png');
-  background-color: #eaddcf;
-  background-size: cover;
-  background-repeat: no-repeat;
+  /* ABYSS PANEL (For Filters/Metadata) */
+  .ancient-panel {
+    @apply bg-slate-900/50 border border-slate-700/50 backdrop-blur-sm shadow-inner;
+  }
 
-  /* Text: INK on PAPER */
-  color: var(--text-ink);
+  /* ABYSS BUTTON */
+  .ancient-button {
+    @apply relative overflow-hidden transition-all duration-300;
+    background: linear-gradient(to bottom, #0f172a, #020617);
+    border: 1px solid #14b8a6;
+    color: #22d3ee;
+    box-shadow: 0 0 10px rgba(20, 184, 166, 0.1);
+  }
 
-  /* Shape & Depth */
-  border-radius: 4px;
-  border: 1px solid #d6c4a6;
-  box-shadow:
-    0 5px 15px rgba(0, 0, 0, 0.5),
-    /* Lift off table */
-    inset 0 0 60px rgba(160, 120, 80, 0.15);
-  /* Vintage Vignette */
+  .ancient-button:hover {
+    background: linear-gradient(to bottom, #1e293b, #0f172a);
+    box-shadow: 0 0 20px rgba(34, 211, 238, 0.3);
+    text-shadow: 0 0 8px rgba(34, 211, 238, 0.6);
+    border-color: #22d3ee;
+  }
 
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
-  position: relative;
-}
+  /* INPUTS */
+  .ancient-input {
+    @apply bg-slate-950/50 border border-slate-700 rounded text-slate-200 placeholder-slate-600 focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500 transition-all;
+  }
 
-/* Hover effect for interactive cards */
-.ancient-card.cursor-pointer:hover {
-  transform: translateY(-4px);
-  box-shadow:
-    0 15px 30px rgba(0, 0, 0, 0.6),
-    0 0 15px rgba(212, 175, 55, 0.2);
-  /* Subtle Gold Glow */
-  border-color: #d4af37;
-}
+  /* SIDEBAR (Abyss Edge) */
+  .ancient-sidebar {
+    background: linear-gradient(to bottom, rgba(2, 6, 23, 0.95), rgba(15, 23, 42, 0.98));
+    border-right: 1px solid rgba(45, 212, 191, 0.1);
+    backdrop-filter: blur(10px);
+  }
 
-/* 3. Typography inside Paper */
-.ancient-card h1,
-.ancient-card h2,
-.ancient-card h3,
-.ancient-card h4,
-.ancient-paper h3,
-.ancient-paper h4 {
-  color: #451a03;
-  /* Dark Brown Headers */
-  text-shadow: none;
-  /* No glow on paper usually */
-  border-bottom-color: rgba(69, 26, 3, 0.2);
-  /* Divider */
-}
+  .ancient-menu-active {
+    background: linear-gradient(90deg, rgba(34, 211, 238, 0.1), transparent);
+    border-left: 3px solid #22d3ee;
+    color: #22d3ee !important;
+    text-shadow: 0 0 10px rgba(34, 211, 238, 0.5);
+  }
 
-/* 4. Panels: Darker areas on the stone (e.g. Filters) */
-.ancient-panel {
-  background: rgba(12, 10, 9, 0.7);
-  /* See-through dark glass/leather */
-  border: 1px solid #44403c;
-  backdrop-filter: blur(8px);
-  border-radius: 4px;
-  color: #d6cfc7;
-}
+  /* GLOW UTILITIES */
+  .text-glow-cyan {
+    text-shadow: 0 0 10px rgba(34, 211, 238, 0.5);
+  }
 
-/* 5. Buttons & Inputs */
-.ancient-button {
-  background: linear-gradient(to bottom, #451a03, #2a1b12);
-  border: 1px solid #78350f;
-  border-top-color: #92400e;
-  color: #fef3c7;
-  font-family: 'Cinzel Decorative', serif;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  padding: 0.5rem 1.25rem;
-  border-radius: 3px;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.5);
-  transition: all 0.2s;
-}
+  .text-glow-gold {
+    text-shadow: 0 0 10px rgba(253, 224, 71, 0.4);
+  }
 
-.ancient-button:hover {
-  filter: brightness(1.2);
-  box-shadow: 0 0 15px rgba(212, 175, 55, 0.4);
-  border-color: #fbbf24;
-  color: #fff;
-}
-
-.ancient-input {
-  background: rgba(255, 255, 255, 0.5);
-  /* Semi-transparent on paper */
-  border: 1px solid #a8a29e;
-  color: #2b1d12;
-  font-family: 'Cormorant Garamond', serif;
-  font-weight: 600;
-  padding: 0.5rem;
-  border-radius: 2px;
-}
-
-.ancient-input::placeholder {
-  color: #78716c;
-}
-
-.ancient-input:focus {
-  background: rgba(255, 255, 255, 0.8);
-  border-color: #78350f;
-  outline: none;
-  box-shadow: 0 0 0 2px rgba(120, 53, 15, 0.1);
-}
-
-/* 6. Utility: Glows and Highlights */
-.text-glow-gold {
-  text-shadow: 0 0 10px rgba(251, 191, 36, 0.6);
-}
-
-.text-glow-fire {
-  text-shadow: 0 0 10px rgba(239, 68, 68, 0.6);
-}
-
-.border-gold-glow {
-  border-color: #fbbf24;
-  box-shadow: 0 0 15px rgba(251, 191, 36, 0.3);
-}
-
-/* Scrollbar */
-::-webkit-scrollbar {
-  width: 10px;
-  height: 10px;
-  background-color: #0c0a09;
-}
-
-::-webkit-scrollbar-thumb {
-  background: #451a03;
-  border: 1px solid #292524;
-  border-radius: 5px;
-}
-
-::-webkit-scrollbar-thumb:hover {
-  background: #78350f;
+  .border-glow-cyan {
+    box-shadow: 0 0 10px rgba(34, 211, 238, 0.2);
+  }
 }

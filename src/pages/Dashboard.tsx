@@ -117,7 +117,7 @@ const Dashboard: React.FC = () => {
                         <div className="flex items-center gap-3 text-xs text-stone-400 uppercase tracking-widest mt-1">
                             <span className="text-babel-gold font-bold">{user.classType}</span>
                             <span className="w-1 h-1 bg-stone-600 rounded-full" />
-                            <span>프로젝트 : 바벨</span>
+                            <span>Voca Universe</span>
                             {role === 'master' && (
                                 <button onClick={() => navigate('/admin')} className="ml-2 text-purple-400 hover:text-purple-300 transition-colors border border-purple-500/30 px-2 py-0.5 rounded flex items-center gap-1 hover:bg-purple-500/10">
                                     [관리자 패널]

@@ -101,7 +101,7 @@ export const ProjectList = ({ onCreate: _legacyOnCreate }: { onCreate: () => voi
             <div className="flex justify-between items-center mb-12 border-b border-white/10 pb-6">
                 <div>
                     <h2 className="text-3xl font-serif text-white mb-2 flex items-center gap-3">
-                        <Globe className="text-babel-gold" /> 바벨의 도서관 (Library of Babel)
+                        <Globe className="text-babel-gold" /> The Knowledge Repository
                     </h2>
                     <p className="text-stone-500 text-sm">관리할 프로젝트 폴더를 선택하거나 새로 생성하십시오.</p>
                 </div>

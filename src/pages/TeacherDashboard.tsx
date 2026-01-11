@@ -29,7 +29,7 @@ export default function TeacherDashboard() {
             {/* Sidebar */}
             <aside className="w-64 bg-black border-r border-white/10 flex flex-col">
                 <div className="p-6 border-b border-white/10">
-                    <h1 className="text-xl font-serif text-babel-gold tracking-widest">BABEL<span className="text-stone-500 text-xs block mt-1 font-sans">Control Tower</span></h1>
+                    <h1 className="text-xl font-serif text-babel-gold tracking-widest">VOCA UNIVERSE<span className="text-stone-500 text-xs block mt-1 font-sans">The Observatory</span></h1>
                 </div>
 
                 <nav className="flex-1 p-4 space-y-1">

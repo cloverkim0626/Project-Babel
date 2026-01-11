@@ -145,7 +145,7 @@ export default function Login() {
                     <div className="w-16 h-16 bg-babel-gold/10 rounded-full flex items-center justify-center mx-auto mb-4 border border-babel-gold/30">
                         <Shield className="text-babel-gold w-8 h-8" />
                     </div>
-                    <h1 className="text-3xl font-serif text-white mb-2 tracking-wide">BABEL SYSTEM</h1>
+                    <h1 className="text-3xl font-serif text-white mb-2 tracking-wide">VOCA UNIVERSE</h1>
                     <p className="text-xs text-stone-500 uppercase tracking-widest">Identify Yourself</p>
                 </div>
 

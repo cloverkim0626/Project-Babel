@@ -4,7 +4,7 @@ import { ObserversLog } from '../components/ObserversLog';
 import { VocabReviewModal } from '../components/VocabReviewModal';
 import { useAuth } from '../hooks/useAuth';
 import { useGameEngine } from '../hooks/useGameEngine';
-import { Zap, Clock, Trophy, CheckCircle, BookOpen, AlertTriangle, ArrowRight, Anchor, Activity, Droplets, Wind } from 'lucide-react';
+import { Zap, Clock, Trophy, CheckCircle, BookOpen, AlertTriangle, ArrowRight, Anchor, Activity, Droplets, Wind, LogOut } from 'lucide-react';
 import { clsx } from 'clsx';
 
 // Type definitions
@@ -118,36 +118,48 @@ const Dashboard: React.FC = () => {
                 </div>
 
                 {/* Oxygen & Depth Gauge */}
-                <div className="flex items-center gap-8 bg-slate-900/40 backdrop-blur-md px-8 py-4 rounded-2xl border border-white/10 shadow-2xl">
-                    <div className="text-right">
-                        <div className="text-[9px] text-cyan-500/70 uppercase tracking-[0.2em] mb-1.5 flex items-center justify-end gap-1">
-                            <Wind size={10} /> 산소 보존력 (Oxygen)
-                        </div>
-                        <div className="w-48 h-3 bg-slate-800 rounded-full overflow-hidden border border-slate-700/50 relative">
-                            {/* Animated Bubbles in Bar */}
-                            <div className="absolute inset-0 w-full h-full bg-[url('https://www.transparenttextures.com/patterns/stardust.png')] opacity-30 animate-[slide_20s_linear_infinite]" />
-                            <div
-                                className="h-full bg-gradient-to-r from-cyan-900 via-cyan-500 to-white transition-all duration-1000 relative"
-                                style={{ width: `${oxygenPercent || 100}%` }}
-                            >
-                                <div className="absolute right-0 top-0 bottom-0 w-2 bg-white/50 blur-[2px]" />
+                <div className="flex items-center gap-6">
+                    <div className="flex items-center gap-8 bg-slate-900/40 backdrop-blur-md px-8 py-4 rounded-2xl border border-white/10 shadow-2xl">
+                        <div className="text-right">
+                            <div className="text-[9px] text-cyan-500/70 uppercase tracking-[0.2em] mb-1.5 flex items-center justify-end gap-1">
+                                <Wind size={10} /> 산소 보존력 (Oxygen)
+                            </div>
+                            <div className="w-48 h-3 bg-slate-800 rounded-full overflow-hidden border border-slate-700/50 relative">
+                                {/* Animated Bubbles in Bar */}
+                                <div className="absolute inset-0 w-full h-full bg-[url('https://www.transparenttextures.com/patterns/stardust.png')] opacity-30 animate-[slide_20s_linear_infinite]" />
+                                <div
+                                    className="h-full bg-gradient-to-r from-cyan-900 via-cyan-500 to-white transition-all duration-1000 relative"
+                                    style={{ width: `${oxygenPercent || 100}%` }}
+                                >
+                                    <div className="absolute right-0 top-0 bottom-0 w-2 bg-white/50 blur-[2px]" />
+                                </div>
+                            </div>
+                            <div className="text-[10px] text-right mt-1 font-mono text-cyan-300">
+                                {currentHp} / {levelSpecs?.maxHp || 100} PSI
                             </div>
                         </div>
-                        <div className="text-[10px] text-right mt-1 font-mono text-cyan-300">
-                            {currentHp} / {levelSpecs?.maxHp || 100} PSI
+
+                        <div className="w-px h-10 bg-white/10" />
+
+                        <div className="text-right">
+                            <div className="text-[9px] text-amber-500/70 uppercase tracking-[0.2em] mb-1 flex items-center justify-end gap-1">
+                                <Droplets size={10} /> 심해 탐사도 (Depth)
+                            </div>
+                            <div className="text-3xl font-[Cinzel] text-amber-500 flex items-center justify-end gap-1 leading-none text-shadow-gold">
+                                {(points || 0).toLocaleString()} <span className="text-[10px] font-sans text-amber-500/50 tracking-widest mt-2">M</span>
+                            </div>
                         </div>
                     </div>
 
-                    <div className="w-px h-10 bg-white/10" />
-
-                    <div className="text-right">
-                        <div className="text-[9px] text-amber-500/70 uppercase tracking-[0.2em] mb-1 flex items-center justify-end gap-1">
-                            <Droplets size={10} /> 심해 탐사도 (Depth)
-                        </div>
-                        <div className="text-3xl font-[Cinzel] text-amber-500 flex items-center justify-end gap-1 leading-none text-shadow-gold">
-                            {(points || 0).toLocaleString()} <span className="text-[10px] font-sans text-amber-500/50 tracking-widest mt-2">M</span>
-                        </div>
-                    </div>
+                    {/* Exit/Logout Button */}
+                    <button
+                        onClick={() => navigate('/login')}
+                        className="h-full px-4 flex flex-col items-center justify-center gap-1 text-red-500/50 hover:text-red-400 hover:bg-red-950/20 rounded-xl border border-transparent hover:border-red-900/30 transition-all group"
+                        title="긴급 부상 (Emergency Ascent)"
+                    >
+                        <LogOut size={20} className="group-hover:-translate-y-1 transition-transform" />
+                        <span className="text-[9px] font-bold uppercase tracking-widest">Exit</span>
+                    </button>
                 </div>
             </header>
 

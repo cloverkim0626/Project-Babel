@@ -1,6 +1,5 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { supabase } from '../lib/supabase';
 import { Layers, Loader2, ArrowLeft } from 'lucide-react';
 
 export default function CreateProjectPage() {
@@ -13,24 +12,59 @@ export default function CreateProjectPage() {
         if (!name.trim()) return;
 
         setLoading(true);
-        setStatus('Initializing Auth...');
+        setStatus('Initializing Manual Auth...');
 
         try {
-            // Robust Direct Fetch Method
-            const { data: { session } } = await supabase.auth.getSession();
-            const token = session?.access_token;
+            // NUCLEAR OPTION: Bypass supabase.auth.getSession() completely.
+            // Read directly from LocalStorage.
+
             const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
             const supabaseKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
 
-            if (!token || !supabaseUrl || !supabaseKey) {
-                setStatus('Auth session missing or invalid configuration');
-                alert("인증 세션이 만료되었습니다. 다시 로그인해주세요.");
-                return;
+            if (!supabaseUrl || !supabaseKey) {
+                throw new Error("환경변수 누락");
             }
 
-            setStatus('Sending Request...');
-            console.log('[CreatePage] Requesting creation for:', name);
+            // 1. Extract Project ID from URL (https://<id>.supabase.co)
+            // Handle both https://id.supabase.co and custom domains if necessary, but essentially we just need the ID for the key.
+            // Standard format: https://[project-ref].supabase.co
+            let projectId = '';
+            try {
+                const urlParts = supabaseUrl.split('//')[1]; // [project-ref].supabase.co
+                projectId = urlParts.split('.')[0];
+            } catch (e) {
+                console.error("URL Parsing failed", e);
+                // Fallback: try to find any key in localstorage
+            }
 
+            // 2. Construct LocalStorage Key: sb-[id]-auth-token
+            let storageKey = `sb-${projectId}-auth-token`;
+            let sessionStr = localStorage.getItem(storageKey);
+
+            // 3. Fallback: Search for any key starting with sb- and ending with -auth-token if exact match fails
+            if (!sessionStr) {
+                console.warn('[CreatePage] Exact key not found:', storageKey);
+                const allKeys = Object.keys(localStorage);
+                const potentialKey = allKeys.find(k => k.startsWith('sb-') && k.endsWith('-auth-token'));
+                if (potentialKey) {
+                    console.log('[CreatePage] Found fallback key:', potentialKey);
+                    sessionStr = localStorage.getItem(potentialKey);
+                } else {
+                    throw new Error("브라우저에 저장된 로그인 정보가 없습니다. (No Token Found)");
+                }
+            }
+
+            const sessionData = JSON.parse(sessionStr || "{}");
+            const token = sessionData.access_token;
+
+            if (!token) {
+                throw new Error("토큰을 찾을 수 없습니다. 다시 로그인해주세요.");
+            }
+
+            setStatus('Sending Raw Request...');
+            console.log('[CreatePage] Using manual token:', token.substring(0, 10) + '...');
+
+            // 4. Send Request directly to REST API
             const response = await fetch(`${supabaseUrl}/rest/v1/continents`, {
                 method: 'POST',
                 headers: {
@@ -85,8 +119,8 @@ export default function CreateProjectPage() {
                 </h1>
 
                 <p className="text-stone-400 text-xs mb-8">
-                    새 프로젝트를 생성하기 위한 전용 페이지입니다. <br />
-                    (Dedicated page for project creation to ensure stability)
+                    안전 모드: 로컬 스토리지 직접 접근 <br />
+                    (Safe Mode: Direct LocalStorage Access)
                 </p>
 
                 <div className="space-y-6">

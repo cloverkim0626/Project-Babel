@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { LayoutDashboard, BookOpen, Users, FileText, Settings, LogOut } from 'lucide-react';
+import { LayoutDashboard, BookOpen, Users, FileText, Settings, LogOut, Anchor, Compass } from 'lucide-react';
 import { clsx } from 'clsx';
 import { useAuth } from '../hooks/useAuth';
 import { useNavigate } from 'react-router-dom';
@@ -10,7 +10,7 @@ import { ProjectList } from '../components/admin/cms/ProjectList';
 import { ProjectWizard } from '../components/admin/cms/ProjectWizard';
 
 // Placeholder Components
-const PaperTestBuilder = () => <div className="p-8 text-stone-400">Paper Test Builder (Coming Soon)</div>;
+const PaperTestBuilder = () => <div className="p-8 text-slate-500 text-center uppercase tracking-widest border border-dashed border-slate-800 rounded-lg">Paper Test Builder (Coming Soon)</div>;
 
 
 export default function TeacherDashboard() {
@@ -25,75 +25,79 @@ export default function TeacherDashboard() {
     };
 
     return (
-        <div className="min-h-screen ancient-bg text-[#292524] font-serif flex text-sm">
-            {/* Sidebar (Wood & Leather) */}
-            <aside className="w-64 ancient-sidebar flex flex-col shadow-2xl z-20">
-                <div className="p-6 border-b border-[#451a03]/30">
-                    <h1 className="text-2xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-[#fbbf24] to-[#d97706] tracking-widest drop-shadow-[0_2px_2px_rgba(0,0,0,0.8)]">
-                        VOCA UNIVERSE
-                        <span className="text-[#a8a29e] text-xs block mt-1 font-sans tracking-normal font-normal opacity-80">The Observatory</span>
+        <div className="min-h-screen bg-[#020617] text-slate-200 font-sans flex text-sm relative overflow-hidden">
+            <div className="caustic-overlay" />
+
+            {/* Sidebar (Abyss Style) */}
+            <aside className="w-64 bg-slate-950/80 backdrop-blur-md border-r border-white/5 flex flex-col z-20">
+                <div className="p-6 border-b border-white/5">
+                    <h1 className="text-xl font-bold text-cinematic tracking-widest mb-1 flex items-center gap-2">
+                        <Anchor size={20} className="text-cyan-500" />
+                        ABYSS ADMIN
                     </h1>
+                    <span className="text-xs text-slate-500 font-mono uppercase tracking-[0.2em] block">Control Tower</span>
                 </div>
 
                 <nav className="flex-1 p-4 space-y-2">
                     <SidebarItem
                         icon={<LayoutDashboard size={18} />}
-                        label="Overview"
+                        label="Overview (관제탑)"
                         active={activeTab === 'overview'}
                         onClick={() => setActiveTab('overview')}
                     />
                     <SidebarItem
                         icon={<BookOpen size={18} />}
-                        label="Project Manager"
+                        label="Projects (작전 설계)"
                         active={activeTab === 'projects'}
                         onClick={() => setActiveTab('projects')}
                     />
                     <SidebarItem
                         icon={<Users size={18} />}
-                        label="Student DB"
+                        label="Students (대원 관리)"
                         active={activeTab === 'students'}
                         onClick={() => setActiveTab('students')}
                     />
                     <SidebarItem
                         icon={<FileText size={18} />}
-                        label="Paper Test"
+                        label="Paper Tech (문서화)"
                         active={activeTab === 'print'}
                         onClick={() => setActiveTab('print')}
                     />
-                    <div className="pt-4 mt-4 border-t border-[#451a03]/30">
+                    <div className="pt-4 mt-4 border-t border-white/5">
                         <SidebarItem
                             icon={<Settings size={18} />}
-                            label="Settings"
+                            label="Configuration"
                             active={activeTab === 'settings'}
                             onClick={() => setActiveTab('settings')}
                         />
                     </div>
                 </nav>
 
-                <div className="p-4 border-t border-[#451a03]/30">
+                <div className="p-4 border-t border-white/5">
                     <button
                         onClick={handleSignOut}
-                        className="flex items-center gap-3 text-[#78350f] hover:text-[#b45309] transition-colors w-full px-4 py-2 font-bold"
+                        className="flex items-center gap-3 text-red-400 hover:text-red-300 hover:bg-red-950/20 transition-all w-full px-4 py-3 rounded-lg font-bold tracking-wider text-xs uppercase"
                     >
-                        <LogOut size={18} />
-                        <span>Sign Out</span>
+                        <LogOut size={16} />
+                        <span>Emergency Surface</span>
                     </button>
                 </div>
             </aside>
 
-            {/* Main Content (Transparent to show Desk) */}
-            <main className="flex-1 flex flex-col relative z-10">
-                <header className="h-16 flex items-center justify-between px-8 bg-[#0c0a09]/40 backdrop-blur-sm border-b border-[#78350f]/30 shadow-lg">
-                    <h2 className="text-xl font-bold text-[#eaddcf] text-glow-gold tracking-wide">
-                        {activeTab === 'overview' && 'Dashboard Overview'}
-                        {activeTab === 'projects' && 'Project Management'}
-                        {activeTab === 'students' && 'Student Database'}
+            {/* Main Content */}
+            <main className="flex-1 flex flex-col relative z-10 overflow-hidden">
+                <header className="h-16 flex items-center justify-between px-8 bg-slate-950/50 backdrop-blur-sm border-b border-white/5">
+                    <h2 className="text-lg font-bold text-slate-200 tracking-wide flex items-center gap-2">
+                        <Compass size={18} className="text-cyan-500" />
+                        {activeTab === 'overview' && 'Status Overview'}
+                        {activeTab === 'projects' && 'Operation Management'}
+                        {activeTab === 'students' && 'Diver Database'}
                         {activeTab === 'print' && 'Paper Test Generator'}
                         {activeTab === 'settings' && 'System Configuration'}
                     </h2>
-                    <div className="flex items-center gap-4 text-xs text-[#a8a29e]">
-                        <span>Instructor Mode</span>
-                        <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse shadow-[0_0_8px_#22c55e]" />
+                    <div className="flex items-center gap-4 text-xs font-mono text-cyan-500/70">
+                        <span className="uppercase tracking-widest">System Normal</span>
+                        <div className="w-2 h-2 bg-cyan-500 rounded-full animate-pulse shadow-[0_0_8px_cyan]" />
                     </div>
                 </header>
 
@@ -113,7 +117,7 @@ export default function TeacherDashboard() {
                     )}
                     {activeTab === 'students' && <StudentMonitor />}
                     {activeTab === 'print' && <PaperTestBuilder />}
-                    {activeTab === 'settings' && <div className="p-8 ancient-card text-[#eaddcf]">Settings Window (Under Construction)</div>}
+                    {activeTab === 'settings' && <div className="p-12 text-center text-slate-500 border border-white/10 rounded-xl">System calibration locked by Master Architect.</div>}
                 </div>
             </main>
         </div>
@@ -124,13 +128,13 @@ const SidebarItem = ({ icon, label, active, onClick }: { icon: React.ReactNode, 
     <button
         onClick={onClick}
         className={clsx(
-            "w-full flex items-center gap-3 px-4 py-3 rounded-sm transition-all duration-300 border-l-2",
+            "w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-all duration-300",
             active
-                ? "ancient-menu-active"
-                : "border-transparent text-[#a8a29e] hover:text-[#fbbf24] hover:bg-[#0c0a09]/30"
+                ? "bg-cyan-950/40 text-cyan-400 border border-cyan-500/20 shadow-[0_0_15px_rgba(34,211,238,0.1)]"
+                : "text-slate-500 hover:text-slate-300 hover:bg-white/5"
         )}
     >
         {icon}
-        <span className={clsx("font-medium", active ? "font-bold" : "")}>{label}</span>
+        <span className={clsx("font-medium tracking-wide", active ? "font-bold" : "")}>{label}</span>
     </button>
 );

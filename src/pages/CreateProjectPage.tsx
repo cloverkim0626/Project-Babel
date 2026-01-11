@@ -135,7 +135,8 @@ export default function CreateProjectPage() {
             setStatus('Success! Redirecting...');
 
             setTimeout(() => {
-                navigate('/admin');
+                const newProject = Array.isArray(result) ? result[0] : result;
+                navigate('/admin', { state: { newProjectId: newProject?.id } });
             }, 1000);
 
         } catch (e: any) {

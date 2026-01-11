@@ -3,7 +3,7 @@ import { supabase } from '../../../lib/supabase';
 import { Plus, MoreVertical, Calendar, Globe, BookOpen, Layers } from 'lucide-react';
 import { ContinentManager } from '../ContinentManager';
 import { MissionDistributor } from '../MissionDistributor';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 
 interface Continent {
     id: string;
@@ -17,6 +17,7 @@ interface Continent {
 
 export const ProjectList = ({ onCreate: _legacyOnCreate }: { onCreate: () => void }) => {
     const navigate = useNavigate();
+    const location = useLocation();
     const [continents, setContinents] = useState<Continent[]>([]);
     const [loading, setLoading] = useState(true);
     const [selectedContinent, setSelectedContinent] = useState<Continent | null>(null);
@@ -25,6 +26,23 @@ export const ProjectList = ({ onCreate: _legacyOnCreate }: { onCreate: () => voi
     useEffect(() => {
         fetchContinents();
     }, []);
+
+    // Auto-open new project if redirected from creation page
+    useEffect(() => {
+        if (continents.length > 0 && location.state && (location.state as any).newProjectId) {
+            const newId = (location.state as any).newProjectId;
+            console.log('[ProjectList] Detected new project:', newId);
+
+            const target = continents.find(c => c.id === newId);
+            if (target) {
+                // Open with isNew=true to trigger 'add' view
+                setSelectedContinent({ ...target, isNew: true });
+
+                // Clear state to prevent re-opening on refresh
+                window.history.replaceState({}, document.title);
+            }
+        }
+    }, [continents, location]);
 
     const fetchContinents = async () => {
         const { data, error } = await supabase

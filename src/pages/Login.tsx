@@ -64,11 +64,13 @@ export default function Login() {
 
     const handleAnonymous = async () => {
         setLoading(true);
+        setError(null);
         const demoEmail = 'student@babel.com';
         const demoPassword = 'password123';
 
         try {
             // 1. Try Login
+            let loginSuccess = false;
             const { error: signInError } = await supabase.auth.signInWithPassword({
                 email: demoEmail,
                 password: demoPassword
@@ -83,7 +85,8 @@ export default function Login() {
                     options: {
                         data: {
                             nickname: 'Demo Student',
-                            class_type: 'Challenger'
+                            class_type: 'Challenger',
+                            role: 'student' // Explicitly set student role
                         }
                     }
                 });
@@ -92,21 +95,38 @@ export default function Login() {
                     throw new Error("Demo creation failed. Please disable 'Confirm Email' in Supabase!");
                 }
 
-                // If signup success (and email confirm is OFF), logic falls through or we auto-login? 
-                // Usually signUp returns session if auto-confirm is on.
-                // Let's retry login just to be safe or check session.
+                // Retry login after signup
                 const { error: retryError } = await supabase.auth.signInWithPassword({
                     email: demoEmail,
                     password: demoPassword
                 });
                 if (retryError) {
-                    // Likely "Email not confirmed"
                     alert("User created but email not confirmed. Go to Supabase -> Auth -> Providers -> Email -> Disable 'Confirm Email'.");
                     return;
                 }
-                navigate('/dashboard');
+                loginSuccess = true;
             } else {
-                navigate('/dashboard');
+                loginSuccess = true;
+            }
+
+            if (loginSuccess) {
+                // Get session to find user ID and ensure student role in DB
+                const { data: { session } } = await supabase.auth.getSession();
+                if (session?.user) {
+                    // Update or insert user profile with student role
+                    await supabase.from('users').upsert({
+                        id: session.user.id,
+                        nickname: 'Demo Student',
+                        class_type: 'Challenger',
+                        role: 'student',
+                        level: 1,
+                        xp: 0,
+                        points: 0
+                    }, { onConflict: 'id' });
+                }
+
+                // Navigate to student world-map
+                navigate('/world-map');
             }
         } catch (err: any) {
             setError(err.message);

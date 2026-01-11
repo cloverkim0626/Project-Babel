@@ -1,14 +1,13 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { HpBar } from '../components/HpBar';
 import { ObserversLog } from '../components/ObserversLog';
 import { VocabReviewModal } from '../components/VocabReviewModal';
 import { useAuth } from '../hooks/useAuth';
 import { useGameEngine } from '../hooks/useGameEngine';
-import { Zap, Clock, Trophy, CheckCircle, BookOpen, AlertTriangle, ArrowRight, UserCog } from 'lucide-react';
+import { Zap, Clock, Trophy, CheckCircle, BookOpen, AlertTriangle, ArrowRight, Anchor, Activity, Droplets, Wind } from 'lucide-react';
 import { clsx } from 'clsx';
 
-// Mock completed quests data
+// Type definitions
 interface CompletedQuest {
     id: string;
     title: string;
@@ -23,26 +22,23 @@ const MOCK_COMPLETED_QUESTS: CompletedQuest[] = [
         id: 'cq-1',
         title: '2024 Sep Mock - Set A',
         code: 'M-24-09A',
-        completedAt: '2일 전',
+        completedAt: '2 days ago',
         score: 85,
         words: [
-            { word: 'elaborate', meaning: '정교한, 상세한', example: 'The architect created an elaborate design.' },
-            { word: 'phenomenon', meaning: '현상', example: 'This is a natural phenomenon.' },
-            { word: 'substantial', meaning: '상당한, 실질적인', example: 'There was a substantial increase in sales.' },
-            { word: 'inherent', meaning: '내재하는, 고유의', example: 'Risk is inherent in any investment.' },
-            { word: 'profound', meaning: '심오한, 깊은', example: 'The book had a profound impact on me.' },
+            { word: 'elaborate', meaning: '정교한, 상세한' },
+            { word: 'phenomenon', meaning: '현상' },
+            { word: 'substantial', meaning: '상당한, 실질적인' },
         ]
     },
     {
         id: 'cq-2',
         title: 'Vocabulary Day 1-5',
         code: 'V-01-05',
-        completedAt: '5일 전',
+        completedAt: '5 days ago',
         score: 92,
         words: [
-            { word: 'ambiguous', meaning: '모호한', example: 'The statement was ambiguous.' },
-            { word: 'contemporary', meaning: '현대의, 동시대의', example: 'Contemporary art is often abstract.' },
-            { word: 'facilitate', meaning: '용이하게 하다', example: 'The software facilitates communication.' },
+            { word: 'ambiguous', meaning: '모호한' },
+            { word: 'contemporary', meaning: '현대의' },
         ]
     }
 ];
@@ -52,7 +48,7 @@ const MOCK_INCOMPLETE_TASKS = [
         id: 'inc-1',
         title: '9월 모의고사 A - Seq 3',
         code: 'sept-mock-03',
-        dueDate: '오늘 마감',
+        dueDate: 'Due Today',
         isOverdue: false,
         missionId: 'mock-mission-A'
     },
@@ -60,7 +56,7 @@ const MOCK_INCOMPLETE_TASKS = [
         id: 'inc-2',
         title: 'Voca Day 1 - Seq 2',
         code: 'voca-d1-s2',
-        dueDate: '어제 마감',
+        dueDate: 'Expired',
         isOverdue: true,
         missionId: 'voca-day-1'
     }
@@ -68,156 +64,164 @@ const MOCK_INCOMPLETE_TASKS = [
 
 const Dashboard: React.FC = () => {
     const navigate = useNavigate();
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { role, user, loading } = useAuth();
     const { levelSpecs, points } = useGameEngine();
 
-    // Mock Data State
     const [currentHp, setCurrentHp] = useState(levelSpecs.maxHp);
     const [reviewModal, setReviewModal] = useState<CompletedQuest | null>(null);
 
-    // Sync current HP if max changes (Level Up)
     React.useEffect(() => {
         setCurrentHp(prev => Math.min(prev + 10, levelSpecs.maxHp));
     }, [levelSpecs.maxHp]);
 
-    if (loading) return null;
-    if (!user) return null;
+    if (loading || !user) return null;
 
     const { level } = levelSpecs;
-
-    const getCharacterImage = (_cls: string) => {
-        if (role === 'master') return '/assets/master_architect.png';
-        return '/assets/character_base.png';
-    };
-
-    const simulateDamage = () => setCurrentHp(prev => Math.max(0, prev - 10));
-    const simulateHeal = () => setCurrentHp(prev => Math.min(levelSpecs.maxHp, prev + 10));
-
-    // XP Progress
-    const xpPercent = (levelSpecs.xp / levelSpecs.nextLevelXp) * 100;
+    const oxygenPercent = (currentHp / levelSpecs.maxHp) * 100;
+    const depthPercent = (levelSpecs.xp / levelSpecs.nextLevelXp) * 100;
 
     return (
-        <div className="min-h-screen bg-obsidian text-paper font-mono p-4 md:p-8 overflow-x-hidden relative">
-            <div className="absolute inset-0 bg-[#0a0a0a]" />
-            <div className="absolute inset-0 opacity-10 bg-[url('https://www.transparenttextures.com/patterns/dark-matter.png')]" />
-            <div className="absolute top-0 left-0 w-full h-96 bg-gradient-to-b from-purple-900/20 to-transparent pointer-events-none" />
+        <div className="min-h-screen bg-[#020617] text-slate-200 p-6 md:p-10 overflow-x-hidden relative font-sans">
+            <div className="caustic-overlay" />
 
-            {/* Top Bar */}
-            <header className="relative z-10 flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-8 border-b border-white/10 pb-6">
-                <div className="flex items-center gap-4">
-                    <div className="relative group cursor-pointer">
-                        <div className="w-20 h-20 rounded-xl border-2 border-babel-gold p-1 bg-black overflow-hidden relative shadow-[0_0_15px_rgba(212,175,55,0.3)] group-hover:shadow-[0_0_25px_rgba(212,175,55,0.6)] transition-all duration-500">
+            {/* Top Navigation / Status Bar */}
+            <header className="relative z-10 flex flex-col md:flex-row justify-between items-start md:items-end gap-6 mb-12 border-b border-white/5 pb-6">
+                <div className="flex items-center gap-6">
+                    {/* Character Avatar (Diver Helmet) */}
+                    <div className="relative group">
+                        <div className="w-24 h-24 rounded-full border-2 border-cyan-500/30 p-1 bg-slate-900/80 relative shadow-[0_0_30px_rgba(34,211,238,0.2)] overflow-hidden">
+                            <div className="absolute inset-0 bg-cyan-500/10 animate-pulse z-0" />
                             <img
-                                src={getCharacterImage(user.classType)}
-                                alt="Character"
-                                className="w-full h-full object-cover rounded-lg opacity-80 group-hover:opacity-100 transition-opacity"
+                                src={role === 'master' ? '/assets/master_architect.png' : '/assets/character_base.png'}
+                                alt="Diver"
+                                className="w-full h-full object-cover rounded-full opacity-90 relative z-10 hover:scale-110 transition-transform duration-500"
                             />
                         </div>
-                        <div className="absolute -bottom-2 -right-2 w-8 h-8 bg-babel-gold text-black font-bold flex items-center justify-center rounded-full border-2 border-black z-10 shadow-lg">
+                        <div className="absolute -bottom-2 -right-1 w-8 h-8 bg-cyan-950 text-cyan-400 font-bold font-serif flex items-center justify-center rounded-full border border-cyan-500 shadow-lg z-20">
                             {level}
                         </div>
                     </div>
 
                     <div>
-                        <h1 className="text-3xl font-serif text-white tracking-wide flex items-center gap-2">
+                        <h1 className="text-4xl text-cinematic tracking-widest mb-1 text-transparent bg-clip-text bg-gradient-to-r from-slate-100 to-slate-400">
                             {user.nickname}
-                            <span className="text-xs px-2 py-0.5 rounded-full bg-white/10 text-stone-400 border border-white/10">{user.classType}</span>
                         </h1>
-                        <p className="text-stone-500 text-xs mt-1 flex items-center gap-2">
-                            <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-                            System Online
-                        </p>
+                        <div className="flex items-center gap-3">
+                            <span className="text-xs uppercase tracking-[0.3em] text-cyan-500 font-bold border border-cyan-500/30 px-2 py-0.5 rounded bg-cyan-950/20">
+                                {user.classType} Class
+                            </span>
+                            <span className="flex items-center gap-1.5 text-[10px] text-emerald-400 uppercase tracking-widest animate-pulse">
+                                <Activity size={10} /> Life Support Online
+                            </span>
+                        </div>
                     </div>
                 </div>
 
-                <div className="flex items-center gap-6 bg-black/40 px-6 py-3 rounded-xl border border-white/10 backdrop-blur-md">
+                {/* Oxygen & Depth Gauge */}
+                <div className="flex items-center gap-8 bg-slate-900/40 backdrop-blur-md px-8 py-4 rounded-2xl border border-white/10 shadow-2xl">
                     <div className="text-right">
-                        <div className="text-[10px] text-stone-500 uppercase tracking-widest mb-1">Health Points</div>
-                        <HpBar current={currentHp} max={levelSpecs.maxHp} />
+                        <div className="text-[9px] text-cyan-500/70 uppercase tracking-[0.2em] mb-1.5 flex items-center justify-end gap-1">
+                            <Wind size={10} /> Oxygen Integrity
+                        </div>
+                        <div className="w-48 h-3 bg-slate-800 rounded-full overflow-hidden border border-slate-700/50 relative">
+                            {/* Animated Bubbles in Bar */}
+                            <div className="absolute inset-0 w-full h-full bg-[url('https://www.transparenttextures.com/patterns/stardust.png')] opacity-30 animate-[slide_20s_linear_infinite]" />
+                            <div
+                                className="h-full bg-gradient-to-r from-cyan-900 via-cyan-500 to-white transition-all duration-1000 relative"
+                                style={{ width: `${oxygenPercent}%` }}
+                            >
+                                <div className="absolute right-0 top-0 bottom-0 w-2 bg-white/50 blur-[2px]" />
+                            </div>
+                        </div>
+                        <div className="text-[10px] text-right mt-1 font-mono text-cyan-300">
+                            {currentHp} / {levelSpecs.maxHp} PSI
+                        </div>
                     </div>
-                    <div className="h-8 w-px bg-white/10" />
+
+                    <div className="w-px h-10 bg-white/10" />
+
                     <div className="text-right">
-                        <div className="text-[10px] text-stone-500 uppercase tracking-widest mb-1">Knowledge Points</div>
-                        <div className="text-babel-gold font-bold text-xl flex items-center justify-end gap-1">
-                            {points.toLocaleString()} <span className="text-xs text-babel-gold/50">KP</span>
+                        <div className="text-[9px] text-amber-500/70 uppercase tracking-[0.2em] mb-1 flex items-center justify-end gap-1">
+                            <Droplets size={10} /> Abyssal Depth
+                        </div>
+                        <div className="text-3xl font-[Cinzel] text-amber-500 flex items-center justify-end gap-1 leading-none text-shadow-gold">
+                            {points.toLocaleString()} <span className="text-[10px] font-sans text-amber-500/50 tracking-widest mt-2">M</span>
                         </div>
                     </div>
                 </div>
             </header>
 
-            <main className="relative z-10 grid grid-cols-1 lg:grid-cols-3 gap-8">
-                {/* Left Column: Stats */}
-                <div className="lg:col-span-1 space-y-6">
-                    <ObserversLog stats={{
-                        accuracy: 78,
-                        speed: 65,
-                        persistence: 82,
-                        knowledge: 71,
-                        planning: 50,
-                        trust: 90
-                    }} />
+            <main className="relative z-10 grid grid-cols-1 lg:grid-cols-12 gap-8">
 
-                    <div className="border border-white/10 bg-black/60 backdrop-blur-md rounded-xl p-6 relative overflow-hidden shadow-2xl">
-                        <div className="flex justify-between items-center mb-6">
-                            <h3 className="text-babel-gold font-serif text-lg flex items-center gap-2 border-b border-babel-gold/30 pb-1 pr-4">
-                                <UserCog size={18} /> 상태창 (Status)
-                            </h3>
+                {/* Left Panel: Status & Radar (4 cols) */}
+                <div className="lg:col-span-4 space-y-6">
+                    {/* Radar Chart Container */}
+                    <div className="abyss-glass p-6 relative group hover:border-cyan-500/30 transition-colors">
+                        <div className="absolute top-4 left-4 flex items-center gap-2 text-cyan-500/50">
+                            <Anchor size={14} />
+                            <span className="text-[10px] uppercase tracking-[0.2em]">Diver Metrics</span>
                         </div>
-                        <div className="flex items-end justify-between mb-2">
-                            <div className="text-white font-bold text-lg">{user.classType}</div>
-                            <div className="text-stone-400 text-xs font-mono mb-1">필요 경험치</div>
+                        <div className="mt-4 filter drop-shadow-[0_0_10px_rgba(34,211,238,0.2)]">
+                            <ObserversLog stats={{
+                                accuracy: 78, speed: 65, persistence: 82,
+                                knowledge: 71, planning: 50, trust: 90
+                            }} />
                         </div>
-                        <div className="relative w-full h-4 bg-stone-900 rounded-full overflow-hidden border border-white/5 box-border">
-                            <div className="absolute inset-0 bg-[linear-gradient(45deg,transparent_25%,rgba(255,255,255,0.05)_50%,transparent_75%)] bg-[length:10px_10px]" />
-                            <div
-                                className="h-full bg-gradient-to-r from-blue-900 via-blue-600 to-blue-400 transition-all duration-700 ease-out relative"
-                                style={{ width: `${xpPercent}%` }}
-                            >
-                                <div className="absolute right-0 top-0 bottom-0 w-[1px] bg-white/50 shadow-[0_0_10px_white]" />
+                    </div>
+
+                    {/* XP / Depth Progress */}
+                    <div className="abyss-glass p-6 space-y-4">
+                        <h3 className="text-sm font-serif text-slate-300 flex items-center gap-2 border-b border-white/5 pb-2">
+                            Navigation System
+                        </h3>
+
+                        <div>
+                            <div className="flex justify-between text-[10px] text-slate-400 mb-1 uppercase tracking-wider">
+                                <span>Current Depth</span>
+                                <span>Target Depth</span>
                             </div>
-                        </div>
-                        <div className="flex justify-between text-[10px] text-stone-500 mt-2 font-mono">
-                            <span className="text-blue-400 font-bold">{(levelSpecs?.xp || 0).toLocaleString()} XP</span>
-                            <span>NEXT: {(levelSpecs?.nextLevelXp || 0).toLocaleString()} XP</span>
+                            <div className="relative w-full h-1.5 bg-slate-900 rounded-full overflow-hidden">
+                                <div
+                                    className="absolute h-full bg-gradient-to-r from-amber-800 to-amber-500"
+                                    style={{ width: `${depthPercent}%` }}
+                                />
+                            </div>
+                            <div className="flex justify-between text-[10px] text-amber-500 mt-1 font-mono">
+                                <span>{(levelSpecs?.xp || 0).toLocaleString()} M</span>
+                                <span>{(levelSpecs?.nextLevelXp || 0).toLocaleString()} M</span>
+                            </div>
                         </div>
                     </div>
                 </div>
 
-                {/* Center Column: Active Quests */}
-                <div className="lg:col-span-2 space-y-4">
-                    {/* Incomplete Tasks Section */}
+                {/* Center/Right Panel: Missions (8 cols) */}
+                <div className="lg:col-span-8 space-y-8">
+
+                    {/* Critical Alerts */}
                     {MOCK_INCOMPLETE_TASKS.length > 0 && (
-                        <div className="mb-8">
-                            <h3 className="text-red-400 text-xs uppercase tracking-widest pl-1 mb-2 flex items-center gap-2">
-                                <AlertTriangle size={12} />
-                                미완료 과제 (Retake Required)
+                        <div className="space-y-4">
+                            <h3 className="text-xs font-bold text-red-500 tracking-[0.2em] uppercase flex items-center gap-2 pl-1 animate-pulse">
+                                <AlertTriangle size={14} /> Critical Hull Breaches
                             </h3>
-                            <div className="grid gap-3">
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                 {MOCK_INCOMPLETE_TASKS.map(task => (
                                     <div
                                         key={task.id}
                                         onClick={() => {
-                                            if (confirm(`'${task.title}' 재시험을 시작하시겠습니까?`)) {
+                                            if (confirm(`Attempt to repair breach '${task.title}'?`)) {
                                                 navigate(`/mission/${task.missionId}/play`);
                                             }
                                         }}
-                                        className="group flex items-center justify-between bg-red-900/10 border border-red-500/20 hover:bg-red-900/20 hover:border-red-500/40 p-4 rounded-xl cursor-pointer transition-all"
+                                        className="abyss-glass p-4 border-l-2 border-l-red-500 hover:bg-red-950/20 cursor-pointer group transition-all"
                                     >
-                                        <div className="flex items-center gap-4">
-                                            <div className="w-10 h-10 rounded-full bg-red-500/10 flex items-center justify-center text-red-500">
-                                                <Zap size={18} />
-                                            </div>
-                                            <div>
-                                                <div className="text-white font-bold group-hover:text-red-400 transition-colors">{task.title}</div>
-                                                <div className="text-xs text-stone-500 font-mono">Code: {task.code}</div>
-                                            </div>
-                                        </div>
-                                        <div className="flex items-center gap-4">
-                                            <span className={clsx("text-xs font-bold px-2 py-1 rounded", task.isOverdue ? "text-red-500 bg-red-900/20" : "text-amber-500 bg-amber-900/20")}>
+                                        <div className="flex justify-between items-start mb-2">
+                                            <span className="text-red-400 font-bold text-sm group-hover:text-red-300">{task.title}</span>
+                                            <span className={clsx("text-[9px] px-2 py-0.5 rounded font-bold uppercase", task.isOverdue ? "bg-red-500/20 text-red-500" : "bg-amber-500/20 text-amber-500")}>
                                                 {task.dueDate}
                                             </span>
-                                            <ArrowRight size={16} className="text-stone-600 group-hover:text-red-400 group-hover:translate-x-1 transition-all" />
+                                        </div>
+                                        <div className="text-[10px] text-slate-500 font-mono">
+                                            ERR_CODE: {task.code}
                                         </div>
                                     </div>
                                 ))}
@@ -225,92 +229,84 @@ const Dashboard: React.FC = () => {
                         </div>
                     )}
 
-                    <h3 className="text-stone-400 text-xs uppercase tracking-widest pl-1 mb-2">현재 수행 가능한 임무</h3>
-
-                    <div
-                        className="group relative border border-white/10 bg-black/40 hover:bg-black/60 hover:border-babel-gold/50 rounded-xl p-6 pr-32 transition-all duration-300 cursor-pointer overflow-hidden mb-8"
-                        onClick={() => navigate('/world-map')}
-                    >
-                        <div className="absolute -inset-1 bg-gradient-to-r from-babel-gold/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity blur-xl -z-10" />
-
-                        <div className="flex justify-between items-start mb-2">
-                            <h3 className="text-xl font-serif text-white group-hover:text-babel-gold transition-colors flex items-center gap-2">
-                                <Zap size={20} className="text-babel-gold/80" />
-                                일일 퀘스트: 알파 세트 01
-                            </h3>
-                            <span className="text-xs font-mono text-stone-500">Code: A-01</span>
-                        </div>
-
-                        <div className="flex items-center gap-4 text-xs text-stone-400 font-mono mb-4">
-                            <span className="flex items-center gap-1.5 bg-red-900/10 px-2 py-1 rounded text-red-400 border border-red-900/30">
-                                <Clock size={12} /> 24시간 남음
-                            </span>
-                            <span className="flex items-center gap-1.5 bg-blue-900/10 px-2 py-1 rounded text-blue-400 border border-blue-900/30">
-                                <Trophy size={12} /> 보상: 지식 +5
-                            </span>
-                        </div>
-
-                        <p className="text-stone-400 text-sm leading-relaxed max-w-xl">
-                            20개의 단어 파편이 발견되었습니다. 데이터가 부식되기 전에 회수하십시오.
-                            <br /><span className="text-xs text-stone-600">권장 레벨: Lv.1 이상</span>
-                        </p>
-
-                        <div className="absolute top-0 right-0 bottom-0 w-24 border-l border-white/5 bg-white/5 group-hover:bg-babel-gold/10 transition-colors flex flex-col items-center justify-center gap-2">
-                            <span className="text-[10px] uppercase text-stone-500 tracking-widest group-hover:text-babel-gold transition-colors">Status</span>
-                            <div className="px-3 py-1 bg-babel-gold text-black text-xs font-bold rounded shadow-[0_0_10px_rgba(212,175,55,0.4)]">
-                                준비됨
+                    {/* Active Mission */}
+                    <div>
+                        <h3 className="text-xs font-bold text-cyan-500 tracking-[0.2em] uppercase mb-4 pl-1">
+                            Current Dive Coordinate
+                        </h3>
+                        <div
+                            className="group relative abyss-glass p-8 overflow-hidden cursor-pointer hover:border-cyan-400/50 transition-all duration-500"
+                            onClick={() => navigate('/world-map')}
+                        >
+                            <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-30 transition-opacity">
+                                <Zap size={100} />
                             </div>
-                        </div>
-                    </div>
 
-                    <h3 className="text-stone-400 text-xs uppercase tracking-widest pl-1 mb-2">완료된 임무 (Completed)</h3>
+                            <div className="relative z-10 flex flex-col md:flex-row justify-between md:items-center gap-6">
+                                <div>
+                                    <h2 className="text-2xl md:text-3xl font-[Cinzel] text-white group-hover:text-cyan-400 transition-colors mb-2 text-shadow">
+                                        Alpha Sector: 01
+                                    </h2>
+                                    <p className="text-slate-400 text-sm max-w-lg leading-relaxed font-light">
+                                        "20 memory fragments detected in this sector. Retrieve them before corrosion sets in."
+                                    </p>
 
-                    <div className="grid gap-4">
-                        {MOCK_COMPLETED_QUESTS.map(quest => (
-                            <div
-                                key={quest.id}
-                                className="group bg-black/40 border border-white/10 hover:border-emerald-500/50 p-4 rounded-xl transition-all cursor-pointer hover:bg-black/60"
-                                onClick={() => setReviewModal(quest)}
-                            >
-                                <div className="flex justify-between items-center">
-                                    <div className="flex items-center gap-4">
-                                        <div className="w-10 h-10 rounded-full bg-emerald-900/20 flex items-center justify-center text-emerald-500 group-hover:bg-emerald-500 group-hover:text-black transition-colors">
-                                            <CheckCircle size={18} />
+                                    <div className="flex gap-4 mt-6">
+                                        <div className="flex items-center gap-2 text-xs text-amber-500 font-mono bg-amber-950/20 px-3 py-1.5 rounded border border-amber-900/50">
+                                            <Clock size={12} /> 24HRS REMAINING
                                         </div>
-                                        <div>
-                                            <div className="text-white font-bold group-hover:text-emerald-400 transition-colors">{quest.title}</div>
-                                            <div className="text-xs text-stone-500 font-mono">Code: {quest.code} • {quest.completedAt}</div>
-                                        </div>
-                                    </div>
-                                    <div className="text-right">
-                                        <div className="text-emerald-400 font-bold text-lg">{quest.score}점</div>
-                                        <div className="text-[10px] text-stone-500 uppercase tracking-widest flex items-center gap-1 justify-end group-hover:text-emerald-300">
-                                            <BookOpen size={10} />
-                                            Review
+                                        <div className="flex items-center gap-2 text-xs text-cyan-400 font-mono bg-cyan-950/20 px-3 py-1.5 rounded border border-cyan-900/50">
+                                            <Trophy size={12} /> REWARD: +5 M DEPTH
                                         </div>
                                     </div>
                                 </div>
+
+                                <button className="abyss-btn px-8 py-3 text-sm flex items-center gap-2 shadow-[0_0_20px_rgba(34,211,238,0.3)] group-hover:shadow-[0_0_40px_rgba(34,211,238,0.5)]">
+                                    Initiate Dive <ArrowRight size={14} />
+                                </button>
                             </div>
-                        ))}
+                        </div>
                     </div>
+
+                    {/* Completed */}
+                    <div>
+                        <h3 className="text-xs font-bold text-slate-500 tracking-[0.2em] uppercase mb-4 pl-1">
+                            Dive Log (Recent)
+                        </h3>
+                        <div className="space-y-3">
+                            {MOCK_COMPLETED_QUESTS.map(quest => (
+                                <div
+                                    key={quest.id}
+                                    className="abyss-glass p-4 flex items-center justify-between hover:bg-slate-800/50 cursor-pointer group transition-all"
+                                    onClick={() => setReviewModal(quest)}
+                                >
+                                    <div className="flex items-center gap-4">
+                                        <div className="w-10 h-10 rounded-full border border-emerald-500/30 bg-emerald-950/20 flex items-center justify-center text-emerald-500 group-hover:bg-emerald-500 group-hover:text-black transition-all">
+                                            <CheckCircle size={18} />
+                                        </div>
+                                        <div>
+                                            <div className="text-slate-200 font-bold group-hover:text-emerald-400 transition-colors">{quest.title}</div>
+                                            <div className="text-[10px] text-slate-500 font-mono">{quest.code} • {quest.completedAt}</div>
+                                        </div>
+                                    </div>
+                                    <div className="text-right">
+                                        <div className="text-xl font-[Cinzel] text-emerald-500">{quest.score}</div>
+                                        <div className="text-[9px] text-slate-500 uppercase tracking-widest flex items-center gap-1 justify-end group-hover:text-emerald-400">
+                                            <BookOpen size={10} /> Inspect
+                                        </div>
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+
                 </div>
             </main>
 
-            <footer className="relative z-10 mt-12 border-t border-white/5 pt-6 flex justify-between items-center text-[10px] text-stone-600 font-mono">
-                <div>SYSTEM STATUS: NORMAL</div>
-                <div>PROJECT BABEL ver 0.5.0</div>
-            </footer>
-
-            <div className="fixed bottom-8 right-8 flex flex-col gap-2 z-50 opacity-20 hover:opacity-100 transition-opacity">
-                <div className="text-[10px] text-stone-500 text-right mb-1">DEV TOOLS</div>
-                <div className="flex gap-2">
-                    <button onClick={simulateDamage} className="px-3 py-2 bg-red-950 border border-red-800 text-red-400 text-xs rounded hover:bg-red-900 transition-colors shadow-lg">
-                        -10 HP (피격)
-                    </button>
-                    <button onClick={simulateHeal} className="px-3 py-2 bg-emerald-950 border border-emerald-800 text-emerald-400 text-xs rounded hover:bg-emerald-900 transition-colors shadow-lg">
-                        +10 HP (회복)
-                    </button>
-                </div>
+            {/* Dev Tools (Hidden/Subtle) */}
+            <div className="fixed bottom-4 right-4 flex gap-2 opacity-0 hover:opacity-100 transition-opacity z-50">
+                <button onClick={() => setCurrentHp(h => Math.max(0, h - 10))} className="px-2 py-1 bg-red-900/50 text-xs rounded text-red-200">-10 O2</button>
+                <button onClick={() => setCurrentHp(h => Math.min(levelSpecs.maxHp, h + 10))} className="px-2 py-1 bg-emerald-900/50 text-xs rounded text-emerald-200">+10 O2</button>
             </div>
 
             <VocabReviewModal

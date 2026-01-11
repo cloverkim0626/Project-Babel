@@ -64,7 +64,7 @@ const MOCK_INCOMPLETE_TASKS = [
 
 const Dashboard: React.FC = () => {
     const navigate = useNavigate();
-    const { role, user, loading } = useAuth();
+    const { user, loading } = useAuth();
     const { levelSpecs, points } = useGameEngine();
 
     const [currentHp, setCurrentHp] = useState(levelSpecs.maxHp);

@@ -4,57 +4,53 @@
 
 /* 
   ========================================
-  THE ANCIENT ARCHIVES - MASTERPIECE THEME
+  THE ANCIENT ARCHIVES - PHASE 3: STONE & SCROLLS
   ========================================
-  Concept: High-Fidelity Skeuomorphic RPG
-  Reference: Hearthstone / Baldur's Gate Journal
+  Concept: "The Tactician's Table"
+  Background: Dark Stone/Dungeon Floor
+  Foreground: Bright Parchment Documents
+  Vibe: High Contrast, 2D RPG Quest Board
 */
 
 /* Fonts */
 @import url('https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@400;700;900&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;0,700;1,400&family=Nanum+Myeongjo:wght@400;700;800&display=swap');
 
 :root {
-  /* Palette: Ink & Parchment */
-  --color-ink: #2b1d12;
-  /* Deep Iron Gall Ink */
-  --color-ink-faint: #5d4037;
-  /* Faded Ink */
-  --color-paper: #eaddcf;
-  /* Raw Parchment */
-  --color-paper-dark: #d6c4a6;
-  /* Aged Parchment */
+  /* Text Colors */
+  --text-ink: #2b1d12;
+  /* Deep Brown for Paper */
+  --text-ink-muted: #5d4037;
+  /* Faded Brown */
+  --text-light: #eaddcf;
+  /* Off-white for Dark Backgrounds */
+  --text-gold: #fbbf24;
+  /* Gold for Headings */
 
-  /* Palette: Rare Materials */
-  --color-gold: #d4af37;
-  /* Gold Leaf */
-  --color-gold-dim: #997b1e;
-  /* Tarnished Gold */
-  --color-leather: #451a03;
-  /* Dark Leather */
-  --color-blood: #7f1d1d;
-  /* Sealing Wax Red */
-  --color-magic: #3b82f6;
-  /* Mana Blue */
+  /* Backgrounds */
+  --bg-dark: #1c1917;
+  --bg-paper: #f5ebe0;
 
-  /* Shadows */
-  --shadow-depth: 0 10px 30px -5px rgba(0, 0, 0, 0.7);
-  --shadow-inner: inset 0 0 40px rgba(0, 0, 0, 0.3);
-  --glow-gold: 0 0 15px rgba(212, 175, 55, 0.4);
+  /* Borders */
+  --border-gold: #d4af37;
+  --border-ink: #451a03;
 }
 
 body {
-  /* Global Background: The Explorer's Desk */
-  background-image: url('/assets/bg-desk.png');
+  /* Global Background: Dark Stone */
+  background-image: url('/assets/tex-stone.png');
   background-size: cover;
-  background-position: center top;
+  background-position: center;
   background-attachment: fixed;
-  background-repeat: no-repeat;
-  color: var(--color-paper);
+  background-color: #1c1917;
+  background-blend-mode: multiply;
+  /* Darken the texture */
+
+  color: var(--text-light);
   font-family: 'Cormorant Garamond', 'Nanum Myeongjo', serif;
   overflow-x: hidden;
 }
 
-/* Typography Standards */
+/* Typography Overrides */
 h1,
 h2,
 h3,
@@ -62,181 +58,157 @@ h4,
 h5,
 h6 {
   font-family: 'Cinzel Decorative', cursive;
-  color: var(--color-gold);
-  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.8);
 }
 
-/* --- MASTERPIECE UTILITY CLASSES --- */
+/* --- MASTERPIECE COMPONENTS --- */
 
-/* 1. Sidebar: The Bound Tome */
+/* 1. Sidebar: Dark Leather/Wood to blend with Stone */
 .ancient-sidebar {
   background-image: url('/assets/tex-sidebar.png');
-  /* Leather/Wood texture */
   background-size: cover;
-  border-right: 4px solid #140801;
-  box-shadow: 10px 0 50px rgba(0, 0, 0, 0.8);
-  position: relative;
+  background-position: left;
+  border-right: 2px solid #574d43;
+  box-shadow: 10px 0 30px rgba(0, 0, 0, 0.8);
 }
 
-/* Sidebar separator line */
-.ancient-sidebar::after {
-  content: '';
-  position: absolute;
-  top: 0;
-  right: -4px;
-  bottom: 0;
-  width: 4px;
-  background: linear-gradient(to bottom, #d4af37, #451a03, #d4af37);
-  opacity: 0.6;
-}
-
-/* 2. Menu Items: Gold Embossing */
 .ancient-menu-active {
-  background: linear-gradient(90deg, rgba(80, 40, 0, 0.8), transparent);
-  border-left: 3px solid var(--color-gold);
-  color: var(--color-gold) !important;
-  text-shadow: 0 0 10px rgba(255, 215, 0, 0.5);
-  box-shadow: inset 0 0 20px rgba(212, 175, 55, 0.1);
+  background: linear-gradient(90deg, rgba(212, 175, 55, 0.15), transparent);
+  border-left: 3px solid #fbbf24;
+  color: #fbbf24 !important;
+  text-shadow: 0 0 10px rgba(251, 191, 36, 0.4);
 }
 
-/* 3. Cards: The Stone Tablets (Dark Mode) */
-/* Used for Stats, Highlights */
-.ancient-card {
-  background-image: url('/assets/tex-stone.png'), linear-gradient(to bottom, rgba(0, 0, 0, 0.3), rgba(0, 0, 0, 0.7));
-  background-blend-mode: multiply;
-  background-size: cover;
-  border: 1px solid #574d43;
-  border-radius: 6px;
-
-  /* 3D Bevel Layout */
-  box-shadow:
-    inset 0 0 0 1px rgba(255, 255, 255, 0.05),
-    /* Highlight bevel */
-    inset 0 0 20px rgba(0, 0, 0, 0.8),
-    /* Deep inner shadow */
-    0 15px 35px rgba(0, 0, 0, 0.6);
-  /* Drop shadow */
-
-  position: relative;
-  overflow: hidden;
-  transition: transform 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
-}
-
-.ancient-card::before {
-  /* Corner ornamentation overlay could go here via pseudo-element borders */
-  content: '';
-  position: absolute;
-  inset: 0;
-  border: 1px solid rgba(212, 175, 55, 0.15);
-  /* Gold outline hint */
-  pointer-events: none;
-}
-
-.ancient-card:hover {
-  transform: translateY(-4px);
-  border-color: var(--color-gold-dim);
-  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.8), 0 0 15px rgba(212, 175, 55, 0.2);
-}
-
-/* 4. Panels/Tables: The Parchment Scroll (Light Mode) */
-/* Used for Grids, Lists, Content Areas */
+/* 2. The Parchment Card (Main Content Container) */
+/* Used for ALL content boxes: Projects, Stats, Lists */
+.ancient-card,
 .ancient-paper {
+  /* Texture */
   background-image: url('/assets/tex-paper.png');
   background-color: #eaddcf;
-  /* Fallback */
-  background-blend-mode: multiply;
   background-size: cover;
+  background-repeat: no-repeat;
 
-  /* Ink Text Color */
-  color: var(--color-ink);
+  /* Text: INK on PAPER */
+  color: var(--text-ink);
 
-  /* Rough edges simulation via shadow or border-image */
+  /* Shape & Depth */
+  border-radius: 4px;
   border: 1px solid #d6c4a6;
   box-shadow:
-    0 2px 10px rgba(0, 0, 0, 0.3),
-    inset 0 0 60px rgba(160, 120, 80, 0.2);
-  /* Aging effect */
+    0 5px 15px rgba(0, 0, 0, 0.5),
+    /* Lift off table */
+    inset 0 0 60px rgba(160, 120, 80, 0.15);
+  /* Vintage Vignette */
 
-  border-radius: 4px;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  position: relative;
 }
 
-.ancient-paper h1,
-.ancient-paper h2,
+/* Hover effect for interactive cards */
+.ancient-card.cursor-pointer:hover {
+  transform: translateY(-4px);
+  box-shadow:
+    0 15px 30px rgba(0, 0, 0, 0.6),
+    0 0 15px rgba(212, 175, 55, 0.2);
+  /* Subtle Gold Glow */
+  border-color: #d4af37;
+}
+
+/* 3. Typography inside Paper */
+.ancient-card h1,
+.ancient-card h2,
+.ancient-card h3,
+.ancient-card h4,
 .ancient-paper h3,
 .ancient-paper h4 {
   color: #451a03;
-  /* Dark Leather Header */
+  /* Dark Brown Headers */
   text-shadow: none;
-  /* No shadow on paper/ink */
-  border-bottom: 2px solid rgba(69, 26, 3, 0.2);
+  /* No glow on paper usually */
+  border-bottom-color: rgba(69, 26, 3, 0.2);
+  /* Divider */
 }
 
-/* 5. Buttons: The Wax Seal / Metal Plate */
+/* 4. Panels: Darker areas on the stone (e.g. Filters) */
+.ancient-panel {
+  background: rgba(12, 10, 9, 0.7);
+  /* See-through dark glass/leather */
+  border: 1px solid #44403c;
+  backdrop-filter: blur(8px);
+  border-radius: 4px;
+  color: #d6cfc7;
+}
+
+/* 5. Buttons & Inputs */
 .ancient-button {
-  background: linear-gradient(180deg, #2a1b12 0%, #0c0a09 100%);
+  background: linear-gradient(to bottom, #451a03, #2a1b12);
   border: 1px solid #78350f;
-  border-top: 1px solid #a16207;
-  /* Highlighted top edge */
-  color: #eaddcf;
+  border-top-color: #92400e;
+  color: #fef3c7;
   font-family: 'Cinzel Decorative', serif;
   font-weight: 700;
-  letter-spacing: 0.05em;
   text-transform: uppercase;
+  letter-spacing: 0.05em;
   padding: 0.5rem 1.25rem;
-  border-radius: 2px;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.4);
-  transition: all 0.2s ease;
-  position: relative;
-  overflow: hidden;
-}
-
-.ancient-button:hover {
-  background: linear-gradient(180deg, #451a03 0%, #2a1b12 100%);
-  color: var(--color-gold);
-  border-color: var(--color-gold);
-  box-shadow: 0 0 15px rgba(212, 175, 55, 0.3);
-}
-
-/* 6. Inputs: Inlaid Slots */
-.ancient-input {
-  background: rgba(0, 0, 0, 0.4);
-  border: 1px solid #44403c;
-  border-bottom: 2px solid #57534e;
-  color: #eaddcf;
-  font-family: 'Cormorant Garamond', serif;
-  padding: 0.5rem 1rem;
-  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.5);
+  border-radius: 3px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.5);
   transition: all 0.2s;
 }
 
-.ancient-input:focus {
-  background: rgba(0, 0, 0, 0.6);
-  border-color: var(--color-gold);
-  outline: none;
-  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.8), 0 0 10px rgba(212, 175, 55, 0.1);
+.ancient-button:hover {
+  filter: brightness(1.2);
+  box-shadow: 0 0 15px rgba(212, 175, 55, 0.4);
+  border-color: #fbbf24;
+  color: #fff;
 }
 
-/* 7. Special Effects */
-.text-glow-gold {
-  text-shadow: 0 0 12px rgba(251, 191, 36, 0.6);
-}
-
-.text-ink-bold {
+.ancient-input {
+  background: rgba(255, 255, 255, 0.5);
+  /* Semi-transparent on paper */
+  border: 1px solid #a8a29e;
   color: #2b1d12;
-  font-weight: 700;
+  font-family: 'Cormorant Garamond', serif;
+  font-weight: 600;
+  padding: 0.5rem;
+  border-radius: 2px;
 }
 
-/* Scrollbar: Hidden mechanism */
+.ancient-input::placeholder {
+  color: #78716c;
+}
+
+.ancient-input:focus {
+  background: rgba(255, 255, 255, 0.8);
+  border-color: #78350f;
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(120, 53, 15, 0.1);
+}
+
+/* 6. Utility: Glows and Highlights */
+.text-glow-gold {
+  text-shadow: 0 0 10px rgba(251, 191, 36, 0.6);
+}
+
+.text-glow-fire {
+  text-shadow: 0 0 10px rgba(239, 68, 68, 0.6);
+}
+
+.border-gold-glow {
+  border-color: #fbbf24;
+  box-shadow: 0 0 15px rgba(251, 191, 36, 0.3);
+}
+
+/* Scrollbar */
 ::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
-  background-color: #1c1917;
+  width: 10px;
+  height: 10px;
+  background-color: #0c0a09;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: linear-gradient(to bottom, #451a03, #292524);
-  border: 1px solid #57534e;
-  border-radius: 4px;
+  background: #451a03;
+  border: 1px solid #292524;
+  border-radius: 5px;
 }
 
 ::-webkit-scrollbar-thumb:hover {

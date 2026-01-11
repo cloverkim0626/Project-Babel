@@ -313,27 +313,27 @@ export const AdminOverview: React.FC = () => {
 
 const AncientStatCard = ({ icon, label, value, sub, isGold }: { icon: React.ReactNode, label: string, value: number, sub: string, isGold?: boolean }) => (
     <div className={clsx(
-        "ancient-card p-6 transition-all duration-300 group cursor-pointer hover:-translate-y-1 hover:shadow-[0_10px_30px_rgba(0,0,0,0.5)]",
-        isGold ? "border-opacity-100 ring-1 ring-[#fbbf24]" : "border-opacity-80"
+        "ancient-card p-6 transition-all duration-300 group cursor-pointer hover:-translate-y-1",
+        isGold ? "border-opacity-100 ring-1 ring-[#fbbf24] bg-[#fffbeb]" : "bg-[#f5ebe0]"
     )}>
-        {/* Glow Effect */}
-        <div className="absolute -right-12 -top-12 w-24 h-24 bg-white/5 rounded-full blur-2xl group-hover:bg-[#fbbf24]/10 transition-colors" />
+        {/* Glow Effect only for Gold */}
+        {isGold && <div className="absolute -right-8 -top-8 w-16 h-16 bg-[#fbbf24]/20 rounded-full blur-xl group-hover:bg-[#fbbf24]/30 transition-colors" />}
 
         <div className="flex items-start justify-between relative z-10">
             <div>
-                <div className={clsx("mb-2 font-serif text-xs uppercase tracking-[0.2em]", isGold ? "text-[#fbbf24]" : "text-[#a8a29e]")}>
+                <div className={clsx("mb-2 font-serif text-xs uppercase tracking-[0.2em]", isGold ? "text-[#b45309]" : "text-[#78716c]")}>
                     {label}
                 </div>
-                <div className={clsx("text-3xl font-serif font-bold text-glow-gold", isGold ? "text-[#fffbeb]" : "text-[#eaddcf]")}>
+                <div className={clsx("text-3xl font-serif font-black", isGold ? "text-[#b45309]" : "text-[#451a03]")}>
                     {value.toLocaleString()}
                 </div>
-                <div className={clsx("mt-1 text-xs italic", isGold ? "text-[#fde68a]" : "text-[#a8a29e]")}>
+                <div className={clsx("mt-1 text-xs italic", isGold ? "text-[#d97706]" : "text-[#a8a29e]")}>
                     {sub}
                 </div>
             </div>
             <div className={clsx(
-                "p-3 rounded border ancient-panel shadow-inner",
-                isGold ? "border-[#fbbf24] text-[#fbbf24]" : "border-[#44403c] text-[#a8a29e]"
+                "p-3 rounded border shadow-inner bg-white/50",
+                isGold ? "border-[#fbbf24] text-[#b45309]" : "border-[#d6c4a6] text-[#78716c]"
             )}>
                 {icon}
             </div>

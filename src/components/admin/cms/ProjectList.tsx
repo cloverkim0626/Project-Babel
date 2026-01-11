@@ -39,23 +39,26 @@ export const ProjectList = ({ onCreate: _legacyOnCreate }: { onCreate: () => voi
         setLoading(false);
     };
 
-    const handleCreateProject = async (name: string, displayName: string, themeColor: string, metadata: any) => {
+    const handleCreateProject = async (name: string, displayName: string, themeColor: string, _metadata: any) => {
+        console.log('[ProjectList] handleCreateProject called:', { name, displayName, themeColor });
         try {
-            // Ensure metadata is a valid object before insert
+            // Note: metadata column doesn't exist in continents table per schema.sql
             const { data, error } = await supabase.from('continents').insert({
                 name,
                 display_name: displayName,
-                theme_color: themeColor,
-                metadata: metadata // New Column
+                theme_color: themeColor
             }).select().single();
+
+            console.log('[ProjectList] Supabase response:', { data, error });
 
             if (error) {
                 // Ignore AbortErrors - harmless navigation cancellations
                 if (error.message?.includes('abort')) return;
+                console.error('[ProjectList] Insert error:', error);
                 alert("생성 실패: " + error.message);
-            } else {
+            } else if (data) {
+                console.log('[ProjectList] Project created successfully:', data);
                 // Success: Switch to this project immediately
-                // Tag it as 'isNew' to trigger initialView='add' downstream
                 const newProject = { ...data, isNew: true };
                 setContinents(prev => [newProject, ...prev]); // Optimistic update
                 setSelectedContinent(newProject);
@@ -64,6 +67,7 @@ export const ProjectList = ({ onCreate: _legacyOnCreate }: { onCreate: () => voi
         } catch (e: any) {
             // Catch fetch-level AbortErrors
             if (e?.message?.includes('abort') || e?.name === 'AbortError') return;
+            console.error('[ProjectList] Caught exception:', e);
             alert("생성 실패: " + e.message);
         }
     };

@@ -25,6 +25,8 @@ interface DashboardStats {
 interface WeeklyAssignment {
     studentId: string;
     studentName: string;
+    incompleteCount: number; // 미완과제 누적
+    pastDueCount: number; // 지연된 과제 수
     assignments: {
         projectName: string;
         status: 'completed' | 'in_progress' | 'not_started' | 'overdue';
@@ -44,6 +46,8 @@ const MOCK_WEEKLY_DATA: WeeklyAssignment[] = [
     {
         studentId: 's1',
         studentName: '김민준',
+        incompleteCount: 2,
+        pastDueCount: 0,
         assignments: [
             { projectName: '9월 모의고사 A', status: 'completed', progress: 100, dueDate: '1/13' },
             { projectName: 'Voca Day 1-5', status: 'in_progress', progress: 60, dueDate: '1/15' },
@@ -52,6 +56,8 @@ const MOCK_WEEKLY_DATA: WeeklyAssignment[] = [
     {
         studentId: 's2',
         studentName: '이서연',
+        incompleteCount: 5,
+        pastDueCount: 1,
         assignments: [
             { projectName: '9월 모의고사 A', status: 'in_progress', progress: 40, dueDate: '1/13' },
             { projectName: 'Voca Day 1-5', status: 'not_started', progress: 0, dueDate: '1/15' },
@@ -60,6 +66,8 @@ const MOCK_WEEKLY_DATA: WeeklyAssignment[] = [
     {
         studentId: 's3',
         studentName: '박지훈',
+        incompleteCount: 8,
+        pastDueCount: 3,
         assignments: [
             { projectName: '9월 모의고사 A', status: 'overdue', progress: 20, dueDate: '1/13' },
             { projectName: 'Voca Day 1-5', status: 'not_started', progress: 0, dueDate: '1/15' },
@@ -68,12 +76,15 @@ const MOCK_WEEKLY_DATA: WeeklyAssignment[] = [
     {
         studentId: 's4',
         studentName: '최예은',
+        incompleteCount: 0,
+        pastDueCount: 0,
         assignments: [
             { projectName: '9월 모의고사 A', status: 'completed', progress: 100, dueDate: '1/13' },
             { projectName: 'Voca Day 1-5', status: 'completed', progress: 100, dueDate: '1/15' },
         ]
     },
 ];
+
 
 
 // Status badge component
@@ -173,8 +184,9 @@ export const AdminOverview: React.FC = () => {
                     <table className="w-full">
                         <thead>
                             <tr className="border-b border-white/10 bg-black/20">
-                                <th className="text-left p-4 text-[10px] text-stone-500 uppercase tracking-widest font-normal w-40">학생</th>
-                                <th className="text-left p-4 text-[10px] text-stone-500 uppercase tracking-widest font-normal">이번주 과제 현황</th>
+                                <th className="text-left p-4 text-[10px] text-stone-500 uppercase tracking-widest font-normal w-36">학생</th>
+                                <th className="text-center p-4 text-[10px] text-stone-500 uppercase tracking-widest font-normal w-20">미완누적</th>
+                                <th className="text-left p-4 text-[10px] text-stone-500 uppercase tracking-widest font-normal">이번주 과제</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -188,14 +200,29 @@ export const AdminOverview: React.FC = () => {
                                             <span className="text-sm text-white font-medium">{student.studentName}</span>
                                         </div>
                                     </td>
+                                    <td className="p-4 text-center">
+                                        {student.incompleteCount > 0 ? (
+                                            <div className={clsx(
+                                                "inline-flex items-center gap-1 px-2 py-1 rounded text-xs font-bold",
+                                                student.pastDueCount > 0
+                                                    ? "bg-red-900/40 text-red-400 border border-red-500/30"
+                                                    : "bg-amber-900/40 text-amber-400 border border-amber-500/30"
+                                            )}>
+                                                <AlertTriangle size={10} />
+                                                {student.incompleteCount}
+                                            </div>
+                                        ) : (
+                                            <span className="text-emerald-400 text-xs font-bold">✓</span>
+                                        )}
+                                    </td>
                                     <td className="p-4">
-                                        <div className="flex flex-wrap gap-3">
+                                        <div className="flex flex-wrap gap-2">
                                             {student.assignments.map((assignment, idx) => (
                                                 <div
                                                     key={idx}
-                                                    className="flex items-center gap-2 bg-black/30 rounded-lg px-3 py-2 border border-white/10"
+                                                    className="flex items-center gap-1.5 bg-black/30 rounded px-2 py-1 border border-white/10"
                                                 >
-                                                    <span className="text-xs text-stone-400 font-medium">{assignment.projectName}:</span>
+                                                    <span className="text-[10px] text-stone-500">{assignment.projectName}:</span>
                                                     <StatusBadge status={assignment.status} progress={assignment.progress} />
                                                 </div>
                                             ))}

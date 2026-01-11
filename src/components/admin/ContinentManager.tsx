@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { supabase } from '../../lib/supabase';
+
 import { extractWordsFromText, type RichWord } from '../../services/ai/extractionService';
 import { ArrowLeft, Save, Plus, Brain, CheckSquare, Trash2, Layers, Check, Edit2, X, RefreshCw } from 'lucide-react';
 import { MissionDistributor } from './MissionDistributor';
@@ -261,6 +261,71 @@ export const ContinentManager: React.FC<ContinentManagerProps> = ({ continent, i
         }
     };
 
+    const handleBulkDelete = async (idsToDelete: string[]) => {
+        if (!idsToDelete || idsToDelete.length === 0) return;
+
+        // Nuclear Auth Logic
+        const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
+        const supabaseKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
+        let token = '';
+
+        try {
+            let projectId = '';
+            try { projectId = supabaseUrl.split('//')[1].split('.')[0]; } catch (e) { }
+
+            const key = `sb-${projectId}-auth-token`;
+            const sessionStr = localStorage.getItem(key) ||
+                localStorage.getItem(Object.keys(localStorage).find(k => k.startsWith('sb-') && k.endsWith('-auth-token')) || '');
+
+            if (!sessionStr) throw new Error("No Auth Token Found");
+            token = JSON.parse(sessionStr).access_token;
+        } catch (e) {
+            alert("인증 오류: 삭제 권한이 없습니다.");
+            return;
+        }
+
+        const headers = {
+            'apikey': supabaseKey,
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+        };
+
+        try {
+            // Bulk Delete Passages
+            // Use filter=id.in.(id1,id2,...)
+            const idString = idsToDelete.join(',');
+            const response = await fetch(`${supabaseUrl}/rest/v1/passages?id=in.(${idString})`, {
+                method: 'DELETE',
+                headers: headers
+            });
+
+            if (!response.ok) throw new Error(await response.text());
+
+            // Update UI
+            setPassages(prev => prev.filter(p => !idsToDelete.includes(p.id)));
+            setSelectedIds([]);
+
+            // Auto-Delete Project if Empty
+            // Check remaining count
+            const remainingCount = passages.length - idsToDelete.length;
+            if (remainingCount <= 0) {
+                if (confirm("모든 지문이 삭제되었습니다. 빈 프로젝트 폴더도 함께 삭제하시겠습니까?")) {
+                    await fetch(`${supabaseUrl}/rest/v1/continents?id=eq.${continent.id}`, {
+                        method: 'DELETE',
+                        headers: headers
+                    });
+                    alert("프로젝트가 삭제되었습니다.");
+                    onClose();
+                }
+            } else {
+                alert("삭제 완료");
+            }
+
+        } catch (e: any) {
+            alert("삭제 실패: " + e.message);
+        }
+    };
+
     // --- Render ---
 
     if (isDistributing) {
@@ -286,6 +351,18 @@ export const ContinentManager: React.FC<ContinentManagerProps> = ({ continent, i
                 </div>
 
                 <div className="flex gap-3">
+                    {selectedIds.length > 0 && (
+                        <button
+                            onClick={() => {
+                                if (confirm(`선택한 ${selectedIds.length}개 지문을 삭제하시겠습니까?`)) {
+                                    handleBulkDelete(selectedIds);
+                                }
+                            }}
+                            className="px-4 py-2 bg-red-900/40 text-red-400 border border-red-800 rounded hover:bg-red-800 hover:text-white transition-colors flex items-center gap-2"
+                        >
+                            <Trash2 size={16} /> 선택 삭제 ({selectedIds.length})
+                        </button>
+                    )}
                     <button
                         onClick={() => setIsDistributing(true)}
                         disabled={selectedIds.length === 0}
@@ -369,10 +446,9 @@ export const ContinentManager: React.FC<ContinentManagerProps> = ({ continent, i
                                                         <div className="text-stone-600 text-xs">Unanalyzed</div>
                                                     )}
 
-                                                    <button onClick={async () => {
+                                                    <button onClick={() => {
                                                         if (confirm("정말 삭제하시겠습니까?")) {
-                                                            await supabase.from('passages').delete().eq('id', p.id);
-                                                            fetchPassages();
+                                                            handleBulkDelete([p.id]);
                                                         }
                                                     }} className="text-stone-600 hover:text-red-500 transition-colors">
                                                         <Trash2 size={16} />

@@ -89,6 +89,49 @@ export const ProjectList = ({ onCreate: _legacyOnCreate }: { onCreate: () => voi
         }
     };
 
+    const [selectedIds, setSelectedIds] = useState<string[]>([]);
+
+    const handleBulkDelete = async () => {
+        if (!selectedIds.length) return;
+        if (!confirm(`선택한 ${selectedIds.length}개 프로젝트를 정말 삭제하시겠습니까? 복구할 수 없습니다.`)) return;
+
+        try {
+            // Nuclear Auth Logic for Deletion
+            const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
+            const supabaseKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
+
+            let projectId = '';
+            try { projectId = supabaseUrl.split('//')[1].split('.')[0]; } catch (e) { }
+
+            const key = `sb-${projectId}-auth-token`;
+            const sessionStr = localStorage.getItem(key) ||
+                localStorage.getItem(Object.keys(localStorage).find(k => k.startsWith('sb-') && k.endsWith('-auth-token')) || '');
+
+            if (!sessionStr) throw new Error("No Auth Token Found");
+            const token = JSON.parse(sessionStr).access_token;
+
+            const headers = {
+                'apikey': supabaseKey,
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json'
+            };
+
+            const idString = selectedIds.join(',');
+            const response = await fetch(`${supabaseUrl}/rest/v1/continents?id=in.(${idString})`, {
+                method: 'DELETE',
+                headers
+            });
+
+            if (!response.ok) throw new Error(await response.text());
+
+            alert("삭제 완료");
+            setSelectedIds([]);
+            fetchContinents();
+        } catch (e: any) {
+            alert("삭제 실패: " + e.message);
+        }
+    };
+
     if (loading) return <div className="p-8 text-babel-gold animate-pulse text-center font-serif">Loading Archives...</div>;
 
     return (
@@ -118,6 +161,23 @@ export const ProjectList = ({ onCreate: _legacyOnCreate }: { onCreate: () => voi
                     <p className="text-stone-500 text-sm">관리할 프로젝트 폴더를 선택하거나 새로 생성하십시오.</p>
                 </div>
                 <div className="flex gap-2">
+                    {selectedIds.length > 0 && (
+                        <button
+                            onClick={handleBulkDelete}
+                            className="bg-red-900/50 hover:bg-red-900 text-red-200 border border-red-800 px-4 py-2 rounded font-bold flex items-center gap-2 transition-colors"
+                        >
+                            <MoreVertical size={18} /> 삭제 ({selectedIds.length})
+                        </button>
+                    )}
+                    <button
+                        onClick={() => {
+                            if (selectedIds.length === continents.length) setSelectedIds([]);
+                            else setSelectedIds(continents.map(c => c.id));
+                        }}
+                        className="bg-stone-800 hover:bg-stone-700 text-stone-300 px-4 py-2 rounded font-bold transition-colors border border-white/10"
+                    >
+                        {selectedIds.length === continents.length ? '선택 해제' : '전체 선택'}
+                    </button>
                     <button
                         onClick={() => setShowDistributor(true)}
                         className="bg-stone-800 hover:bg-stone-700 text-white px-4 py-2 rounded font-bold flex items-center gap-2 transition-colors border border-white/10 shadow-[0_4px_20px_rgba(0,0,0,0.5)]"
@@ -148,11 +208,25 @@ export const ProjectList = ({ onCreate: _legacyOnCreate }: { onCreate: () => voi
                 {continents.map((cont) => (
                     <div
                         key={cont.id}
-                        onClick={() => setSelectedContinent(cont)}
-                        className="bg-black border border-white/10 rounded-xl p-0 hover:border-babel-gold transition-all cursor-pointer group relative hover:shadow-[0_0_30px_rgba(0,0,0,0.8)] overflow-hidden h-64 flex flex-col"
+                        className={`bg-black border rounded-xl p-0 transition-all group relative hover:shadow-[0_0_30px_rgba(0,0,0,0.8)] overflow-hidden h-64 flex flex-col ${selectedIds.includes(cont.id) ? 'border-babel-gold ring-1 ring-babel-gold/50' : 'border-white/10 hover:border-babel-gold'}`}
                     >
+                        <div
+                            className="absolute top-3 left-3 z-10"
+                            onClick={(e) => {
+                                e.stopPropagation();
+                                setSelectedIds(prev => prev.includes(cont.id) ? prev.filter(id => id !== cont.id) : [...prev, cont.id]);
+                            }}
+                        >
+                            <div className={`w-5 h-5 rounded border flex items-center justify-center cursor-pointer ${selectedIds.includes(cont.id) ? 'bg-babel-gold border-babel-gold text-black' : 'bg-black/50 border-white/30 hover:border-white'}`}>
+                                {selectedIds.includes(cont.id) && <Plus size={12} className="rotate-45" />}
+                            </div>
+                        </div>
+
                         {/* Cover Image Area */}
-                        <div className="h-32 bg-stone-900 border-b border-white/5 relative overflow-hidden">
+                        <div
+                            onClick={() => setSelectedContinent(cont)}
+                            className="h-32 bg-stone-900 border-b border-white/5 relative overflow-hidden cursor-pointer"
+                        >
                             {cont.image_url ? (
                                 <img src={cont.image_url} className="w-full h-full object-cover opacity-50 group-hover:opacity-80 transition-opacity" />
                             ) : (
@@ -168,7 +242,10 @@ export const ProjectList = ({ onCreate: _legacyOnCreate }: { onCreate: () => voi
                         </div>
 
                         {/* Info Area */}
-                        <div className="p-5 flex-1 flex flex-col justify-between bg-stone-900/50">
+                        <div
+                            onClick={() => setSelectedContinent(cont)}
+                            className="p-5 flex-1 flex flex-col justify-between bg-stone-900/50 cursor-pointer"
+                        >
                             <div>
                                 <h3 className="text-white font-serif font-bold text-lg mb-1 truncate group-hover:text-babel-gold transition-colors">{cont.display_name}</h3>
                                 <p className="text-xs text-stone-500 font-mono truncate">{cont.name}</p>

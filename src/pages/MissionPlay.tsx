@@ -1,13 +1,13 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, Wind, Droplets, Zap, AlertTriangle } from 'lucide-react';
+import { ArrowLeft, Wind, Droplets, AlertTriangle } from 'lucide-react';
 import { clsx } from 'clsx';
 import { useGameEngine } from '../hooks/useGameEngine';
 
 const MissionPlay = () => {
     const navigate = useNavigate();
     // Use game engine hooks if available, or local state for this "Test Page"
-    const { levelSpecs } = useGameEngine();
+    // const { levelSpecs } = useGameEngine();
 
     // Simulation State
     const [oxygen, setOxygen] = useState(100);

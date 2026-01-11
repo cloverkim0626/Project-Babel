@@ -144,6 +144,37 @@ export const ContinentManager: React.FC<ContinentManagerProps> = ({ continent, i
         const valid = newPassages.filter(p => p.content.trim().length > 0);
         if (valid.length === 0) return alert("저장할 지문이 없습니다.");
 
+        // Nuclear Auth Logic - Copied for stability
+        const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
+        const supabaseKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
+        let token = '';
+
+        try {
+            // 1. Extract Project ID
+            let projectId = '';
+            try {
+                projectId = supabaseUrl.split('//')[1].split('.')[0];
+            } catch (e) { console.error("URL Parse Error", e); }
+
+            // 2. Get Token
+            const key = `sb-${projectId}-auth-token`;
+            const sessionStr = localStorage.getItem(key) ||
+                localStorage.getItem(Object.keys(localStorage).find(k => k.startsWith('sb-') && k.endsWith('-auth-token')) || '');
+
+            if (!sessionStr) throw new Error("No Auth Token Found");
+            token = JSON.parse(sessionStr).access_token;
+        } catch (e) {
+            alert("인증 오류: 저장하기 전에 다시 로그인해주세요.");
+            return;
+        }
+
+        const headers = {
+            'apikey': supabaseKey,
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json',
+            'Prefer': 'return=representation'
+        };
+
         // Separate Inserts and Updates
         const toInsert = [];
         const toUpdate = [];
@@ -166,13 +197,21 @@ export const ContinentManager: React.FC<ContinentManagerProps> = ({ continent, i
 
         try {
             if (toInsert.length > 0) {
-                const { error } = await supabase.from('passages').insert(toInsert);
-                if (error) throw error;
+                const response = await fetch(`${supabaseUrl}/rest/v1/passages`, {
+                    method: 'POST',
+                    headers,
+                    body: JSON.stringify(toInsert)
+                });
+                if (!response.ok) throw new Error(await response.text());
             }
             if (toUpdate.length > 0) {
                 for (const item of toUpdate) {
-                    const { error } = await supabase.from('passages').update(item).eq('id', item.id);
-                    if (error) throw error;
+                    const response = await fetch(`${supabaseUrl}/rest/v1/passages?id=eq.${item.id}`, {
+                        method: 'PATCH',
+                        headers,
+                        body: JSON.stringify(item)
+                    });
+                    if (!response.ok) throw new Error(await response.text());
                 }
             }
 
@@ -181,8 +220,9 @@ export const ContinentManager: React.FC<ContinentManagerProps> = ({ continent, i
             setNewPassages([{ id: 'new-1', title: '1', content: '' }]);
             setAnalyzedData({});
             setView('list');
-            fetchPassages();
+            fetchPassages(); // This might still fail if it uses client, but saving is critical
         } catch (e: any) {
+            console.error(e);
             alert("저장 실패: " + e.message);
         }
     };

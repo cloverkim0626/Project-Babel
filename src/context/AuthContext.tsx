@@ -21,40 +21,75 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-// Create fallback user from session
-const createFallbackUser = (sessionUser: { id: string; email?: string | null }): UserProfile => ({
-    id: sessionUser.id,
-    nickname: sessionUser.email?.split('@')[0] || 'User',
-    classType: 'Challenger',
-    role: 'master', // Default to master during emergency fix
-    level: 1,
-    xp: 0,
-    points: 0
-});
-
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
     const [user, setUser] = useState<UserProfile | null>(null);
     const [loading, setLoading] = useState(true);
     const mountedRef = useRef(true);
     const initCompletedRef = useRef(false);
 
+    // Fetch profile from DB - returns null if failed
+    const fetchProfile = async (userId: string, email?: string | null): Promise<UserProfile | null> => {
+        try {
+            const { data: profile, error } = await supabase
+                .from('users')
+                .select('*')
+                .eq('id', userId)
+                .single();
+
+            if (error || !profile) {
+                console.log('[Auth] Profile fetch failed:', error?.message);
+                return null;
+            }
+
+            console.log('[Auth] Profile loaded:', profile.role);
+            return {
+                id: profile.id,
+                nickname: profile.nickname || email?.split('@')[0] || 'User',
+                classType: profile.class_type || 'Challenger',
+                role: profile.role || 'student', // Default to student for safety
+                level: profile.level || 1,
+                xp: profile.xp || 0,
+                points: profile.points || 0
+            };
+        } catch (err) {
+            console.log('[Auth] Profile fetch exception:', err);
+            return null;
+        }
+    };
+
+    // Create fallback user when DB fails
+    const createFallbackUser = (sessionUser: { id: string; email?: string | null }, isAdmin: boolean): UserProfile => ({
+        id: sessionUser.id,
+        nickname: sessionUser.email?.split('@')[0] || 'User',
+        classType: 'Challenger',
+        role: isAdmin ? 'master' : 'student', // Only admin emails get master
+        level: 1,
+        xp: 0,
+        points: 0
+    });
+
+    // Check if email is admin (emergency access)
+    const isAdminEmail = (email: string | null | undefined): boolean => {
+        if (!email) return false;
+        return email.includes('emergency@') || email.includes('admin@') || email.includes('master@');
+    };
+
     useEffect(() => {
         mountedRef.current = true;
 
         const initAuth = async () => {
-            // Prevent double initialization
             if (initCompletedRef.current) return;
             initCompletedRef.current = true;
 
             console.log('[Auth] Starting initialization...');
 
-            // Safety timeout - force unlock after 5 seconds
+            // Safety timeout - force unlock after 4 seconds
             const timeoutId = setTimeout(() => {
                 if (mountedRef.current && loading) {
                     console.warn('[Auth] Timeout! Force unlocking UI');
                     setLoading(false);
                 }
-            }, 5000);
+            }, 4000);
 
             try {
                 const { data: { session }, error } = await supabase.auth.getSession();
@@ -75,38 +110,21 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
                 console.log('[Auth] Session found for:', session.user.email);
 
-                // CRITICAL: Set fallback user IMMEDIATELY and unlock UI
-                const fallbackUser = createFallbackUser(session.user);
+                // TRY to fetch profile FIRST (this determines role accurately)
+                const profile = await fetchProfile(session.user.id, session.user.email);
+
                 if (mountedRef.current) {
-                    setUser(fallbackUser);
-                    setLoading(false); // UI unlocked NOW
+                    if (profile) {
+                        // Use DB profile (has accurate role)
+                        setUser(profile);
+                    } else {
+                        // Fallback based on email pattern
+                        const fallback = createFallbackUser(session.user, isAdminEmail(session.user.email));
+                        setUser(fallback);
+                    }
+                    setLoading(false);
                 }
                 clearTimeout(timeoutId);
-
-                // Background profile fetch (optional upgrade, no blocking)
-                try {
-                    const { data: profile } = await supabase
-                        .from('users')
-                        .select('*')
-                        .eq('id', session.user.id)
-                        .single();
-
-                    if (profile && mountedRef.current) {
-                        console.log('[Auth] Profile upgraded:', profile.role);
-                        setUser({
-                            id: profile.id,
-                            nickname: profile.nickname || fallbackUser.nickname,
-                            classType: profile.class_type || 'Challenger',
-                            role: profile.role || 'master',
-                            level: profile.level || 1,
-                            xp: profile.xp || 0,
-                            points: profile.points || 0
-                        });
-                    }
-                } catch (profileErr) {
-                    console.log('[Auth] Profile fetch failed (using fallback):', profileErr);
-                    // Keep using fallback - no problem
-                }
 
             } catch (err) {
                 console.error('[Auth] Critical error:', err);
@@ -123,33 +141,21 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
             console.log('[Auth] State change:', event);
 
-            if (event === 'INITIAL_SESSION') {
-                // Already handled by initAuth
-                return;
-            }
+            if (event === 'INITIAL_SESSION') return;
 
             if (event === 'SIGNED_IN' && session?.user) {
-                const fallbackUser = createFallbackUser(session.user);
-                setUser(fallbackUser);
-                setLoading(false);
+                setLoading(true);
 
-                // Background profile upgrade
-                const { data: profile } = await supabase
-                    .from('users')
-                    .select('*')
-                    .eq('id', session.user.id)
-                    .single();
+                // Fetch profile to get accurate role
+                const profile = await fetchProfile(session.user.id, session.user.email);
 
-                if (profile && mountedRef.current) {
-                    setUser({
-                        id: profile.id,
-                        nickname: profile.nickname || fallbackUser.nickname,
-                        classType: profile.class_type || 'Challenger',
-                        role: profile.role || 'master',
-                        level: profile.level || 1,
-                        xp: profile.xp || 0,
-                        points: profile.points || 0
-                    });
+                if (mountedRef.current) {
+                    if (profile) {
+                        setUser(profile);
+                    } else {
+                        setUser(createFallbackUser(session.user, isAdminEmail(session.user.email)));
+                    }
+                    setLoading(false);
                 }
             } else if (event === 'SIGNED_OUT') {
                 setUser(null);

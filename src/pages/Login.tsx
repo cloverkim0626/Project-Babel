@@ -104,7 +104,7 @@ export default function Login() {
     const handleEmergencyLogin = async () => {
         setLoading(true);
         setError(null);
-        const emergencyEmail = 'emergency@babel.com';
+        const emergencyEmail = 'emergency_v2@babel.com';
         const emergencyPassword = 'babel_emergency'; // Simple password for dev
 
         try {

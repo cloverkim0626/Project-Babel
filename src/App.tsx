@@ -11,6 +11,7 @@ const QuestProgressView = React.lazy(() => import('./pages/QuestProgressView'));
 const MissionPlay = React.lazy(() => import('./pages/MissionPlay'));
 const MissionSelect = React.lazy(() => import('./pages/MissionSelect'));
 const TeacherDashboard = React.lazy(() => import('./pages/TeacherDashboard'));
+const CreateProjectPage = React.lazy(() => import('./pages/CreateProjectPage'));
 
 function App() {
   return (
@@ -53,6 +54,11 @@ function App() {
             <Route path="/admin" element={
               <RoleGuard allowedRoles={['master', 'admin']}>
                 <TeacherDashboard />
+              </RoleGuard>
+            } />
+            <Route path="/admin/create-project" element={
+              <RoleGuard allowedRoles={['master', 'admin']}>
+                <CreateProjectPage />
               </RoleGuard>
             } />
 

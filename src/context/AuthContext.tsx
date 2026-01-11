@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useEffect, useState } from 'react';
+import React, { createContext, useContext, useEffect, useState, useRef } from 'react';
 import { supabase } from '../lib/supabase';
 
 export interface UserProfile {
@@ -21,104 +21,136 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
+// Create fallback user from session
+const createFallbackUser = (sessionUser: { id: string; email?: string | null }): UserProfile => ({
+    id: sessionUser.id,
+    nickname: sessionUser.email?.split('@')[0] || 'User',
+    classType: 'Challenger',
+    role: 'master', // Default to master during emergency fix
+    level: 1,
+    xp: 0,
+    points: 0
+});
+
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
     const [user, setUser] = useState<UserProfile | null>(null);
     const [loading, setLoading] = useState(true);
-
-    // Helper to set fallback user from session
-    const setFallbackUser = (sessionUser: any) => {
-        if (!sessionUser) return;
-        setUser({
-            id: sessionUser.id,
-            nickname: sessionUser.email?.split('@')[0] || 'Unknown',
-            classType: 'Challenger',
-            role: 'master', // FORCE MASTER for safety during debug
-            level: 1,
-            xp: 0,
-            points: 0
-        });
-    };
-
-    const fetchProfile = async (userId: string) => {
-        try {
-            const { data, error } = await supabase
-                .from('users')
-                .select('*')
-                .eq('id', userId)
-                .single();
-
-            if (error || !data) {
-                const session = (await supabase.auth.getSession()).data.session;
-                setFallbackUser(session?.user);
-            } else {
-                setUser({
-                    id: data.id,
-                    nickname: data.nickname || 'Unknown',
-                    classType: data.class_type || 'Challenger',
-                    role: data.role || 'student',
-                    level: data.level || 1,
-                    xp: data.xp || 0,
-                    points: data.points || 0
-                });
-            }
-        } catch (err: any) {
-            // Ignore AbortErrors
-            if (err?.message?.includes('abort') || err?.name === 'AbortError') return;
-            console.error("AuthContext Exception:", err);
-            const session = (await supabase.auth.getSession()).data.session;
-            setFallbackUser(session?.user);
-        } finally {
-            setLoading(false);
-        }
-    };
+    const mountedRef = useRef(true);
+    const initCompletedRef = useRef(false);
 
     useEffect(() => {
-        let mounted = true;
+        mountedRef.current = true;
 
         const initAuth = async () => {
-            console.log('[AuthContext] initAuth running...');
+            // Prevent double initialization
+            if (initCompletedRef.current) return;
+            initCompletedRef.current = true;
+
+            console.log('[Auth] Starting initialization...');
+
+            // Safety timeout - force unlock after 5 seconds
+            const timeoutId = setTimeout(() => {
+                if (mountedRef.current && loading) {
+                    console.warn('[Auth] Timeout! Force unlocking UI');
+                    setLoading(false);
+                }
+            }, 5000);
 
             try {
                 const { data: { session }, error } = await supabase.auth.getSession();
-                console.log('[AuthContext] Session check:', session ? 'EXISTS' : 'NONE', error);
 
-                if (error) throw error;
-
-                if (session?.user && mounted) {
-                    console.log('[AuthContext] Setting fallback user:', session.user.email);
-                    setFallbackUser(session.user); // Immediate access with master role
-                    setLoading(false); // Unlock UI immediately
-                    // Background fetch for full profile (optional upgrade)
-                    fetchProfile(session.user.id);
-                } else if (mounted) {
-                    console.log('[AuthContext] No session, setting loading=false');
-                    setLoading(false);
-                }
-            } catch (e: any) {
-                // Ignore AbortErrors - these happen during navigation and are harmless
-                if (e?.message?.includes('abort') || e?.name === 'AbortError') {
-                    console.log('[AuthContext] Request aborted (navigation)');
-                    // STILL unlock UI even on abort!
-                    if (mounted) setLoading(false);
+                if (error) {
+                    console.error('[Auth] Session error:', error.message);
+                    if (mountedRef.current) setLoading(false);
+                    clearTimeout(timeoutId);
                     return;
                 }
-                console.error("[AuthContext] Init Error:", e);
-                if (mounted) setLoading(false);
+
+                if (!session?.user) {
+                    console.log('[Auth] No session found');
+                    if (mountedRef.current) setLoading(false);
+                    clearTimeout(timeoutId);
+                    return;
+                }
+
+                console.log('[Auth] Session found for:', session.user.email);
+
+                // CRITICAL: Set fallback user IMMEDIATELY and unlock UI
+                const fallbackUser = createFallbackUser(session.user);
+                if (mountedRef.current) {
+                    setUser(fallbackUser);
+                    setLoading(false); // UI unlocked NOW
+                }
+                clearTimeout(timeoutId);
+
+                // Background profile fetch (optional upgrade, no blocking)
+                try {
+                    const { data: profile } = await supabase
+                        .from('users')
+                        .select('*')
+                        .eq('id', session.user.id)
+                        .single();
+
+                    if (profile && mountedRef.current) {
+                        console.log('[Auth] Profile upgraded:', profile.role);
+                        setUser({
+                            id: profile.id,
+                            nickname: profile.nickname || fallbackUser.nickname,
+                            classType: profile.class_type || 'Challenger',
+                            role: profile.role || 'master',
+                            level: profile.level || 1,
+                            xp: profile.xp || 0,
+                            points: profile.points || 0
+                        });
+                    }
+                } catch (profileErr) {
+                    console.log('[Auth] Profile fetch failed (using fallback):', profileErr);
+                    // Keep using fallback - no problem
+                }
+
+            } catch (err) {
+                console.error('[Auth] Critical error:', err);
+                if (mountedRef.current) setLoading(false);
+                clearTimeout(timeoutId);
             }
         };
 
         initAuth();
 
+        // Auth state change listener
         const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
-            if (!mounted) return;
+            if (!mountedRef.current) return;
 
-            // Skip INITIAL_SESSION - already handled by initAuth
-            if (event === 'INITIAL_SESSION') return;
+            console.log('[Auth] State change:', event);
 
-            if (event === 'SIGNED_IN' && session) {
-                setLoading(true);
-                setFallbackUser(session.user);
-                await fetchProfile(session.user.id);
+            if (event === 'INITIAL_SESSION') {
+                // Already handled by initAuth
+                return;
+            }
+
+            if (event === 'SIGNED_IN' && session?.user) {
+                const fallbackUser = createFallbackUser(session.user);
+                setUser(fallbackUser);
+                setLoading(false);
+
+                // Background profile upgrade
+                const { data: profile } = await supabase
+                    .from('users')
+                    .select('*')
+                    .eq('id', session.user.id)
+                    .single();
+
+                if (profile && mountedRef.current) {
+                    setUser({
+                        id: profile.id,
+                        nickname: profile.nickname || fallbackUser.nickname,
+                        classType: profile.class_type || 'Challenger',
+                        role: profile.role || 'master',
+                        level: profile.level || 1,
+                        xp: profile.xp || 0,
+                        points: profile.points || 0
+                    });
+                }
             } else if (event === 'SIGNED_OUT') {
                 setUser(null);
                 setLoading(false);
@@ -126,14 +158,13 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         });
 
         return () => {
-            mounted = false;
+            mountedRef.current = false;
             subscription.unsubscribe();
         };
     }, []);
 
     const signOut = async () => {
         await supabase.auth.signOut();
-        // State update handled by listener
     };
 
     return (

@@ -41,8 +41,7 @@ export const CreateProjectModal: React.FC<CreateProjectModalProps> = ({ onClose,
         return folderName;
     };
 
-    const handleSubmit = async (e: React.FormEvent) => {
-        e.preventDefault();
+    const handleSubmit = async () => {
         console.log('[CreateProjectModal] Submit triggered, folderName:', folderName);
 
         if (!folderName.trim()) {
@@ -244,8 +243,9 @@ export const CreateProjectModal: React.FC<CreateProjectModalProps> = ({ onClose,
                             취소
                         </button>
                         <button
-                            type="submit"
-                            disabled={!folderName || loading}
+                            type="button"
+                            disabled={!folderName.trim() || loading}
+                            onClick={handleSubmit}
                             className="px-6 py-2 bg-babel-gold text-black font-bold rounded-lg hover:bg-yellow-500 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 transition-all shadow-[0_0_10px_rgba(212,175,55,0.2)]"
                         >
                             {loading ? <Loader2 size={16} className="animate-spin" /> : <Check size={16} />}

@@ -1,7 +1,9 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { supabase } from '../../lib/supabase';
-import { Users, Target, Check, BarChart2, BookOpen, ChevronRight, ChevronDown, Sparkles, Trash2, Globe, AlertCircle, Scroll, Crown } from 'lucide-react';
+import { Users, Target, Check, BarChart2, BookOpen, ChevronRight, ChevronDown, Sparkles, Trash2, Globe, AlertCircle, Scroll, Crown, Loader2 } from 'lucide-react';
 import type { RichWord } from '../../services/ai/extractionService';
+import { generateProblem, type GeneratedProblem } from '../../ai/ProblemGenerator';
+import type { ProblemType } from '../../ai/PromptTemplates';
 
 // --- Styling & Aesthetic ---
 // Integrating a premium serif font for the "Library of Babel" feel
@@ -54,6 +56,11 @@ export const MissionDistributor: React.FC<MissionDistributorProps> = ({ onClose 
     // --- State: Words Output ---
     const [generatedWords, setGeneratedWords] = useState<DistributionWord[]>([]);
     const [isWordListReady, setIsWordListReady] = useState(false);
+
+    // --- State: AI Generation ---
+    const [genType, setGenType] = useState<ProblemType>('BLANK');
+    const [isGenerating, setIsGenerating] = useState(false);
+    const [aiProblem, setAiProblem] = useState<GeneratedProblem | null>(null);
 
     // --- State: Config ---
     const [durationWeeks, setDurationWeeks] = useState(4);
@@ -200,6 +207,43 @@ export const MissionDistributor: React.FC<MissionDistributorProps> = ({ onClose 
         else setSelectedStudents(mockUsers.map(u => u.id));
     };
 
+    // --- AI Generation Logic ---
+    const handleAIGenerate = async () => {
+        if (selectedPassageIds.size === 0) {
+            alert("Please select a scroll (passage) first.");
+            return;
+        }
+
+        // Pick the first selected passage text (Mocking retrieving text from ID)
+        // In real app, we need the content. Assuming 'title' is text or we fetch it.
+        // For now, let's look up the passage object.
+        let targetPassage: Passage | undefined;
+        for (const pid of Object.keys(passagesMap)) {
+            const found = passagesMap[pid].find(p => p.id === Array.from(selectedPassageIds)[0]);
+            if (found) {
+                targetPassage = found;
+                break;
+            }
+        }
+
+        if (!targetPassage) return;
+
+        setIsGenerating(true);
+        try {
+            // Mock Passage Content (Since we only have title in list usually)
+            // In production, fetch content from DB by ID
+            const mockContent = `History has shown that technology does not always lead to betterment... (Content of ${targetPassage.title})`;
+
+            const result = await generateProblem(mockContent, genType);
+            setAiProblem(result);
+        } catch (e) {
+            console.error(e);
+            alert("AI Generation Failed");
+        } finally {
+            setIsGenerating(false);
+        }
+    };
+
     // --- Distribution Preview ---
     const totalWords = generatedWords.length;
     // If no words extracted, we just assign passages. Sequences might not be calculable yet, or just 1?
@@ -226,7 +270,62 @@ export const MissionDistributor: React.FC<MissionDistributorProps> = ({ onClose 
 
     const handleDeploy = async () => {
         if (selectedStudents.length === 0) return;
-        if (selectedPassageIds.size === 0) return; // Must select at least one passage
+
+        // Mode 1: AI Problem Deployment
+        if (aiProblem) {
+            const confirmMsg = `AI가 생성한 '${genType}' 문제를 ${selectedStudents.length}명에게 배포하시겠습니까?\n(Deploy AI Generated Problem)`;
+            if (!confirm(confirmMsg)) return;
+
+            try {
+                // 1. Create Mission for AI Problem
+                const { data: mission, error } = await supabase.from('missions').insert({
+                    title: missionTitle || `AI Generated: ${genType} Problem`,
+                    category: 'ai_problem', // Special category for AI problems
+                    total_sets: 1, // AI problems are usually single-shot or single set for now
+                    data_payload: {
+                        type: 'ai_generated',
+                        problem_type: genType,
+                        content: aiProblem,
+                        source_passage_id: Array.from(selectedPassageIds)[0] || null
+                    },
+                    config: {
+                        duration_weeks: 1,
+                        split_size: 1,
+                        points_award: pointsPerSeq
+                    },
+                    created_by: 'admin' // In real app, use actual user ID
+                }).select().single();
+
+                if (error) throw error;
+
+                // 2. Assign to Students (Single Set)
+                const tasks = selectedStudents.map(uid => ({
+                    user_id: uid,
+                    mission_id: mission.id,
+                    set_index: 1,
+                    week_number: 1,
+                    status: 'open',
+                    score: 0
+                }));
+
+                const { error: assignError } = await supabase.from('quest_sets').insert(tasks);
+                if (assignError) throw assignError;
+
+                alert("AI 문제 배포가 완료되었습니다! (AI Problem Deployed)");
+                onClose();
+
+            } catch (e: any) {
+                console.error(e);
+                alert("배포 실패 (Error): " + e.message);
+            }
+            return;
+        }
+
+        // Mode 2: Standard Passage/Vocab Deployment
+        if (selectedPassageIds.size === 0) {
+            alert("Please select at least one scroll or generate an AI problem.");
+            return;
+        }
 
         const isWordDist = totalWords > 0;
         const deployType = isWordDist ? 'vocabulary_dist' : 'passage_assignment';
@@ -339,7 +438,6 @@ export const MissionDistributor: React.FC<MissionDistributorProps> = ({ onClose 
                                             {expandedProjects.has(proj.id) ? <ChevronDown size={14} className="text-babel-gold" /> : <ChevronRight size={14} className="text-stone-600 group-hover:text-babel-gold transition-colors" />}
                                             <span className={`text-sm font-bold transition-all ${expandedProjects.has(proj.id) ? 'text-babel-gold' : 'text-stone-400 group-hover:text-stone-200'}`}>{proj.display_name}</span>
                                         </div>
-                                        {/* <div className="w-1 h-1 rounded-full bg-babel-gold/50 box-shadow-glow" /> */}
                                     </div>
 
                                     {/* Expanded Passages */}
@@ -387,12 +485,64 @@ export const MissionDistributor: React.FC<MissionDistributorProps> = ({ onClose 
                         {/* Subtle grid background */}
                         <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')] opacity-5 pointer-events-none" />
 
-                        <div className="p-4 border-b border-babel-gold/10 bg-black/20 relative z-10">
+                        <div className="p-4 border-b border-babel-gold/10 bg-black/20 relative z-10 flex justify-between items-center">
                             <h3 className="text-xs font-bold text-babel-gold/70 uppercase flex items-center gap-2 tracking-[0.2em] font-library">
                                 <Target size={12} /> Mission Calibration
                             </h3>
+                            <span className="text-[10px] text-stone-600 font-mono">BETA v0.2</span>
                         </div>
                         <div className="flex-1 min-h-0 overflow-y-auto p-8 space-y-8 relative z-10">
+
+                            {/* [NEW] AI Problem Studio */}
+                            <div className="bg-gradient-to-br from-stone-900 via-stone-900 to-stone-950 border border-babel-gold/20 p-4 rounded-lg relative overflow-hidden group">
+                                <div className="absolute top-0 right-0 p-2 opacity-50">
+                                    <Sparkles className="text-babel-gold animate-pulse-slow" size={16} />
+                                </div>
+                                <h4 className="text-xs font-bold text-babel-gold mb-3 flex items-center gap-2 font-library uppercase tracking-widest">
+                                    AI Problem Studio
+                                </h4>
+
+                                <div className="space-y-3">
+                                    <div>
+                                        <label className="text-[10px] text-stone-500 uppercase tracking-wider mb-1 block">Question Type</label>
+                                        <div className="grid grid-cols-2 gap-2">
+                                            {(['BLANK', 'ORDER', 'VOCAB', 'INSERTION'] as ProblemType[]).map(type => (
+                                                <button
+                                                    key={type}
+                                                    onClick={() => setGenType(type)}
+                                                    className={`text-[10px] py-2 border rounded transition-all ${genType === type ? 'bg-babel-gold text-black border-babel-gold font-bold' : 'bg-transparent text-stone-500 border-white/10 hover:border-white/30'}`}
+                                                >
+                                                    {type}
+                                                </button>
+                                            ))}
+                                        </div>
+                                    </div>
+
+                                    <button
+                                        onClick={handleAIGenerate}
+                                        disabled={isGenerating || selectedPassageIds.size === 0}
+                                        className="w-full bg-stone-800 hover:bg-stone-700 text-stone-200 text-xs py-3 rounded border border-white/5 flex items-center justify-center gap-2 transition-all disabled:opacity-50"
+                                    >
+                                        {isGenerating ? <Loader2 size={14} className="animate-spin" /> : <Sparkles size={14} className="text-purple-400" />}
+                                        {isGenerating ? 'Designing...' : 'Generate Problem'}
+                                    </button>
+
+                                    {aiProblem && (
+                                        <div className="mt-3 p-3 bg-black/40 rounded border border-white/5 text-xs text-stone-300 space-y-2 animate-in slide-in-from-top-2">
+                                            <div className="font-bold text-babel-gold/80">Preview:</div>
+                                            <div>Q: {aiProblem.question}</div>
+                                            {aiProblem.options && (
+                                                <ul className="list-disc list-inside text-stone-500 text-[10px]">
+                                                    {aiProblem.options.map((opt, i) => <li key={i}>{opt}</li>)}
+                                                </ul>
+                                            )}
+                                            <div className="text-[10px] text-green-700/70 border-l-2 border-green-900 pl-2">
+                                                Answer: {aiProblem.answer_index !== undefined ? aiProblem.options?.[aiProblem.answer_index] : aiProblem.answer}
+                                            </div>
+                                        </div>
+                                    )}
+                                </div>
+                            </div>
 
                             {/* Basics */}
                             <div className="space-y-6">

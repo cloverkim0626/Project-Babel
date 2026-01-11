@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
-import { Anchor, Lock, Mail, ArrowRight, AlertCircle, Droplets, Waves } from 'lucide-react';
+import { Anchor, Lock, Mail, AlertCircle, Droplets, Waves } from 'lucide-react';
 
 export default function Login() {
     const navigate = useNavigate();

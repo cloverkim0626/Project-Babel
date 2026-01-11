@@ -22,14 +22,15 @@ export const CursorRipple = () => {
         resizeCanvas();
 
         const spawnRipple = (e: MouseEvent) => {
-            // Create aquatic particles
-            for (let i = 0; i < 2; i++) {
+            // Create subtle aquatic bubbles
+            // Reduced frequency: only 50% chance to spawn on move
+            if (Math.random() > 0.5) {
                 ripplesRef.current.push({
                     x: e.clientX,
                     y: e.clientY,
-                    r: Math.random() * 2 + 1, // Start small
-                    alpha: 0.6,
-                    speed: Math.random() * 0.5 + 0.2
+                    r: Math.random() * 1.5 + 0.5, // Tiny bubbles (0.5px to 2px)
+                    alpha: 0.2, // Very low opacity for subtlety
+                    speed: Math.random() * 0.1 + 0.05 // Very slow expansion
                 });
             }
         };
@@ -43,25 +44,26 @@ export const CursorRipple = () => {
             const ripples = ripplesRef.current;
             for (let i = ripples.length - 1; i >= 0; i--) {
                 const r = ripples[i];
-                r.r += r.speed; // Expand
-                r.alpha -= 0.01; // Fade
+                r.r += r.speed;
+                r.alpha -= 0.002; // Very slow fade
 
-                // Drift effect (simulating water current)
-                r.x += (Math.random() - 0.5) * 0.5;
-                r.y -= 0.5; // Bubbles rise
+                // Gentle drift
+                r.x += (Math.random() - 0.5) * 0.1;
+                r.y -= 0.2; // Rise
 
                 if (r.alpha <= 0) {
                     ripples.splice(i, 1);
                 } else {
                     ctx.beginPath();
                     ctx.arc(r.x, r.y, r.r, 0, Math.PI * 2);
-                    // Gold/Cyan tint
+
+                    // Palette: Deep Sea & Gold
+                    // Mostly Cyan/White, Occasional Gold
                     ctx.fillStyle = `rgba(34, 211, 238, ${r.alpha})`; // Cyan
-                    if (Math.random() > 0.8) {
-                        ctx.fillStyle = `rgba(217, 119, 6, ${r.alpha})`; // Occasional Amber
+                    if (Math.random() > 0.95) {
+                        ctx.fillStyle = `rgba(217, 119, 6, ${r.alpha})`; // Gold
                     }
-                    ctx.shadowBlur = 10;
-                    ctx.shadowColor = "cyan";
+
                     ctx.fill();
                 }
             }

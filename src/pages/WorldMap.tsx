@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { paraphraseTitle } from '../utils/koreanNamer';
-import { Map, Lock, Globe, Compass, Anchor } from 'lucide-react';
+import { Lock, Globe, Compass, Anchor } from 'lucide-react';
 import { clsx } from 'clsx';
 
 interface Continent {

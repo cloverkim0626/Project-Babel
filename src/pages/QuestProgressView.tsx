@@ -1,9 +1,9 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
-import { ArrowLeft, Database, CheckCircle, Zap, Box, Lock } from 'lucide-react';
+import { ArrowLeft, Database, CheckCircle, Box, Lock } from 'lucide-react';
 import { clsx } from 'clsx';
-import { useGameEngine } from '../hooks/useGameEngine';
+// import { useGameEngine } from '../hooks/useGameEngine';
 
 interface QuestSet {
     id: string;
@@ -16,8 +16,7 @@ interface QuestSet {
 export const QuestProgressView: React.FC = () => {
     const { id: missionId } = useParams();
     const navigate = useNavigate();
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const { addXp, addPoints } = useGameEngine();
+    // const { addXp, addPoints } = useGameEngine(); 
 
     const [questSets, setQuestSets] = useState<QuestSet[]>([]);
     const [loading, setLoading] = useState(true);
@@ -40,9 +39,9 @@ export const QuestProgressView: React.FC = () => {
             }));
 
             // In reality, use the Supabase call from before. Re-instating mockup for guaranteed render.
-            // const { data: sets } = await supabase.from('quest_sets')...
+            // const { data: sets } = await supabase.from('quest_sets')
 
-            setQuestSets(sets); // Using mock for now to ensure UI shows up
+            setQuestSets(sets);
             setLoading(false);
         };
 

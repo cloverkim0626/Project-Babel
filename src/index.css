@@ -2,156 +2,130 @@
 @tailwind components;
 @tailwind utilities;
 
-@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&family=Nanum+Myeongjo:wght@400;700;800&family=Montserrat:wght@200;300;400;500;600&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600;700;800;900&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&family=Montserrat:wght@200;300;400;500;600;700&display=swap');
 
 /* 
-  THEME: THE ABYSS (SHAPE OF WATER) - REFINED
-  Philosophy: "Simple but Deeper"
-  Rule: Strict Typographic Hierarchy. No visual noise.
+  THEME: THE SHAPE OF WATER (CINEMATIC)
+  Philosophy: "Astonish" - Grand, deep, legible, gold & teal.
 */
 
 :root {
-  /* Abyss Palette - Deep & Silent */
+  /* Abyss Palette */
   --bg-deep: #020617;
-  /* Slate 950 */
+  /* Abyssal Black */
   --bg-shelf: #0f172a;
-  /* Slate 900 */
+  /* Continental Shelf */
 
   --primary-cyan: #22d3ee;
-  /* Bioluminescence */
   --muted-teal: #14b8a6;
-  /* Deep Water */
-  --text-main: #f1f5f9;
-  /* Moonlight White */
-  --text-muted: #94a3b8;
-  /* Faded Text */
+  --royal-gold: #f59e0b;
+  /* Movie Title Gold */
 
-  /* Spacing Scale */
-  --space-unit: 4px;
+  /* Animation Speeds */
+  --flow-speed: 8s;
 }
 
 @layer base {
   body {
-    @apply bg-[#020617] text-slate-200 antialiased;
+    @apply bg-[#020617] text-slate-100 antialiased;
     font-family: 'Montserrat', sans-serif;
-    /* Subtle Depth Gradient - No chaotic noise */
-    background: radial-gradient(circle at 50% 10%, #0f172a 0%, #020617 80%);
+    /* Deep Water Gradient */
+    background: radial-gradient(circle at 50% 0%, #1e293b 0%, #020617 80%);
     background-attachment: fixed;
     min-height: 100vh;
+    overflow-x: hidden;
   }
 
-  /* 
-     TYPOGRAPHY SYSTEM 
-     Scale: Major Third (1.250)
-  */
-
-  /* English Serif: Cormorant Garamond */
-  /* Elegant, taller x-height, needs space */
+  /* CINEMATIC TYPOGRAPHY */
   h1,
   h2,
-  h3,
-  h4,
-  h5,
-  h6 {
-    @apply font-serif text-slate-100;
-    font-family: 'Cormorant Garamond', 'Nanum Myeongjo', serif;
-    letter-spacing: -0.01em;
-    /* Tighten large text */
-  }
-
-  h1 {
-    font-size: 3.052rem;
-    line-height: 1.1;
-    font-weight: 300;
-    /* Light weight for elegance */
-  }
-
-  h2 {
-    font-size: 2.441rem;
-    line-height: 1.2;
-    font-weight: 400;
-  }
-
   h3 {
-    font-size: 1.953rem;
-    line-height: 1.25;
-    font-weight: 400;
-  }
-
-  h4 {
-    font-size: 1.563rem;
+    font-family: 'Cinzel', serif;
+    /* The "Movie Poster" Font */
+    letter-spacing: 0.05em;
     font-weight: 500;
   }
 
-  /* KOREAN OPTICAL ADJUSTMENT 
-     Korean glyphs are visually denser/larger than Latin serifs.
-     We must reduce their weight and increase line-height to balance.
-  */
-  h1 .korean,
-  h2 .korean,
-  h3 .korean,
-  .korean,
-  :lang(ko) {
-    font-family: 'Nanum Myeongjo', serif;
-    /* Optical Size Correction */
-    font-size: 0.92em;
-    /* Shrink slightly to match English x-height */
-    line-height: 1.6;
-    /* More breathing room for complex characters */
-    letter-spacing: 0.02em;
-    font-weight: 400;
-    /* Never use bold on Myeongjo unless headers */
-  }
-
-  /* Body Text */
+  /* Body text should be readable */
   p,
-  li,
   span,
+  div,
   input,
   button {
     font-family: 'Montserrat', sans-serif;
-    letter-spacing: 0.01em;
+    letter-spacing: 0.02em;
   }
 }
 
 @layer components {
 
-  /* GLASS PANEL - Clean, Minimal, No Excess Blur */
-  .abyss-glass {
-    @apply relative border rounded-lg backdrop-blur-md;
-    background: rgba(15, 23, 42, 0.6);
-    /* Translucent Slate 900 */
-    border-color: rgba(255, 255, 255, 0.08);
-    /* Very subtle white edge */
-    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.5);
+  /* THE MOVIE TITLE CLASS */
+  .text-cinematic {
+    font-family: 'Cinzel', serif;
+    background: linear-gradient(to bottom, #fde68a, #d97706);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    filter: drop-shadow(0 2px 10px rgba(217, 119, 6, 0.3));
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
   }
 
-  /* INTERACTIVE ELEMENTS */
+  /* DEEP SEA CAUSTICS (The Water Effect) */
+  .caustic-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    pointer-events: none;
+    z-index: 0;
+    opacity: 0.3;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.1'/%3E%3C/svg%3E");
+    mask-image: radial-gradient(circle at 50% 0%, black, transparent 80%);
+  }
+
+  /* GLASS PANEL - High Contrast, Astonishing */
+  .abyss-glass {
+    @apply relative border rounded-xl backdrop-blur-xl transition-all duration-500;
+    background: linear-gradient(180deg, rgba(30, 41, 59, 0.4) 0%, rgba(15, 23, 42, 0.6) 100%);
+    border-color: rgba(255, 255, 255, 0.1);
+    box-shadow:
+      0 4px 30px rgba(0, 0, 0, 0.5),
+      inset 0 0 20px rgba(34, 211, 238, 0.05);
+    /* Inner bioluminescence */
+  }
+
+  .abyss-glass:hover {
+    border-color: rgba(34, 211, 238, 0.3);
+    box-shadow:
+      0 10px 40px rgba(0, 0, 0, 0.6),
+      inset 0 0 30px rgba(34, 211, 238, 0.1);
+  }
+
+  /* BUTTONS - Solid, Premium */
   .abyss-btn {
-    @apply relative overflow-hidden transition-all duration-300 rounded font-medium tracking-wide;
-    background: linear-gradient(to bottom, #1e293b, #0f172a);
-    border: 1px solid rgba(34, 211, 238, 0.2);
+    @apply relative overflow-hidden rounded-lg font-bold tracking-widest uppercase transition-all duration-300;
+    background: linear-gradient(45deg, #0f172a, #1e293b);
+    border: 1px solid rgba(34, 211, 238, 0.3);
     color: #22d3ee;
+    text-shadow: 0 0 10px rgba(34, 211, 238, 0.5);
   }
 
   .abyss-btn:hover {
-    border-color: #22d3ee;
-    background: linear-gradient(to bottom, #334155, #1e293b);
-    box-shadow: 0 0 15px rgba(34, 211, 238, 0.15);
+    background: linear-gradient(45deg, #06b6d4, #0891b2);
+    border-color: #67e8f9;
+    color: #fff;
+    box-shadow: 0 0 30px rgba(34, 211, 238, 0.4);
+    text-shadow: none;
   }
 
+  /* INPUTS - Readable */
   .abyss-input {
-    @apply bg-slate-950/50 border border-slate-700/50 rounded px-4 py-3 text-slate-200 outline-none transition-all;
-    font-family: 'Montserrat', sans-serif;
+    @apply w-full bg-slate-950/60 border border-slate-700 rounded-lg px-4 py-4 text-slate-100 placeholder-slate-500 outline-none transition-all font-medium;
   }
 
   .abyss-input:focus {
-    @apply border-cyan-500/50 bg-slate-900/80;
-    box-shadow: 0 0 0 1px rgba(34, 211, 238, 0.2);
-  }
-
-  /* TEXT UTILITIES */
-  .text-balance {
-    text-wrap: balance;
+    @apply border-cyan-500 ring-1 ring-cyan-500 bg-slate-900/80;
+    box-shadow: 0 0 20px rgba(34, 211, 238, 0.2);
   }
 }

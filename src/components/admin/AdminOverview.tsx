@@ -141,75 +141,78 @@ export const AdminOverview: React.FC = () => {
     if (loading) return <div className="p-12 text-center text-cyan-400/50 font-sans tracking-widest text-sm animate-pulse">ESTABLISHING CONNECTION...</div>;
 
     return (
-        <div className="p-8 space-y-8 min-h-screen text-slate-200">
+        <div className="p-12 space-y-12 min-h-screen text-slate-200 relative">
+            <div className="caustic-overlay" />
+
             {/* Header */}
-            <div className="flex items-center justify-between pb-6 relative">
+            <div className="flex items-center justify-between pb-8 relative border-b border-white/5 z-10">
                 <div>
-                    <h2 className="text-3xl text-slate-100 font-serif tracking-tight">
+                    <h2 className="text-4xl md:text-5xl text-cinematic mb-2 drop-shadow-lg">
                         ABYSSAL ARCHIVE
                     </h2>
-                    <p className="text-cyan-500/60 text-xs mt-1 font-medium tracking-[0.2em] uppercase">
-                        System Overview
+                    <p className="text-cyan-500/70 text-sm font-bold tracking-[0.3em] uppercase pl-1">
+                        Secure Command Center
                     </p>
                 </div>
-                <div className="flex items-center gap-2 px-4 py-2 border border-slate-700/50 rounded text-slate-400 font-mono text-[10px] uppercase tracking-wider">
-                    <Calendar size={12} className="text-cyan-500" />
-                    {new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric', weekday: 'short' })}
+                <div className="bg-slate-900/50 backdrop-blur-md px-6 py-3 rounded-full border border-slate-700/50 flex items-center gap-3 shadow-lg">
+                    <Calendar size={16} className="text-cyan-400" />
+                    <span className="text-slate-300 font-mono text-sm tracking-wider uppercase">
+                        {new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' })}
+                    </span>
                 </div>
             </div>
 
-            {/* Metric Cards - Clean Glass */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+            {/* Metric Cards - Astonishing Scale */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 relative z-10">
                 <MetricCard
-                    icon={<FileText size={18} />}
+                    icon={<FileText size={32} />}
                     label="Archived Memories"
                     value={stats.totalPassages}
                     sub="Passages"
                 />
                 <MetricCard
-                    icon={<FolderOpen size={18} />}
+                    icon={<FolderOpen size={32} />}
                     label="Active Synapses"
                     value={stats.totalProjects}
                     sub="Projects"
                 />
                 <MetricCard
-                    icon={<BookOpen size={18} />}
+                    icon={<BookOpen size={32} />}
                     label="Resurfaced Words"
                     value={stats.totalVocabulary}
                     sub="Vocabulary"
                     highlight
                 />
                 <MetricCard
-                    icon={<Users size={18} />}
+                    icon={<Users size={32} />}
                     label="Connected Minds"
                     value={stats.activeStudents}
-                    sub="Active Users"
+                    sub="Active Divers"
                 />
             </div>
 
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 relative z-10">
                 {/* Main Dashboard Panel (2/3) */}
-                <div className="lg:col-span-2 space-y-6">
+                <div className="lg:col-span-2 space-y-8">
 
                     {/* Weekly Volume */}
-                    <section className="abyss-glass p-6">
-                        <div className="flex items-center justify-between mb-6">
-                            <h3 className="text-lg text-slate-200 font-serif italic">
-                                Data Flow Analysis
+                    <section className="abyss-glass p-8 border hover:border-cyan-500/20 transition-colors">
+                        <div className="flex items-center justify-between mb-8">
+                            <h3 className="text-xl text-slate-200 font-serif tracking-wider flex items-center gap-3">
+                                <History className="text-cyan-500" /> Data Flow Analysis
                             </h3>
-                            <History size={16} className="text-slate-500" />
                         </div>
 
-                        <div className="flex items-end justify-between gap-2 h-32 px-2">
+                        <div className="flex items-end justify-between gap-4 h-48 px-4">
                             {studyVolume.map((vol, idx) => (
-                                <div key={idx} className="flex-1 flex flex-col items-center gap-2 group cursor-default">
-                                    <div className="w-full bg-slate-800/20 rounded-sm relative h-full flex flex-col justify-end overflow-hidden">
+                                <div key={idx} className="flex-1 flex flex-col items-center gap-3 group cursor-default">
+                                    <div className="w-full bg-slate-800/30 rounded relative h-full flex flex-col justify-end overflow-hidden shadow-inner">
                                         <div
                                             style={{ height: `${Math.min(100, vol.count * 2)}%` }}
-                                            className="w-full bg-cyan-900/40 group-hover:bg-cyan-500/40 transition-all duration-500"
+                                            className="w-full bg-gradient-to-t from-cyan-900 to-cyan-500 opacity-60 group-hover:opacity-100 transition-all duration-500 shadow-[0_0_20px_rgba(34,211,238,0.3)]"
                                         />
                                     </div>
-                                    <span className="text-[9px] text-slate-600 font-mono uppercase group-hover:text-cyan-400 transition-colors">
+                                    <span className="text-[10px] text-slate-500 font-bold font-mono uppercase group-hover:text-cyan-400 transition-colors">
                                         {vol.date}
                                     </span>
                                 </div>
@@ -219,61 +222,66 @@ export const AdminOverview: React.FC = () => {
 
                     {/* Vitality Alerts */}
                     <section>
-                        <div className="flex items-center gap-2 mb-3 px-1">
-                            <Activity size={14} className="text-red-400" />
-                            <h3 className="text-xs font-bold tracking-widest text-red-400 uppercase">
+                        <div className="flex items-center gap-3 mb-4 pl-2">
+                            <Activity size={20} className="text-red-400" />
+                            <h3 className="text-sm font-black tracking-[0.2em] text-red-500 uppercase text-shadow-red">
                                 Vitality Drop Detected
                             </h3>
                         </div>
 
                         {slumps.length > 0 ? (
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div className="grid grid-cols-1 gap-4">
                                 {slumps.map((slump) => (
-                                    <div key={slump.studentId} className="border border-red-900/30 bg-red-950/10 p-4 rounded flex justify-between items-center group hover:bg-red-950/20 transition-colors">
-                                        <div>
-                                            <div className="text-sm text-red-200 font-medium">{slump.studentName}</div>
-                                            <div className="text-[10px] text-red-400/70 mt-0.5 font-mono">
-                                                Performance: {slump.prevAvg}% → {slump.currentAvg}%
+                                    <div key={slump.studentId} className="abyss-glass p-6 border-l-4 border-l-red-500 flex justify-between items-center group bg-red-950/5">
+                                        <div className="flex items-center gap-4">
+                                            <div className="w-12 h-12 rounded-full bg-red-900/20 flex items-center justify-center text-red-400 font-bold border border-red-500/20">
+                                                !
+                                            </div>
+                                            <div>
+                                                <div className="text-lg text-slate-200 font-bold tracking-wide">{slump.studentName}</div>
+                                                <div className="text-sm text-red-300 font-mono mt-1">
+                                                    Performance dropped from <span className="text-white">{slump.prevAvg}%</span> to <span className="text-white">{slump.currentAvg}%</span>
+                                                </div>
                                             </div>
                                         </div>
-                                        <div className="text-xl font-light text-red-500">
+                                        <div className="text-3xl font-black text-red-500 drop-shadow-[0_0_10px_rgba(239,68,68,0.5)]">
                                             -{slump.dropRate}%
                                         </div>
                                     </div>
                                 ))}
                             </div>
                         ) : (
-                            <div className="p-6 text-slate-600 text-xs font-mono text-center border border-dashed border-slate-800 rounded">
-                                SYSTEM STABLE. NO ANOMALIES.
+                            <div className="p-8 text-slate-500 text-sm font-mono tracking-widest text-center border-2 border-dashed border-slate-800 rounded-xl bg-slate-950/30">
+                                SYSTEM STABLE // NO ANOMALIES DETECTED
                             </div>
                         )}
                     </section>
                 </div>
 
                 {/* Right Sidebar (1/3) */}
-                <div className="space-y-6">
+                <div className="space-y-8">
                     {/* Top Errors */}
-                    <div className="abyss-glass p-6">
-                        <div className="flex items-center gap-2 mb-6 border-b border-slate-800 pb-2">
-                            <AlertTriangle size={14} className="text-amber-500/80" />
-                            <h3 className="text-xs font-bold text-amber-500/80 tracking-widest uppercase">
+                    <div className="abyss-glass p-8">
+                        <div className="flex items-center gap-3 mb-8 border-b border-white/5 pb-4">
+                            <AlertTriangle size={18} className="text-amber-500" />
+                            <h3 className="text-sm font-black text-amber-500 tracking-[0.2em] uppercase">
                                 Critical Errors
                             </h3>
                         </div>
 
-                        <div className="space-y-4">
+                        <div className="space-y-6">
                             {topWrongWords.map((item, idx) => (
-                                <div key={idx} className="flex gap-4 group cursor-pointer">
-                                    <span className="text-lg font-serif text-slate-700 group-hover:text-amber-500/50 transition-colors">
-                                        0{idx + 1}
+                                <div key={idx} className="flex gap-5 group cursor-pointer items-center">
+                                    <span className="text-4xl font-serif text-slate-800 group-hover:text-amber-500/40 transition-colors font-bold">
+                                        {idx + 1}
                                     </span>
                                     <div>
-                                        <div className="text-sm text-slate-300 group-hover:text-amber-200 transition-colors">
+                                        <div className="text-lg text-slate-200 font-bold group-hover:text-amber-400 transition-colors">
                                             {item.word}
                                         </div>
-                                        <div className="text-[10px] text-slate-500">{item.meaning}</div>
-                                        <div className="text-[9px] text-red-400/60 mt-1 font-mono">
-                                            {item.incorrectCount} Failures Detected
+                                        <div className="text-sm text-slate-500 italic mb-1">{item.meaning}</div>
+                                        <div className="text-[10px] text-red-400 bg-red-950/30 px-2 py-0.5 rounded border border-red-900/50 inline-block font-mono">
+                                            {item.incorrectCount} FAILURES
                                         </div>
                                     </div>
                                 </div>
@@ -290,22 +298,25 @@ export const AdminOverview: React.FC = () => {
 
 const MetricCard = ({ icon, label, value, sub, highlight }: { icon: React.ReactNode, label: string, value: number, sub: string, highlight?: boolean }) => (
     <div className={clsx(
-        "p-6 rounded border transition-all duration-300 relative overflow-hidden group hover:border-cyan-500/30",
-        highlight ? "bg-cyan-950/10 border-cyan-500/20" : "bg-slate-900/40 border-slate-800"
+        "p-8 rounded-xl border transition-all duration-500 relative overflow-hidden group hover:-translate-y-2",
+        highlight ? "bg-cyan-950/20 border-cyan-500/30 shadow-[0_0_30px_rgba(34,211,238,0.1)]" : "bg-slate-900/40 border-slate-800 hover:border-slate-600"
     )}>
-        <div className="flex justify-between items-start mb-4">
-            <span className={clsx("text-[9px] uppercase tracking-widest font-bold", highlight ? "text-cyan-400" : "text-slate-500")}>
+        {/* Cinematic Glow Background */}
+        <div className={clsx("absolute -right-10 -top-10 w-40 h-40 rounded-full blur-[60px] opacity-0 group-hover:opacity-40 transition-opacity duration-700", highlight ? "bg-cyan-400" : "bg-slate-400")} />
+
+        <div className="flex justify-between items-start mb-6 relative z-10">
+            <span className={clsx("text-xs uppercase tracking-[0.2em] font-bold", highlight ? "text-cyan-400" : "text-slate-500")}>
                 {label}
             </span>
-            <div className={clsx("opacity-50 group-hover:opacity-100 transition-opacity", highlight ? "text-cyan-400" : "text-slate-600")}>
+            <div className={clsx("opacity-60 group-hover:opacity-100 transition-all transform group-hover:scale-110", highlight ? "text-cyan-400" : "text-slate-500")}>
                 {icon}
             </div>
         </div>
 
-        <div className="text-3xl font-light text-slate-200 font-serif">
+        <div className="text-5xl font-medium text-slate-100 font-[Cinzel] tracking-tight relative z-10 text-shadow-lg">
             {(isNaN(value) ? 0 : value).toLocaleString()}
         </div>
-        <div className="text-[10px] text-slate-600 mt-1 font-mono">
+        <div className="text-xs text-slate-500 mt-2 font-mono uppercase tracking-widest relative z-10">
             Total {sub}
         </div>
     </div>

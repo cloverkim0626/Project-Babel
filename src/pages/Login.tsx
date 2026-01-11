@@ -123,8 +123,8 @@ export default function Login() {
                 }
             });
 
-            // Navigate to student area immediately
-            navigate('/world-map');
+            // Navigate to student dashboard (has stats/HP)
+            navigate('/dashboard');
 
         } catch (err: any) {
             console.error('[Guest Login Error]:', err);

@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
-import { BookOpen, Lock, Mail, ArrowRight, AlertCircle } from 'lucide-react';
+import { Anchor, Lock, Mail, ArrowRight, AlertCircle, Droplets, Waves } from 'lucide-react';
 
 export default function Login() {
     const navigate = useNavigate();
@@ -113,90 +113,84 @@ export default function Login() {
     };
 
     return (
-        <div className="min-h-screen bg-[#0a0908] flex items-center justify-center p-4 font-mono text-paper relative overflow-hidden">
-            {/* Background Texture & Ambience */}
-            <div className="absolute inset-0 bg-[#0a0a0a] pointer-events-none" />
-            <div className="absolute inset-0 opacity-10 bg-[url('https://www.transparenttextures.com/patterns/dark-matter.png')] pointer-events-none" />
-            <div className="absolute top-0 left-0 w-full h-96 bg-gradient-to-b from-purple-900/20 to-transparent pointer-events-none" />
+        <div className="min-h-screen bg-[#020617] flex items-center justify-center p-4 font-sans relative overflow-hidden">
+            {/* Background Texture & Ambience - Deep Ocean */}
+            <div className="absolute inset-0 bg-gradient-to-b from-[#0f172a] to-[#020617] pointer-events-none" />
+            <div className="absolute inset-0 opacity-20 pointer-events-none" style={{
+                backgroundImage: `radial-gradient(circle at 50% 50%, rgba(20, 184, 166, 0.1) 0%, transparent 50%)`
+            }} />
 
-            {/* Floating Particles */}
+            {/* Floating Particles/Bubbles */}
             <div className="absolute inset-0 overflow-hidden pointer-events-none">
-                {[...Array(20)].map((_, i) => (
+                {[...Array(15)].map((_, i) => (
                     <div
                         key={i}
-                        className="absolute w-1 h-1 bg-babel-gold/30 rounded-full animate-pulse"
+                        className="absolute w-1.5 h-1.5 bg-cyan-400/20 rounded-full animate-pulse"
                         style={{
                             left: `${Math.random() * 100}%`,
                             top: `${Math.random() * 100}%`,
-                            animationDelay: `${Math.random() * 3}s`,
-                            animationDuration: `${2 + Math.random() * 3}s`
+                            animationDelay: `${Math.random() * 5}s`,
+                            animationDuration: `${3 + Math.random() * 4}s`
                         }}
                     />
                 ))}
             </div>
 
-            {/* Ancient Border Frame */}
-            <div className="absolute inset-4 md:inset-8 border border-babel-gold/10 rounded-3xl pointer-events-none" />
-            <div className="absolute inset-6 md:inset-12 border border-babel-gold/5 rounded-2xl pointer-events-none" />
-
             {/* Main Content */}
             <div className="w-full max-w-md relative z-50">
-                {/* Title Section - Voca Universe : Babel */}
-                <div className="text-center mb-8 md:mb-12">
-                    {/* Mystical Icon */}
+                {/* Title Section */}
+                <div className="text-center mb-10">
+                    {/* Icon - Anchor/Abyss */}
                     <div className="relative inline-block mb-6">
-                        <div className="w-20 h-20 md:w-24 md:h-24 bg-gradient-to-br from-babel-gold/20 to-amber-900/10 rounded-full flex items-center justify-center border-2 border-babel-gold/40 shadow-[0_0_60px_rgba(212,175,55,0.3)]">
-                            <BookOpen className="text-babel-gold w-10 h-10 md:w-12 md:h-12" />
+                        <div className="w-20 h-20 rounded-full bg-slate-900/50 flex items-center justify-center border border-teal-500/30 shadow-[0_0_40px_rgba(20,184,166,0.2)] backdrop-blur-md">
+                            <Anchor className="text-cyan-400 w-10 h-10 drop-shadow-[0_0_10px_rgba(34,211,238,0.5)]" />
                         </div>
-                        {/* Glowing Ring */}
-                        <div className="absolute inset-0 rounded-full border border-babel-gold/20 animate-ping" style={{ animationDuration: '3s' }} />
+                        {/* Ripple Ring */}
+                        <div className="absolute inset-0 rounded-full border border-cyan-500/10 animate-[ping_3s_ease-in-out_infinite]" />
                     </div>
 
                     {/* Main Title */}
-                    <h1 className="text-4xl md:text-5xl font-serif text-transparent bg-clip-text bg-gradient-to-r from-babel-gold via-yellow-200 to-babel-gold mb-2 tracking-wider drop-shadow-[0_0_30px_rgba(212,175,55,0.5)]">
-                        Voca Universe
+                    <h1 className="text-4xl md:text-5xl font-serif text-slate-200 mb-3 tracking-widest drop-shadow-[0_2px_10px_rgba(0,0,0,0.8)] font-light">
+                        THE ABYSS
                     </h1>
-                    <div className="flex items-center justify-center gap-4 mb-4">
-                        <div className="w-12 h-px bg-gradient-to-r from-transparent to-babel-gold/50" />
-                        <span className="text-babel-gold/80 text-lg font-serif tracking-[0.3em]">BABEL</span>
-                        <div className="w-12 h-px bg-gradient-to-l from-transparent to-babel-gold/50" />
+                    <div className="flex items-center justify-center gap-4 mb-4 opacity-60">
+                        <div className="w-8 h-[1px] bg-gradient-to-r from-transparent to-teal-500" />
+                        <span className="text-teal-400 text-xs font-mono tracking-[0.4em] uppercase">Deep Knowledge</span>
+                        <div className="w-8 h-[1px] bg-gradient-to-l from-transparent to-teal-500" />
                     </div>
-                    <p className="text-stone-500 text-xs tracking-[0.2em] uppercase">지식의 심연에서 진리를 찾아라</p>
+                    <p className="text-slate-500 text-xs font-sans tracking-widest">"심연의 끝에서 진리를 마주하다"</p>
                 </div>
 
-                {/* Login Card - Ancient Scroll Style */}
-                <div className="bg-gradient-to-b from-stone-900/80 to-black/60 backdrop-blur-xl border border-babel-gold/20 p-6 md:p-8 rounded-2xl shadow-[0_0_100px_rgba(0,0,0,0.8)] relative overflow-hidden">
-                    {/* Decorative Corner Accents */}
-                    <div className="absolute top-0 left-0 w-8 h-8 border-t-2 border-l-2 border-babel-gold/30 rounded-tl-xl" />
-                    <div className="absolute top-0 right-0 w-8 h-8 border-t-2 border-r-2 border-babel-gold/30 rounded-tr-xl" />
-                    <div className="absolute bottom-0 left-0 w-8 h-8 border-b-2 border-l-2 border-babel-gold/30 rounded-bl-xl" />
-                    <div className="absolute bottom-0 right-0 w-8 h-8 border-b-2 border-r-2 border-babel-gold/30 rounded-br-xl" />
+                {/* Login Card - Wet Glass Style */}
+                <div className="bg-slate-900/40 backdrop-blur-xl border border-teal-500/20 p-8 rounded-2xl shadow-[0_20px_50px_rgba(0,0,0,0.5)] relative overflow-hidden group">
+                    {/* Fluid Highlight */}
+                    <div className="absolute top-0 left-0 w-full h-[1px] bg-gradient-to-r from-transparent via-cyan-500/50 to-transparent opacity-50" />
 
-                    <form onSubmit={handleAuth} className="space-y-5">
+                    <form onSubmit={handleAuth} className="space-y-6">
                         <div className="space-y-2">
-                            <label className="text-xs tracking-widest text-babel-gold/70 ml-1 font-medium">마법사 ID</label>
-                            <div className="relative">
-                                <Mail className="absolute left-4 top-1/2 -translate-y-1/2 text-babel-gold/40" size={18} />
+                            <label className="text-xs tracking-widest text-teal-500/70 ml-1 font-bold uppercase">Identity (Email)</label>
+                            <div className="relative group/input">
+                                <Mail className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500 group-focus-within/input:text-cyan-400 transition-colors" size={18} />
                                 <input
                                     type="email"
                                     value={email}
                                     onChange={(e) => setEmail(e.target.value)}
-                                    className="w-full bg-black/60 border border-babel-gold/20 rounded-xl py-3.5 pl-12 pr-4 text-white placeholder-stone-600 focus:border-babel-gold focus:ring-1 focus:ring-babel-gold/30 focus:bg-black/80 outline-none transition-all"
-                                    placeholder="your@email.com"
+                                    className="w-full bg-slate-950/50 border border-slate-700/50 rounded-lg py-3.5 pl-12 pr-4 text-slate-200 placeholder-slate-600 focus:border-cyan-500/50 focus:bg-slate-900/80 outline-none transition-all shadow-inner"
+                                    placeholder="diver@abyss.com"
                                     required
                                 />
                             </div>
                         </div>
 
                         <div className="space-y-2">
-                            <label className="text-xs tracking-widest text-babel-gold/70 ml-1 font-medium">비밀 주문</label>
-                            <div className="relative">
-                                <Lock className="absolute left-4 top-1/2 -translate-y-1/2 text-babel-gold/40" size={18} />
+                            <label className="text-xs tracking-widest text-teal-500/70 ml-1 font-bold uppercase">Passcode</label>
+                            <div className="relative group/input">
+                                <Lock className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500 group-focus-within/input:text-cyan-400 transition-colors" size={18} />
                                 <input
                                     type="password"
                                     value={password}
                                     onChange={(e) => setPassword(e.target.value)}
-                                    className="w-full bg-black/60 border border-babel-gold/20 rounded-xl py-3.5 pl-12 pr-4 text-white placeholder-stone-600 focus:border-babel-gold focus:ring-1 focus:ring-babel-gold/30 focus:bg-black/80 outline-none transition-all"
+                                    className="w-full bg-slate-950/50 border border-slate-700/50 rounded-lg py-3.5 pl-12 pr-4 text-slate-200 placeholder-slate-600 focus:border-cyan-500/50 focus:bg-slate-900/80 outline-none transition-all shadow-inner"
                                     placeholder="••••••••"
                                     required
                                 />
@@ -204,7 +198,7 @@ export default function Login() {
                         </div>
 
                         {error && (
-                            <div className="flex items-center gap-2 text-red-400 text-xs bg-red-900/20 p-3 rounded-lg border border-red-500/30">
+                            <div className="flex items-center gap-2 text-red-300 text-xs bg-red-950/30 p-3 rounded-lg border border-red-500/20">
                                 <AlertCircle size={14} />
                                 {error}
                             </div>
@@ -213,20 +207,21 @@ export default function Login() {
                         <button
                             type="submit"
                             disabled={loading}
-                            className="w-full bg-gradient-to-r from-babel-gold to-amber-500 text-black font-bold py-4 rounded-xl hover:from-yellow-400 hover:to-amber-400 transition-all transform hover:scale-[1.02] hover:shadow-[0_0_30px_rgba(212,175,55,0.4)] flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
+                            className="w-full bg-gradient-to-r from-teal-900 to-slate-900 text-cyan-400 font-bold py-4 rounded-lg border border-teal-500/30 hover:border-cyan-400 hover:text-cyan-200 hover:shadow-[0_0_20px_rgba(34,211,238,0.2)] transition-all flex items-center justify-center gap-2 relative overflow-hidden group/btn"
                         >
-                            {loading ? '연결 중...' : (mode === 'signin' ? '지식의 문 열기' : '마법사 등록')}
-                            {!loading && <ArrowRight size={18} />}
+                            <div className="absolute inset-0 bg-cyan-400/5 translate-y-full group-hover/btn:translate-y-0 transition-transform duration-500" />
+                            <span className="relative z-10">{loading ? 'Submerging...' : (mode === 'signin' ? 'DIVE (접속)' : 'INITIATE (등록)')}</span>
+                            {!loading && <Waves size={18} className="relative z-10" />}
                         </button>
                     </form>
 
                     {/* Divider */}
-                    <div className="relative py-6">
+                    <div className="relative py-8">
                         <div className="absolute inset-0 flex items-center">
-                            <div className="w-full border-t border-babel-gold/10" />
+                            <div className="w-full border-t border-slate-800" />
                         </div>
                         <div className="relative flex justify-center">
-                            <span className="bg-stone-900/80 px-4 text-babel-gold/40 text-xs tracking-widest">또는</span>
+                            <span className="bg-slate-900 px-4 text-slate-600 text-[10px] tracking-widest uppercase">OR</span>
                         </div>
                     </div>
 
@@ -235,10 +230,10 @@ export default function Login() {
                         <button
                             onClick={() => handleAnonymous()}
                             disabled={loading}
-                            className="w-full bg-babel-gold/10 text-babel-gold py-3.5 rounded-xl hover:bg-babel-gold/20 transition-all border border-babel-gold/20 flex items-center justify-center gap-2 text-sm font-medium"
+                            className="w-full bg-slate-800/30 text-slate-400 py-3 rounded-lg hover:bg-slate-700/30 hover:text-slate-200 transition-all border border-slate-700/30 flex items-center justify-center gap-2 text-xs font-bold tracking-wide"
                         >
-                            <BookOpen size={16} />
-                            체험판 입장 (게스트)
+                            <Droplets size={14} />
+                            GUEST DIVE (체험판)
                         </button>
 
                         <button
@@ -259,23 +254,18 @@ export default function Login() {
                                     setLoading(false);
                                 }
                             }}
-                            className="w-full bg-purple-900/20 text-purple-400 text-xs py-2.5 rounded-lg border border-purple-500/20 hover:bg-purple-900/30 transition-colors"
+                            className="w-full text-slate-600 hover:text-red-400 text-[10px] py-2 transition-colors flex items-center justify-center gap-1 opacity-50 hover:opacity-100"
                         >
-                            🔮 관리자 긴급 접속
+                            <span>SYSTEM OVERRIDE</span>
                         </button>
 
                         <button
                             onClick={() => setMode(mode === 'signin' ? 'signup' : 'signin')}
-                            className="w-full text-stone-500 hover:text-babel-gold text-xs transition-colors py-2"
+                            className="w-full text-teal-600 hover:text-cyan-400 text-xs transition-colors py-2 tracking-wide font-mono"
                         >
-                            {mode === 'signin' ? '새로운 마법사 등록하기' : '기존 계정으로 로그인'}
+                            {mode === 'signin' ? '> Create New Signal' : '> Return to Login Sequence'}
                         </button>
                     </div>
-                </div>
-
-                {/* Footer */}
-                <div className="text-center mt-8 text-stone-600 text-xs tracking-widest">
-                    <p>"어휘의 우주에서 지식의 정수를 탐험하라"</p>
                 </div>
             </div>
         </div>

@@ -2,11 +2,12 @@
 @tailwind components;
 @tailwind utilities;
 
-@import url('https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@400;700;900&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;0,700;1,400&family=Nanum+Myeongjo:wght@400;700;800&family=Montserrat:wght@300;400;500;600&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&family=Nanum+Myeongjo:wght@400;700;800&family=Montserrat:wght@200;300;400;500;600&display=swap');
 
 /* 
   THEME: THE ABYSS (SHAPE OF WATER)
-  Concept: Deep Ocean, Bioluminescence, Ancient Technology, Wet Glass
+  Typography: "Simple but Deeper" - Editorial, Melancholic, Sophisticated.
+  No "Disney" (Cinzel).
 */
 
 :root {
@@ -47,6 +48,8 @@
       linear-gradient(to bottom, #020617 0%, #0f172a 100%);
     background-attachment: fixed;
     min-height: 100vh;
+    font-family: 'Montserrat', sans-serif;
+    /* Default to clean Sans for UI */
   }
 
   /* Scrollbar - Wet Metal look */
@@ -76,14 +79,25 @@
   }
 
   /* Typography Overrides */
+  /* HEADERS: "Deeper" - Cormorant for English, Nanum Myeongjo for Korean */
   h1,
   h2,
   h3,
   h4,
   h5,
   h6 {
-    font-family: 'Cinzel Decorative', cursive;
-    letter-spacing: 0.05em;
+    font-family: 'Cormorant Garamond', 'Nanum Myeongjo', serif;
+    font-weight: 400;
+    /* Lighter weight is more elegant/deep */
+    letter-spacing: 0.02em;
+  }
+
+  /* Ensure Korean text in headers uses the serif but looks fused */
+  h1 .korean,
+  h2 .korean,
+  h3 .korean,
+  .korean {
+    font-family: 'Nanum Myeongjo', serif;
   }
 }
 

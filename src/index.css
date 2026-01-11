@@ -4,22 +4,43 @@
 
 /* Ancient Library Theme Fonts */
 @import url('https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@400;700;900&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;0,700;1,400&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap');
+/* For readability */
 
 :root {
-  /* RPG palette */
-  --bg-ancient-dark: #0c0a09;
-  --text-parchment: #eaddcf;
-  --text-gold: #fbbf24;
-  --text-ink: #292524;
+  /* RPG High-Fantasy Palette (Refined) */
+  --bg-void: #050404;
+  /* Deepest Black */
+  --bg-obsidian: #161412;
+  /* Warm Black/Dark Brown */
+  --bg-paper: #eaddcf;
+  /* Parchment color (used sparingly) */
 
-  /* Text Glows */
-  --glow-gold: 0 0 10px rgba(251, 191, 36, 0.5);
-  --glow-fire: 0 0 10px rgba(239, 68, 68, 0.6);
+  --border-copper: #78350f;
+  /* Antique Copper */
+  --border-gold: #d4af37;
+  /* Burning Gold */
+
+  --text-main: #d6d3d1;
+  /* Stone-300 (Readable Light Grey) */
+  --text-muted: #78716c;
+  /* Stone-500 */
+  --text-gold: #fbbf24;
+  /* Amber-400 */
+
+  --accent-magic: #3b82f6;
+  /* Magic Blue */
+  --accent-fire: #ef4444;
+  /* Red */
 }
 
 body {
-  background-color: var(--bg-ancient-dark);
-  color: var(--text-parchment);
+  background-color: var(--bg-void);
+  /* Subtle Vignette & Noise Pattern via CSS */
+  background-image:
+    radial-gradient(circle at 50% 0%, #2a1b12 0%, #050404 80%),
+    url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.05'/%3E%3C/svg%3E");
+  color: var(--text-main);
   font-family: 'Cormorant Garamond', serif;
 }
 
@@ -32,110 +53,120 @@ h5,
 h6 {
   font-family: 'Cinzel Decorative', cursive;
   letter-spacing: 0.05em;
+  color: var(--border-gold);
 }
 
-/* --- VISUAL OVERHAUL CLASSES --- */
+/* --- VISUAL REFINEMENT CLASSES (Obsidian Glass Style) --- */
 
-/* 1. Global Background: Wooden Desk */
+/* 1. Global Background Utility (applied to body, but class kept for wrappers) */
 .ancient-bg {
-  background-image: url('/assets/bg-desk.png');
-  background-size: cover;
-  background-position: center;
-  background-attachment: fixed;
-  background-repeat: no-repeat;
-  box-shadow: inset 0 0 100px rgba(0, 0, 0, 0.8);
+  /* Fallback or specific container usage */
+  background-color: transparent;
 }
 
-/* 2. Sidebar: Wood Planks & Leather */
-.ancient-sidebar {
-  background-image: url('/assets/tex-sidebar.png');
-  background-size: cover;
-  /* Cover or contain depending on texture resolution */
-  background-repeat: no-repeat;
-  box-shadow: 5px 0 20px rgba(0, 0, 0, 0.8);
-  border-right: 2px solid #451a03;
+/* 2. Sidebar & Panels: Obsidian Glass */
+.ancient-sidebar,
+.ancient-panel {
+  background: rgba(22, 20, 18, 0.85);
+  /* Semi-transparent Obsidian */
+  backdrop-filter: blur(12px);
+  border-right: 1px solid rgba(120, 53, 15, 0.3);
+  /* Subtle Copper border */
+  box-shadow: 5px 0 30px rgba(0, 0, 0, 0.5);
 }
 
-/* Active Menu Glow */
+/* Active Menu Item: Magic Glow */
 .ancient-menu-active {
-  background: linear-gradient(90deg, rgba(234, 88, 12, 0.2), transparent);
-  border-left: 3px solid #f59e0b;
-  box-shadow: 0 0 15px rgba(245, 158, 11, 0.3);
-  text-shadow: var(--glow-gold);
-  color: #fbbf24 !important;
+  background: linear-gradient(90deg, rgba(212, 175, 55, 0.15), transparent);
+  border-left: 3px solid var(--border-gold);
+  color: var(--text-gold) !important;
+  text-shadow: 0 0 8px rgba(251, 191, 36, 0.4);
 }
 
-/* 3. Cards: Bronze/Stone Tablet */
+/* 3. Cards: Refined Obsidian Tablet */
 .ancient-card {
-  background-image: url('/assets/tex-stone.png');
-  background-size: cover;
-  border: 4px solid #78350f;
-  /* Bronze-like border base */
-  border-image: linear-gradient(to bottom right, #b45309, #451a03) 1;
+  background: linear-gradient(145deg, rgba(30, 27, 24, 0.9), rgba(20, 18, 16, 0.95));
+  border: 1px solid #451a03;
+  /* Dark Copper */
+  border-radius: 4px;
+  /* Slight rounding, not too harsh */
   box-shadow:
-    inset 0 0 20px rgba(0, 0, 0, 0.9),
-    /* Deep inset */
-    0 10px 20px rgba(0, 0, 0, 0.5);
-  /* Drop shadow */
+    0 4px 6px -1px rgba(0, 0, 0, 0.5),
+    0 2px 4px -1px rgba(0, 0, 0, 0.3),
+    inset 0 0 20px rgba(0, 0, 0, 0.2);
+  /* Inner depth */
   position: relative;
-  overflow: hidden;
+  transition: transform 0.2s ease, border-color 0.2s ease;
 }
 
-/* Inner Bevel/Rune effect */
-.ancient-card::before {
-  content: '';
-  position: absolute;
-  inset: 4px;
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.8);
-  pointer-events: none;
+.ancient-card:hover {
+  border-color: var(--border-gold);
+  transform: translateY(-2px);
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.7);
 }
 
-/* 4. Table: Parchment Scroll */
+/* 4. Table/Content Lists: Clean Dark Layout (No heavy parchment texture for readability) */
 .ancient-table {
-  background-image: url('/assets/tex-paper.png');
-  background-size: cover;
-  /* Tiled parchment */
-  color: #292524;
-  /* Ink color */
-  border: 8px solid transparent;
-  border-image: repeating-linear-gradient(45deg, #78350f 0, #78350f 10px, transparent 10px, transparent 20px) 30;
-  /* Rough edge simulation */
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6);
-  font-weight: 600;
+  background: rgba(12, 10, 9, 0.6);
+  border: 1px solid #292524;
+  border-radius: 4px;
 }
 
 .ancient-table th {
-  border-bottom: 2px solid #57534e;
-  /* Old ink line */
-  color: #451a03;
+  border-bottom: 2px solid #44403c;
+  color: var(--border-gold);
   font-family: 'Cinzel Decorative', cursive;
-  font-weight: 900;
+  padding: 12px;
+  text-align: left;
 }
 
 .ancient-table td {
-  border-bottom: 1px solid rgba(87, 83, 78, 0.3);
+  border-bottom: 1px solid #292524;
+  padding: 12px;
+  color: var(--text-main);
 }
 
-/* 5. Typography Glows */
+/* 5. Buttons: Gold Inlay */
+.ancient-button {
+  background: linear-gradient(to bottom, #292524, #1c1917);
+  border: 1px solid #78350f;
+  color: #d6d3d1;
+  font-family: 'Cinzel Decorative', serif;
+  transition: all 0.2s;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.ancient-button:hover {
+  background: linear-gradient(to bottom, #451a03, #292524);
+  border-color: var(--border-gold);
+  color: var(--border-gold);
+  box-shadow: 0 0 15px rgba(212, 175, 55, 0.2);
+}
+
+/* 6. Typography Glows (Subtler) */
 .text-glow-gold {
-  text-shadow: var(--glow-gold);
+  text-shadow: 0 0 10px rgba(212, 175, 55, 0.3);
+}
+
+.text-glow-magic {
+  color: var(--accent-magic);
+  text-shadow: 0 0 10px rgba(59, 130, 246, 0.4);
 }
 
 .text-glow-fire {
-  text-shadow: var(--glow-fire);
+  color: var(--accent-fire);
+  text-shadow: 0 0 10px rgba(239, 68, 68, 0.4);
 }
 
-/* Scrollbar Customization */
+/* Scrollbar Customization - Minimal Dark */
 ::-webkit-scrollbar {
-  width: 10px;
-  background-color: #1c1917;
+  width: 6px;
+  background-color: #0c0a09;
 }
 
 ::-webkit-scrollbar-thumb {
-  background-color: #57534e;
-  border: 1px solid #292524;
-  border-radius: 4px;
+  background-color: #44403c;
+  border-radius: 3px;
 }
 
 ::-webkit-scrollbar-thumb:hover {

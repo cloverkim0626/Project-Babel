@@ -212,19 +212,19 @@ export const ProjectList = ({ onCreate: _legacyOnCreate }: { onCreate: () => voi
                                 if (selectedIds.length === filteredContinents.length) setSelectedIds([]);
                                 else setSelectedIds(filteredContinents.map(c => c.id));
                             }}
-                            className="bg-[#292524] hover:bg-[#1c1917] text-[#a8a29e] px-5 py-2 rounded-sm font-serif font-bold transition-all border border-[#57534e] hover:border-[#d4af37]"
+                            className="ancient-button px-5 py-2 rounded-sm"
                         >
                             {selectedIds.length > 0 && selectedIds.length === filteredContinents.length ? 'Deselect All' : 'Select All'}
                         </button>
                         <button
                             onClick={() => setShowDistributor(true)}
-                            className="bg-[#292524] hover:bg-[#1c1917] text-[#eaddcf] px-5 py-2 rounded-sm font-serif font-bold flex items-center gap-2 transition-all border border-[#57534e] hover:border-[#d4af37] shadow-lg"
+                            className="ancient-button px-5 py-2 rounded-sm flex items-center gap-2"
                         >
                             <Layers size={16} /> Quick Deploy
                         </button>
                         <button
                             onClick={() => navigate('/admin/create-project')}
-                            className="ancient-button px-6 py-2 rounded-sm font-serif font-bold flex items-center gap-2 shadow-[0_0_15px_rgba(212,175,55,0.4)] hover:shadow-[0_0_25px_rgba(212,175,55,0.6)] transform hover:-translate-y-0.5 border border-[#d4af37]"
+                            className="ancient-button px-6 py-2 rounded-sm flex items-center gap-2 border-[#d4af37] text-[#fbbf24] shadow-[0_0_10px_rgba(212,175,55,0.2)]"
                         >
                             <Plus size={16} /> Inscribe New
                         </button>
@@ -232,97 +232,90 @@ export const ProjectList = ({ onCreate: _legacyOnCreate }: { onCreate: () => voi
                 </div>
 
                 {/* Ancient Filter Bar */}
-                <div className="relative">
-                    {/* Decorative ends */}
-                    <div className="absolute -left-2 top-0 bottom-0 w-2 bg-[#57534e] rounded-l-md shadow-md" />
-                    <div className="absolute -right-2 top-0 bottom-0 w-2 bg-[#57534e] rounded-r-md shadow-md" />
-
-                    <div className="flex flex-wrap items-center gap-4 bg-[#eaddcf] p-4 shadow-[inset_0_0_20px_rgba(0,0,0,0.2)] border-y-4 double border-[#78350f]">
-                        <div className="flex items-center gap-2 text-[#78350f] mr-4 pr-4 border-r border-[#d6c4a6]">
-                            <Filter size={18} />
-                            <span className="text-xs font-serif font-bold tracking-widest uppercase">Filters</span>
-                        </div>
-
-                        {/* Category Select - Parchment Style */}
-                        <select
-                            value={filterCategory}
-                            onChange={(e) => {
-                                setFilterCategory(e.target.value as any);
-                                setFilterTbSubject('ALL'); setFilterMockYear('ALL'); setFilterMockGrade('ALL'); setFilterOtherPublisher('ALL');
-                            }}
-                            className="bg-[#f5ebe0] border border-[#d6c4a6] rounded-sm px-3 py-1.5 text-xs text-[#57534e] font-serif font-bold outline-none focus:border-[#78350f] shadow-inner cursor-pointer"
-                        >
-                            <option value="ALL">All Categories</option>
-                            <option value="TEXTBOOK">교과서 (Textbooks)</option>
-                            <option value="MOCK">모의고사 (Mock Tests)</option>
-                            <option value="OTHER">기타 (Others)</option>
-                        </select>
-
-                        {/* Dynamic Sub Filters */}
-                        {filterCategory === 'TEXTBOOK' && (
-                            <div className="flex items-center gap-2 animate-in fade-in slide-in-from-left-4">
-                                <ChevronRight size={14} className="text-[#a8a29e]" />
-                                <select value={filterTbSubject} onChange={(e) => setFilterTbSubject(e.target.value)} className="bg-[#f5ebe0] border border-[#d6c4a6] rounded-sm px-3 py-1.5 text-xs text-[#57534e] font-serif font-bold outline-none focus:border-[#78350f] shadow-inner cursor-pointer">
-                                    <option value="ALL">All XML Subjects</option>
-                                    {filterOptions.subjects.map(s => <option key={s} value={s}>{s}</option>)}
-                                </select>
-                            </div>
-                        )}
-                        {filterCategory === 'MOCK' && (
-                            <div className="flex items-center gap-2 animate-in fade-in slide-in-from-left-4">
-                                <ChevronRight size={14} className="text-[#a8a29e]" />
-                                <select value={filterMockYear} onChange={(e) => setFilterMockYear(e.target.value)} className="bg-[#f5ebe0] border border-[#d6c4a6] rounded-sm px-3 py-1.5 text-xs text-[#57534e] font-serif font-bold outline-none focus:border-[#78350f] shadow-inner cursor-pointer">
-                                    <option value="ALL">Year</option>
-                                    {filterOptions.years.map(y => <option key={y} value={y}>{y}</option>)}
-                                </select>
-                                <select value={filterMockGrade} onChange={(e) => setFilterMockGrade(e.target.value)} className="bg-[#f5ebe0] border border-[#d6c4a6] rounded-sm px-3 py-1.5 text-xs text-[#57534e] font-serif font-bold outline-none focus:border-[#78350f] shadow-inner cursor-pointer">
-                                    <option value="ALL">Grade</option>
-                                    {filterOptions.grades.map(g => <option key={g} value={g}>{g === 'High 1' ? '고1' : g === 'High 2' ? '고2' : '고3'}</option>)}
-                                </select>
-                            </div>
-                        )}
-                        {filterCategory === 'OTHER' && (
-                            <div className="flex items-center gap-2 animate-in fade-in slide-in-from-left-4">
-                                <ChevronRight size={14} className="text-[#a8a29e]" />
-                                <select value={filterOtherPublisher} onChange={(e) => setFilterOtherPublisher(e.target.value)} className="bg-[#f5ebe0] border border-[#d6c4a6] rounded-sm px-3 py-1.5 text-xs text-[#57534e] font-serif font-bold outline-none focus:border-[#78350f] shadow-inner cursor-pointer">
-                                    <option value="ALL">Publisher</option>
-                                    {filterOptions.publishers.map(p => <option key={p} value={p}>{p}</option>)}
-                                </select>
-                            </div>
-                        )}
-
-                        <div className="ml-auto relative">
-                            <input
-                                type="text"
-                                placeholder="Search the archives..."
-                                value={searchTerm}
-                                onChange={(e) => setSearchTerm(e.target.value)}
-                                className="bg-[#f5ebe0] border border-[#d6c4a6] rounded-full pl-9 pr-4 py-1.5 text-xs text-[#57534e] font-serif w-56 focus:w-72 transition-all outline-none focus:border-[#78350f] shadow-inner placeholder-[#a8a29e]"
-                            />
-                            <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-[#a8a29e]" />
-                        </div>
-
-                        {(filterCategory !== 'ALL' || searchTerm) && (
-                            <button onClick={resetFilters} className="text-[#a8a29e] hover:text-[#7f1d1d] p-1 transition-colors">
-                                <X size={16} />
-                            </button>
-                        )}
+                <div className="ancient-panel p-4 rounded-sm flex flex-wrap items-center gap-4">
+                    <div className="flex items-center gap-2 text-[#fbbf24] mr-4 pr-4 border-r border-[#451a03]">
+                        <Filter size={18} />
+                        <span className="text-xs font-serif font-bold tracking-widest uppercase">Filters</span>
                     </div>
+
+                    {/* Category Select */}
+                    <select
+                        value={filterCategory}
+                        onChange={(e) => {
+                            setFilterCategory(e.target.value as any);
+                            setFilterTbSubject('ALL'); setFilterMockYear('ALL'); setFilterMockGrade('ALL'); setFilterOtherPublisher('ALL');
+                        }}
+                        className="bg-[#0c0a09] border border-[#44403c] rounded-sm px-3 py-1.5 text-xs text-[#d6d3d1] font-serif font-bold outline-none focus:border-[#fbbf24] shadow-inner cursor-pointer"
+                    >
+                        <option value="ALL">All Categories</option>
+                        <option value="TEXTBOOK">교과서 (Textbooks)</option>
+                        <option value="MOCK">모의고사 (Mock Tests)</option>
+                        <option value="OTHER">기타 (Others)</option>
+                    </select>
+
+                    {/* Dynamic Sub Filters */}
+                    {filterCategory === 'TEXTBOOK' && (
+                        <div className="flex items-center gap-2 animate-in fade-in slide-in-from-left-4">
+                            <ChevronRight size={14} className="text-[#78716c]" />
+                            <select value={filterTbSubject} onChange={(e) => setFilterTbSubject(e.target.value)} className="bg-[#0c0a09] border border-[#44403c] rounded-sm px-3 py-1.5 text-xs text-[#d6d3d1] font-serif font-bold outline-none focus:border-[#fbbf24] shadow-inner cursor-pointer">
+                                <option value="ALL">All XML Subjects</option>
+                                {filterOptions.subjects.map(s => <option key={s} value={s}>{s}</option>)}
+                            </select>
+                        </div>
+                    )}
+                    {filterCategory === 'MOCK' && (
+                        <div className="flex items-center gap-2 animate-in fade-in slide-in-from-left-4">
+                            <ChevronRight size={14} className="text-[#78716c]" />
+                            <select value={filterMockYear} onChange={(e) => setFilterMockYear(e.target.value)} className="bg-[#0c0a09] border border-[#44403c] rounded-sm px-3 py-1.5 text-xs text-[#d6d3d1] font-serif font-bold outline-none focus:border-[#fbbf24] shadow-inner cursor-pointer">
+                                <option value="ALL">Year</option>
+                                {filterOptions.years.map(y => <option key={y} value={y}>{y}</option>)}
+                            </select>
+                            <select value={filterMockGrade} onChange={(e) => setFilterMockGrade(e.target.value)} className="bg-[#0c0a09] border border-[#44403c] rounded-sm px-3 py-1.5 text-xs text-[#d6d3d1] font-serif font-bold outline-none focus:border-[#fbbf24] shadow-inner cursor-pointer">
+                                <option value="ALL">Grade</option>
+                                {filterOptions.grades.map(g => <option key={g} value={g}>{g === 'High 1' ? '고1' : g === 'High 2' ? '고2' : '고3'}</option>)}
+                            </select>
+                        </div>
+                    )}
+                    {filterCategory === 'OTHER' && (
+                        <div className="flex items-center gap-2 animate-in fade-in slide-in-from-left-4">
+                            <ChevronRight size={14} className="text-[#78716c]" />
+                            <select value={filterOtherPublisher} onChange={(e) => setFilterOtherPublisher(e.target.value)} className="bg-[#0c0a09] border border-[#44403c] rounded-sm px-3 py-1.5 text-xs text-[#d6d3d1] font-serif font-bold outline-none focus:border-[#fbbf24] shadow-inner cursor-pointer">
+                                <option value="ALL">Publisher</option>
+                                {filterOptions.publishers.map(p => <option key={p} value={p}>{p}</option>)}
+                            </select>
+                        </div>
+                    )}
+
+                    <div className="ml-auto relative">
+                        <input
+                            type="text"
+                            placeholder="Search the archives..."
+                            value={searchTerm}
+                            onChange={(e) => setSearchTerm(e.target.value)}
+                            className="bg-[#0c0a09] border border-[#44403c] rounded-full pl-9 pr-4 py-1.5 text-xs text-[#d6d3d1] font-serif w-56 focus:w-72 transition-all outline-none focus:border-[#fbbf24] shadow-inner placeholder-[#57534e]"
+                        />
+                        <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-[#57534e]" />
+                    </div>
+
+                    {(filterCategory !== 'ALL' || searchTerm) && (
+                        <button onClick={resetFilters} className="text-[#78716c] hover:text-[#ef4444] p-1 transition-colors">
+                            <X size={16} />
+                        </button>
+                    )}
                 </div>
             </div>
 
             {/* Grid */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-                {/* Create New Card - Magical Glyph */}
+                {/* Create New Card */}
                 <div
                     onClick={() => navigate('/admin/create-project')}
-                    className="h-36 border-2 border-dashed border-[#57534e] rounded bg-[#1c1917]/50 flex flex-col items-center justify-center gap-3 cursor-pointer hover:border-[#d4af37] hover:bg-[#292524] transition-all group relative overflow-hidden"
+                    className="h-36 border-2 border-dashed border-[#44403c] rounded bg-[#1c1917]/30 flex flex-col items-center justify-center gap-3 cursor-pointer hover:border-[#fbbf24] hover:bg-[#1c1917]/50 transition-all group relative overflow-hidden"
                 >
-                    <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/stardust.png')] opacity-10 animate-pulse" />
-                    <div className="w-12 h-12 rounded-full bg-[#0c0a09] flex items-center justify-center group-hover:bg-[#d4af37] group-hover:text-[#0c0a09] transition-colors border border-[#44403c] text-[#57534e] z-10">
+                    <div className="w-12 h-12 rounded-full bg-[#0c0a09] flex items-center justify-center group-hover:bg-[#fbbf24] group-hover:text-[#0c0a09] transition-colors border border-[#44403c] text-[#57534e] z-10">
                         <Plus size={24} />
                     </div>
-                    <span className="text-[#57534e] font-serif font-bold tracking-widest text-xs group-hover:text-[#d4af37] transition-colors z-10">INSCRIBE NEW</span>
+                    <span className="text-[#57534e] font-serif font-bold tracking-widest text-xs group-hover:text-[#fbbf24] transition-colors z-10">INSCRIBE NEW</span>
                 </div>
 
                 {filteredContinents.map((cont) => {
@@ -343,54 +336,51 @@ export const ProjectList = ({ onCreate: _legacyOnCreate }: { onCreate: () => voi
                         <div
                             key={cont.id}
                             onClick={() => setSelectedContinent(cont)}
-                            className={`h-36 relative rounded border p-0 transition-all group overflow-hidden flex flex-col cursor-pointer shadow-lg hover:transform hover:-translate-y-1 hover:shadow-[0_10px_30px_rgba(0,0,0,0.5)] bg-[url('/assets/tex-sidebar.png')] bg-cover ${isSelected
-                                ? 'border-[#d4af37] ring-2 ring-[#d4af37]'
-                                : 'border-[#451a03] hover:border-[#b45309]'
+                            className={`h-36 relative ancient-card flex flex-col cursor-pointer ${isSelected
+                                ? 'border-[#fbbf24] ring-1 ring-[#fbbf24] bg-[#2a1d12]'
+                                : ''
                                 }`}
                         >
                             {/* Book Spine / Accent */}
-                            <div className={`absolute left-0 top-0 bottom-0 w-3 z-10 border-r border-black/20 ${cont.metadata?.category === 'TEXTBOOK' ? 'bg-[#1e3a8a]' :
-                                cont.metadata?.category === 'MOCK' ? 'bg-[#581c87]' : 'bg-[#44403c]'
+                            <div className={`absolute left-0 top-0 bottom-0 w-1.5 z-10 rounded-l ${cont.metadata?.category === 'TEXTBOOK' ? 'bg-[#3b82f6]' :
+                                cont.metadata?.category === 'MOCK' ? 'bg-[#9333ea]' : 'bg-[#78716c]'
                                 }`} />
 
                             {/* Checkbox (Seal) */}
                             <div
-                                className="absolute top-2 left-5 z-20 cursor-pointer p-2 -m-2"
+                                className="absolute top-2 left-4 z-20 cursor-pointer p-2 -m-2 opacity-0 group-hover:opacity-100 transition-opacity"
+                                style={{ opacity: isSelected ? 1 : undefined }}
                                 onClick={(e) => {
                                     e.stopPropagation();
                                     setSelectedIds(prev => prev.includes(cont.id) ? prev.filter(id => id !== cont.id) : [...prev, cont.id]);
                                 }}
                             >
-                                <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center transition-all shadow-md ${isSelected
-                                    ? 'bg-[#d4af37] border-[#fffbeb] text-[#422006]'
-                                    : 'bg-[#0c0a09]/60 border-[#57534e] text-transparent hover:border-[#d4af37]'
+                                <div className={`w-5 h-5 rounded-full border flex items-center justify-center transition-all shadow-md ${isSelected
+                                    ? 'bg-[#fbbf24] border-[#fffbeb] text-[#422006]'
+                                    : 'bg-[#0c0a09]/80 border-[#57534e] text-transparent hover:border-[#fbbf24]'
                                     }`}>
                                     <Check size={12} strokeWidth={4} />
                                 </div>
                             </div>
 
-                            {/* Corner Decorations */}
-                            <div className="absolute top-0 right-0 w-8 h-8 border-t-2 border-r-2 border-[#d4af37]/20 rounded-tr group-hover:border-[#d4af37]/50 transition-colors pointer-events-none" />
-                            <div className="absolute bottom-0 right-0 w-8 h-8 border-b-2 border-r-2 border-[#d4af37]/20 rounded-br group-hover:border-[#d4af37]/50 transition-colors pointer-events-none" />
-
                             {/* Content */}
                             <div className="flex-1 pl-6 p-4 flex flex-col justify-between relative z-0">
                                 <div className="flex flex-col gap-1">
                                     {/* Date Stamp */}
-                                    <div className="text-[10px] text-[#292524] font-mono flex justify-end font-bold opacity-60">
+                                    <div className="text-[10px] text-[#78716c] font-mono flex justify-end opacity-60">
                                         {new Date(cont.created_at).toLocaleDateString()}
                                     </div>
 
                                     {/* Title */}
                                     <h3
-                                        className={`font-serif font-bold text-lg leading-tight truncate pr-2 transition-colors drop-shadow-sm ${isSelected ? 'text-[#d4af37]' : 'text-[#eaddcf] group-hover:text-[#f5ebe0]'
+                                        className={`font-serif font-bold text-lg leading-tight truncate pr-2 transition-colors ${isSelected ? 'text-[#fbbf24]' : 'text-[#e7e5e4] group-hover:text-white'
                                             }`}
                                     >
                                         {cont.display_name}
                                     </h3>
 
                                     {/* Subtitle */}
-                                    <p className="text-[10px] text-[#a8a29e] font-serif truncate">
+                                    <p className="text-[10px] text-[#78716c] font-serif truncate">
                                         ID: {cont.name}
                                     </p>
                                 </div>
@@ -398,14 +388,14 @@ export const ProjectList = ({ onCreate: _legacyOnCreate }: { onCreate: () => voi
                                 {/* Footer Row */}
                                 <div className="flex items-end justify-between mt-2">
                                     <div className="flex items-center gap-2">
-                                        <span className="flex items-center gap-1.5 text-[10px] text-[#78716c] bg-[#eaddcf]/90 px-2 py-1 rounded border border-[#292524] font-bold">
+                                        <span className="flex items-center gap-1.5 text-[10px] text-[#78716c] bg-[#0c0a09] px-2 py-1 rounded border border-[#292524] font-bold">
                                             <Layers size={10} /> {tag || 'General'}
                                         </span>
                                     </div>
 
-                                    {/* Category Seal (Bottom Right) */}
-                                    <span className={`text-[10px] px-2 py-0.5 rounded-sm border font-serif font-bold uppercase tracking-wider ${cont.metadata?.category === 'TEXTBOOK' ? 'bg-[#1e3a8a]/20 text-[#60a5fa] border-[#1e3a8a]/40' :
-                                        cont.metadata?.category === 'MOCK' ? 'bg-[#581c87]/20 text-[#c084fc] border-[#581c87]/40' :
+                                    {/* Category Label */}
+                                    <span className={`text-[10px] px-2 py-0.5 rounded-sm border font-serif font-bold uppercase tracking-wider ${cont.metadata?.category === 'TEXTBOOK' ? 'bg-[#1e3a8a]/20 text-[#60a5fa] border-[#1e3a8a]/30' :
+                                        cont.metadata?.category === 'MOCK' ? 'bg-[#581c87]/20 text-[#c084fc] border-[#581c87]/30' :
                                             'bg-[#292524] text-[#a8a29e] border-[#44403c]'
                                         }`}>
                                         {categoryLabel}

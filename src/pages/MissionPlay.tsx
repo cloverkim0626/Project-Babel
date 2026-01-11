@@ -2,7 +2,6 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, Wind, Droplets, AlertTriangle } from 'lucide-react';
 import { clsx } from 'clsx';
-import { useGameEngine } from '../hooks/useGameEngine';
 
 const MissionPlay = () => {
     const navigate = useNavigate();

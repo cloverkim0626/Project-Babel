@@ -639,6 +639,30 @@ export const ContinentManager: React.FC<ContinentManagerProps> = ({ continent, i
                                                                 />
                                                             </div>
                                                         </div>
+
+                                                        {/* Context & Translation */}
+                                                        <div className="mt-2 pt-2 border-t border-white/5 space-y-1 text-[10px] text-stone-500 bg-black/20 p-2 rounded">
+                                                            <div className="flex gap-2 items-start">
+                                                                <span className="w-8 font-bold opacity-50 pt-0.5">CTX</span>
+                                                                <textarea
+                                                                    className="bg-transparent w-full outline-none text-stone-300 italic resize-none h-auto bg-transparent border-none p-0 leading-tight"
+                                                                    rows={2}
+                                                                    value={word.context_sentence || ''}
+                                                                    onChange={(e) => updateAnalyzedWord(word._passageId, word._wordIndex, { context_sentence: e.target.value })}
+                                                                    placeholder="Original context sentence..."
+                                                                />
+                                                            </div>
+                                                            <div className="flex gap-2 items-start">
+                                                                <span className="w-8 font-bold opacity-50 pt-0.5">TANS</span>
+                                                                <textarea
+                                                                    className="bg-transparent w-full outline-none text-stone-500 resize-none h-auto bg-transparent border-none p-0 leading-tight"
+                                                                    rows={1}
+                                                                    value={word.context_translation || ''}
+                                                                    onChange={(e) => updateAnalyzedWord(word._passageId, word._wordIndex, { context_translation: e.target.value })}
+                                                                    placeholder="Sentence translation..."
+                                                                />
+                                                            </div>
+                                                        </div>
                                                     </div>
                                                 ))}
                                                 <div className="h-20" />

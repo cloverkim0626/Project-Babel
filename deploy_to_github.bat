@@ -13,3 +13,4 @@ echo.
 echo =====================
 echo Deployment Triggered. Check Vercel Dashboard for build status.
 pause
+.

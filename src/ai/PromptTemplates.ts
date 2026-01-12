@@ -115,5 +115,39 @@ export const PROMPTS = {
             "answer_index": 0,
             "explanation": "Why this is the best summary"
         }
+    `,
+
+    WORD_EXTRACTION: (passage: string) => `
+        Task: Extract important English words from the text for a vocabulary list.
+        1. Select 20 key words suitable for high school students.
+        2. For each word, provide:
+           - Part of Speech (in context)
+           - Phonetic symbol (IPA)
+           - 3 Korean meanings (definitions) appropriate for the context
+           - 3 Synonyms
+           - 3 Antonyms
+           - "Context Sentence": The exact sentence from the text where the word appears.
+           - "Context Translation": A natural Korean translation of that sentence.
+
+        Text:
+        """
+        ${passage}
+        """
+
+        Response Format (JSON):
+        {
+            "words": [
+                {
+                    "word": "example",
+                    "part_of_speech": "noun",
+                    "phonetic": "/ɪɡˈzæmpl/",
+                    "meanings_kr": ["예시", "본보기", "사례"],
+                    "synonyms": ["instance", "sample", "model"],
+                    "antonyms": ["original", "concept"],
+                    "context_sentence": "This is a prime example of...",
+                    "context_translation": "이것은 ...의 아주 좋은 예시이다."
+                }
+            ]
+        }
     `
 };

@@ -14,6 +14,10 @@ export interface RichWord {
     synonyms: string[];          // Top 3
     antonyms: string[];          // Top 3
 
+    // Contextual Data (New Strategy)
+    context_sentence: string;    // The sentence where this word appears
+    context_translation: string; // Meaning of that sentence
+
     example_variations: string[]; // Variations of usage
 
     difficulty_level: 1 | 2 | 3 | 4 | 5;
@@ -24,6 +28,8 @@ export const extractWordsFromText = async (text: string): Promise<RichWord[]> =>
     await new Promise(resolve => setTimeout(resolve, 1500));
 
     // 2. Mock Logic: Identify likely words
+    const sentences = text.match(/[^.!?]+[.!?]+/g) || [text];
+
     const words = text.split(/\s+/)
         .map(w => w.replace(/[.,!?()"']/g, ''))
         .filter(w => /^[a-zA-Z]+$/.test(w))
@@ -42,7 +48,8 @@ export const extractWordsFromText = async (text: string): Promise<RichWord[]> =>
         'necessary': { m: ['필수적인', '필연적인', '불가피한'], p: '/ˈnesəˌserē/', syn: ['required', 'essential', 'indispensable'], ant: ['optional', 'unnecessary', 'extra'] },
         'provide': { m: ['제공하다', '공급하다', '지급하다'], p: '/prəˈvīd/', syn: ['supply', 'give', 'furnish'], ant: ['withhold', 'deny', 'refuse'] },
         'consider': { m: ['고려하다', '생각하다', '여기다'], p: '/kənˈsidər/', syn: ['think about', 'contemplate', 'examine'], ant: ['ignore', 'neglect', 'disregard'] },
-        'usually': { m: ['보통', '대개', '평소에'], p: '/ˈyo͞oZH(o͞o)əlē/', syn: ['normally', 'generally', 'commonly'], ant: ['rarely', 'seldom', 'never'] }
+        'usually': { m: ['보통', '대개', '평소에'], p: '/ˈyo͞oZH(o͞o)əlē/', syn: ['normally', 'generally', 'commonly'], ant: ['rarely', 'seldom', 'never'] },
+        'common': { m: ['흔한', '공통의', '일반적인'], p: '/ˈkämən/', syn: ['frequent', 'usual', 'shared'], ant: ['rare', 'uncommon', 'unique'] }
     };
 
     return uniqueWords.slice(0, 20).map(w => {
@@ -53,21 +60,26 @@ export const extractWordsFromText = async (text: string): Promise<RichWord[]> =>
             ant: ['ant1', 'ant2', 'ant3']
         };
 
+        // Find context sentence
+        const contextSentence = sentences.find(s => s.toLowerCase().includes(w.toLowerCase()))?.trim() || `The word "${w}" is used here.`;
+
         return {
             id: crypto.randomUUID(),
             word: w,
             original_text: w,
             phonetic: info.p,
-            part_of_speech: 'noun/verb',
+            part_of_speech: 'noun/verb', // Should be dynamic in real AI
 
             meanings_kr: info.m,
             synonyms: info.syn,
             antonyms: info.ant,
 
+            context_sentence: contextSentence,
+            context_translation: "(예문 해석 예정)", // Placeholder for now
+
             example_variations: [
-                `In this context, ${w} implies...`,
-                `Another usage: "The ${w} was very..."`,
-                `Variation 3 using ${w}.`
+                `Variation 1: ... ${w} ...`,
+                `Variation 2: ...`
             ],
 
             difficulty_level: 3 // Default to Medium
